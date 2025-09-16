@@ -53,7 +53,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
                 {isOpen && <span className="ml-3">{item.name}</span>}
               </Link>
             )
-          )
+          })}
         </nav>
       </div>
     </div>

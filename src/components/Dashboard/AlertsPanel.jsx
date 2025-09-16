@@ -6,12 +6,12 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline"
 
-const AlertsPanel = ({ alerts, loading }) => {
+const AlertsPanel = ({ alerts = [], loading = false }) => {
   const getAlertIcon = (severity) => {
     const icons = {
-      critical,
-      warning,
-      info,
+      critical: ExclamationTriangleIcon,
+      warning: ExclamationCircleIcon,
+      info: InformationCircleIcon,
     }
     return icons[severity] || InformationCircleIcon
   }
@@ -25,10 +25,9 @@ const AlertsPanel = ({ alerts, loading }) => {
     return colors[severity] || "text-gray-600 bg-gray-50 border-gray-200"
   }
 
-  // Sample alerts data - replace with real data
   const sampleAlerts = [
     {
-      id,
+      id: 1,
       severity: "critical",
       title: "Equipment Failure",
       message: "MRI Scanner in Room 204 is offline",
@@ -36,7 +35,7 @@ const AlertsPanel = ({ alerts, loading }) => {
       department: "Radiology",
     },
     {
-      id,
+      id: 2,
       severity: "warning",
       title: "Maintenance Due",
       message: "Server Room UPS requires maintenance within 24 hours",
@@ -44,7 +43,7 @@ const AlertsPanel = ({ alerts, loading }) => {
       department: "IT Infrastructure",
     },
     {
-      id,
+      id: 3,
       severity: "critical",
       title: "Network Issue",
       message: "Emergency Department network experiencing intermittent connectivity",
@@ -52,7 +51,7 @@ const AlertsPanel = ({ alerts, loading }) => {
       department: "Emergency",
     },
     {
-      id,
+      id: 4,
       severity: "info",
       title: "System Update",
       message: "Scheduled system maintenance completed successfully",
@@ -60,7 +59,7 @@ const AlertsPanel = ({ alerts, loading }) => {
       department: "IT Operations",
     },
     {
-      id,
+      id: 5,
       severity: "warning",
       title: "License Expiry",
       message: "Software licenses for Imaging Suite expire in 7 days",
@@ -85,7 +84,6 @@ const AlertsPanel = ({ alerts, loading }) => {
   }
 
   const handleDismissAlert = (alertId) => {
-    // Implement alert dismissal logic
     console.log("Dismissing alert:", alertId)
   }
 
@@ -112,7 +110,9 @@ const AlertsPanel = ({ alerts, loading }) => {
                   </div>
                 </div>
               </div>
-            ))})  : (
+            ))}
+          </div>
+        ) : (
           <div className="space-y-3 max-h-96 overflow-y-auto">
             {displayAlerts.map((alert) => {
               const Icon = getAlertIcon(alert.severity)
@@ -136,17 +136,12 @@ const AlertsPanel = ({ alerts, loading }) => {
                   </div>
                 </div>
               )
-            ))}
+            })}
+          </div>
+        )}
       </CardContent>
     </Card>
   )
 }
 
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
-  )
-}
 export default AlertsPanel

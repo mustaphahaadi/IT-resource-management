@@ -209,7 +209,9 @@ const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
                     <option value="">Reassign to...</option>
                     {personnel.map((person) => (
                       <option key={person.id} value={person.user.id}>
-                        {person.user_name}) )}
+                        {person.user_name}
+                      </option>
+                    ))}
                   </select>
                 </div>
               ) : (
@@ -223,7 +225,9 @@ const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
                     <option value="">Assign to...</option>
                     {personnel.map((person) => (
                       <option key={person.id} value={person.user.id}>
-                        {person.user_name}) )}
+                        {person.user_name}
+                      </option>
+                    ))}
                   </select>
                 </div>
               )}

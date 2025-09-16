@@ -255,7 +255,7 @@ const Tasks = () => {
                     </span>
                   </div>
                 )
-              )}
+              })}
             </div>
           </div>
         </div>

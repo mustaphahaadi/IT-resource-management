@@ -28,7 +28,8 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
         ...request,
         category: request.category || "",
         related_equipment: request.related_equipment || "",
-      )
+      })
+    }
   }, [request])
 
   const fetchFormData = async () => {
@@ -127,7 +128,9 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
-                      {cat.name}) )}
+                      {cat.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 

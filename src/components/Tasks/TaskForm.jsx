@@ -23,7 +23,8 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
         due_date: task.due_date ? task.due_date.split("T")[0] : "",
         estimated_hours: task.estimated_hours || "",
         category: task.category || "maintenance",
-      )
+      })
+    }
   }, [task])
 
   const handleSubmit = (e) => {
@@ -119,7 +120,9 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
                 <option value="">Select Personnel</option>
                 {personnel.map((person) => (
                   <option key={person.id} value={person.id}>
-                    {person.name} - {person.role}) )}
+                    {person.name} - {person.role}
+                  </option>
+                ))}
               </select>
             </div>
 
