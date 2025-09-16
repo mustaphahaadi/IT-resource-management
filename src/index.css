@@ -1,0 +1,83 @@
+@import "tailwindcss";
+@import "tailwindcss-animate";
+
+:root {
+  /* Updated color scheme for professional hospital IT system with blue primary */
+  --background: oklch(1 0 0); /* #FFFFFF - Main background color */
+  --foreground: oklch(0.2 0.15 258.34); /* #1E90FF - Primary text color */
+  --card: oklch(0.97 0.01 258.34); /* #F0F4F8 - Background for cards and containers */
+  --card-foreground: oklch(0.2 0.15 258.34); /* #1E90FF - Text within cards */
+  --popover: oklch(1 0 0); /* #FFFFFF - Background for popovers */
+  --popover-foreground: oklch(0.2 0.15 258.34); /* #1E90FF - Text within popovers */
+  --primary: oklch(0.6 0.15 258.34); /* #1E90FF - Primary action buttons */
+  --primary-foreground: oklch(1 0 0); /* #FFFFFF - Text on primary buttons */
+  --secondary: oklch(0.8 0.05 258.34); /* #B0C4DE - Secondary actions */
+  --secondary-foreground: oklch(0.2 0.15 258.34); /* #1E90FF - Text on secondary buttons */
+  --muted: oklch(0.97 0.01 258.34); /* #F0F4F8 - Muted text and backgrounds */
+  --muted-foreground: oklch(0.45 0.02 258.34); /* #6B7280 - Muted text color */
+  --accent: oklch(0.55 0.1 258.34); /* #4682B4 - Accent elements */
+  --accent-foreground: oklch(1 0 0); /* #FFFFFF - Text on accent elements */
+  --destructive: oklch(0.55 0.22 25); /* #dc2626 - Destructive actions */
+  --destructive-foreground: oklch(1 0 0); /* #FFFFFF - Text on destructive actions */
+  --border: oklch(0.8 0.05 258.34); /* #B0C4DE - Borders for cards and tables */
+  --input: oklch(1 0 0); /* #FFFFFF - Input fields background */
+  --ring: oklch(0.6 0.15 258.34); /* #1E90FF - Focus ring color */
+  --chart-1: oklch(0.6 0.15 258.34); /* #1E90FF - Color for charts */
+  --chart-2: oklch(0.55 0.1 258.34); /* #4682B4 - Secondary chart color */
+  --chart-3: oklch(0.8 0.05 258.34); /* #B0C4DE - Tertiary chart color */
+  --chart-4: oklch(0.97 0.01 258.34); /* #F0F4F8 - Additional chart color */
+  --chart-5: oklch(1 0 0); /* #FFFFFF - Additional chart color */
+  --radius: 0.5rem; /* Corner rounding */
+  --sidebar: oklch(0.97 0.01 258.34); /* #F0F4F8 - Sidebar background */
+  --sidebar-foreground: oklch(0.2 0.15 258.34); /* #1E90FF - Text in sidebar */
+  --sidebar-primary: oklch(0.6 0.15 258.34); /* #1E90FF - Primary links in sidebar */
+  --sidebar-primary-foreground: oklch(1 0 0); /* #FFFFFF - Text on primary sidebar links */
+  --sidebar-accent: oklch(0.55 0.1 258.34); /* #4682B4 - Accent for sidebar items */
+  --sidebar-accent-foreground: oklch(1 0 0); /* #FFFFFF - Text on sidebar accents */
+  --sidebar-border: oklch(0.8 0.05 258.34); /* #B0C4DE - Sidebar border color */
+  --sidebar-ring: oklch(0.6 0.15 258.34); /* #1E90FF - Sidebar focus ring */
+}
+
+.dark {
+  --background: oklch(0.1 0.02 258.34);
+  --foreground: oklch(0.95 0.02 258.34);
+  --card: oklch(0.15 0.02 258.34);
+  --card-foreground: oklch(0.95 0.02 258.34);
+  --popover: oklch(0.1 0.02 258.34);
+  --popover-foreground: oklch(0.95 0.02 258.34);
+  --primary: oklch(0.6 0.15 258.34);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.2 0.02 258.34);
+  --secondary-foreground: oklch(0.95 0.02 258.34);
+  --muted: oklch(0.2 0.02 258.34);
+  --muted-foreground: oklch(0.65 0.02 258.34);
+  --accent: oklch(0.55 0.1 258.34);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.5 0.22 25);
+  --destructive-foreground: oklch(0.95 0.02 258.34);
+  --border: oklch(0.2 0.02 258.34);
+  --input: oklch(0.15 0.02 258.34);
+  --ring: oklch(0.6 0.15 258.34);
+  --chart-1: oklch(0.6 0.15 258.34);
+  --chart-2: oklch(0.55 0.1 258.34);
+  --chart-3: oklch(0.8 0.05 258.34);
+  --chart-4: oklch(0.4 0.05 258.34);
+  --chart-5: oklch(0.3 0.02 258.34);
+  --sidebar: oklch(0.15 0.02 258.34);
+  --sidebar-foreground: oklch(0.95 0.02 258.34);
+  --sidebar-primary: oklch(0.6 0.15 258.34);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.2 0.02 258.34);
+  --sidebar-accent-foreground: oklch(0.95 0.02 258.34);
+  --sidebar-border: oklch(0.2 0.02 258.34);
+  --sidebar-ring: oklch(0.6 0.15 258.34);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
