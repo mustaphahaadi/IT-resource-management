@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
+    'authentication',
     'inventory',
     'requests_system',
     'tasks',
@@ -109,3 +110,50 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_ALL_ORIGINS = True  # For development only
 
 CORS_ALLOW_CREDENTIALS = True
+
+# Custom user model
+AUTH_USER_MODEL = 'authentication.CustomUser'
+
+# Email settings (configure for production)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
+DEFAULT_FROM_EMAIL = 'noreply@hospital-it.com'
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+
+# Security settings
+ACCOUNT_LOCKOUT_ATTEMPTS = 5
+ACCOUNT_LOCKOUT_DURATION = 30  # minutes
+PASSWORD_RESET_TIMEOUT = 3600  # 1 hour in seconds
+EMAIL_VERIFICATION_TIMEOUT = 86400  # 24 hours in seconds
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'hospital_it.log',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'authentication': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}

@@ -10,15 +10,12 @@ import {
   UserGroupIcon,
 } from "@heroicons/react/24/outline"
 import { apiService } from "../services/api"
-import DashboardCharts from "../components/Dashboard/DashboardCharts"
-import ActivityFeed from "../components/Dashboard/ActivityFeed"
-import AlertsPanel from "../components/Dashboard/AlertsPanel"
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
-    equipment: { total, active, maintenance, critical: 0 },
-    requests: { total, open, critical, overdue: 0 },
-    tasks: { total, pending, in_progress, overdue: 0 },
+    equipment: { total: 0, active: 0, maintenance: 0, critical: 0 },
+    requests: { total: 0, open: 0, critical: 0, overdue: 0 },
+    tasks: { total: 0, pending: 0, in_progress: 0, overdue: 0 },
   })
   const [analytics, setAnalytics] = useState({
     equipmentTrends: [],
@@ -43,46 +40,112 @@ const Dashboard = () => {
   }, [])
 
   const fetchDashboardData = async () => {
+    setLoading(true)
+    setError("")
     try {
-      const [equipmentStats, requestStats, taskStats, analyticsData, activityData, alertsData] = await Promise.all([
-        apiService.get("/inventory/equipment/dashboard_stats/"),
-        apiService.get("/requests/support-requests/dashboard_stats/"),
-        apiService.get("/tasks/tasks/dashboard_stats/"),
-        apiService.get("/analytics/dashboard/"),
-        apiService.get("/activity/recent/"),
-        apiService.get("/alerts/active/"),
+      // Fetch real analytics data from backend
+      const [analyticsResponse, activityResponse] = await Promise.all([
+        apiService.getDashboardAnalytics(),
+        apiService.getRecentActivity({ limit: 10 })
       ])
 
-      setStats({
-        equipment: equipmentStats.data,
-        requests: requestStats.data,
-        tasks: taskStats.data,
-      })
+      setAnalytics(analyticsResponse.data)
+      setRecentActivity(activityResponse.data.results || activityResponse.data || [])
 
-      setAnalytics(analyticsData.data)
-      setRecentActivity(activityData.data.results || activityData.data)
-      setAlerts(alertsData.data.results || alertsData.data)
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error)
+      // Update stats state with actual data from backend
+      setStats({
+        equipment: analyticsResponse.data.equipmentStats,
+        requests: analyticsResponse.data.requestStats,
+        tasks: analyticsResponse.data.taskStats,
+      })
+    } catch (err) {
+      setError("Failed to load dashboard data.")
+      console.error('Dashboard data fetch error:', err)
+
+      // Fallback to mock data if API fails (for development)
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Using fallback mock data for dashboard')
+        const mockAnalytics = {
+          performanceMetrics: {
+            systemUptime: 99.2,
+            avgResponseTime: 2.4,
+            resolutionRate: 87.3,
+            activePersonnel: 12
+          },
+          equipmentStats: {
+            total: 156,
+            active: 142,
+            maintenance: 8,
+            critical: 6
+          },
+          requestStats: {
+            total: 89,
+            open: 23,
+            critical: 6,
+            overdue: 4
+          },
+          taskStats: {
+            total: 45,
+            pending: 12,
+            in_progress: 18,
+            overdue: 3
+          }
+        }
+
+        const mockActivity = [
+          {
+            id: 1,
+            type: 'equipment',
+            message: 'MRI Scanner maintenance completed',
+            user: 'John Smith',
+            timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString()
+          },
+          {
+            id: 2,
+            type: 'request',
+            message: 'Critical network issue resolved in ICU',
+            user: 'Sarah Johnson',
+            timestamp: new Date(Date.now() - 45 * 60 * 1000).toISOString()
+          },
+          {
+            id: 3,
+            type: 'task',
+            message: 'Software update deployed to Radiology',
+            user: 'Mike Davis',
+            timestamp: new Date(Date.now() - 60 * 60 * 1000).toISOString()
+          }
+        ]
+
+        setAnalytics(mockAnalytics)
+        setRecentActivity(mockActivity)
+        setError("") // Clear error when using fallback data
+      }
     } finally {
       setLoading(false)
     }
   }
 
-  const StatCard = ({ title, value, subtitle, icon, color = "primary", trend }) => (
-    <Card>
+  const StatCard = ({ title, value, subtitle, icon: Icon, color = "blue", trend }) => (
+    <Card className="bg-white shadow-sm border border-gray-200">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-        <Icon className={`w-4 h-4 text-${color}`} />
+        <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
+        <Icon className={`w-5 h-5 text-${color}-600`} />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold text-foreground">{loading ? "..." : value}</div>
-        {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+        <div className="text-2xl font-bold text-gray-900">{loading ? "..." : value}</div>
+        {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
         {trend && (
           <div
-            className={`text-xs mt-1 ${trend.direction === "up" ? "text-green-600" : trend.direction === "down" ? "text-red-600" : "text-gray-600"}`}
+            className={`text-xs mt-2 flex items-center ${
+              trend.direction === "up" ? "text-green-600" : 
+              trend.direction === "down" ? "text-red-600" : 
+              "text-gray-600"
+            }`}
           >
-            {trend.direction === "up" ? "↗" : trend.direction === "down" ? "↘" : "→"} {trend.percentage}% from last week
+            <span className="mr-1">
+              {trend.direction === "up" ? "↗" : trend.direction === "down" ? "↘" : "→"}
+            </span>
+            {trend.percentage}% from last week
           </div>
         )}
       </CardContent>
@@ -106,35 +169,36 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-8">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">IT Dashboard</h1>
-          <p className="text-muted-foreground">Real-time overview of hospital IT infrastructure and operations</p>
+          <h1 className="text-3xl font-bold text-gray-900">IT Dashboard</h1>
+          <p className="text-gray-600 mt-1">Real-time overview of hospital IT infrastructure and operations</p>
         </div>
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+        <div className="flex items-center gap-4 text-sm text-gray-500">
           <div className="flex items-center gap-1">
             <ClockIcon className="w-4 h-4" />
             Last updated: {new Date().toLocaleTimeString()}
           </div>
           <button
             onClick={fetchDashboardData}
-            className="px-3 py-1 bg-secondary text-secondary-foreground rounded hover:bg-secondary/80"
+            disabled={loading}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
-            Refresh
+            {loading ? "Loading..." : "Refresh"}
           </button>
         </div>
       </div>
 
       <div>
-        <h2 className="text-xl font-semibold text-foreground mb-4">System Performance</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">System Performance</h2>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <StatCard
             title="System Uptime"
             value={`${calculateUptime()}%`}
             subtitle="Equipment availability"
             icon={ChartBarIcon}
-            color="primary"
+            color="green"
             trend={{ direction: "up", percentage: 2.3 }}
           />
           <StatCard
@@ -142,7 +206,7 @@ const Dashboard = () => {
             value={`${calculateResponseTime()}h`}
             subtitle="Support request response"
             icon={ClockIcon}
-            color="primary"
+            color="blue"
             trend={{ direction: "down", percentage: 15.2 }}
           />
           <StatCard
@@ -150,7 +214,7 @@ const Dashboard = () => {
             value={`${calculateResolutionRate()}%`}
             subtitle="Successful resolutions"
             icon={ChartBarIcon}
-            color="primary"
+            color="purple"
             trend={{ direction: "up", percentage: 8.7 }}
           />
           <StatCard
@@ -158,126 +222,186 @@ const Dashboard = () => {
             value={analytics.performanceMetrics?.activePersonnel || 0}
             subtitle="IT staff on duty"
             icon={UserGroupIcon}
-            color="primary"
+            color="indigo"
           />
         </div>
       </div>
 
       {/* Equipment Stats */}
       <div>
-        <h2 className="text-xl font-semibold text-foreground mb-4">Equipment Overview</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard title="Total Equipment" value={stats.equipment.total} icon={ComputerDesktopIcon} />
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">Equipment Overview</h2>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <StatCard 
+            title="Total Equipment" 
+            value={stats.equipment.total} 
+            icon={ComputerDesktopIcon}
+            color="blue"
+            subtitle="All registered devices"
+          />
           <StatCard
             title="Active Equipment"
             value={stats.equipment.active}
             subtitle="Operational status"
             icon={ComputerDesktopIcon}
-            color="primary"
+            color="green"
           />
           <StatCard
             title="Under Maintenance"
             value={stats.equipment.maintenance}
             subtitle="Scheduled maintenance"
             icon={WrenchScrewdriverIcon}
-            color="accent"
+            color="yellow"
           />
           <StatCard
             title="Critical Priority"
             value={stats.equipment.critical}
             subtitle="Requires attention"
             icon={ExclamationTriangleIcon}
-            color="destructive"
+            color="red"
           />
         </div>
       </div>
 
       {/* Support Requests Stats */}
       <div>
-        <h2 className="text-xl font-semibold text-foreground mb-4">Support Requests</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard title="Total Requests" value={stats.requests.total} icon={ExclamationTriangleIcon} />
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">Support Requests</h2>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <StatCard 
+            title="Total Requests" 
+            value={stats.requests.total} 
+            icon={ExclamationTriangleIcon}
+            color="blue"
+            subtitle="All support tickets"
+          />
           <StatCard
             title="Open Requests"
             value={stats.requests.open}
             subtitle="Awaiting resolution"
             icon={ExclamationTriangleIcon}
-            color="primary"
+            color="orange"
           />
           <StatCard
             title="Critical Requests"
             value={stats.requests.critical}
             subtitle="Patient care impact"
             icon={ExclamationTriangleIcon}
-            color="destructive"
+            color="red"
           />
           <StatCard
             title="Overdue Requests"
             value={stats.requests.overdue}
             subtitle="Past SLA deadline"
             icon={ExclamationTriangleIcon}
-            color="destructive"
+            color="red"
           />
         </div>
       </div>
 
       {/* Tasks Stats */}
       <div>
-        <h2 className="text-xl font-semibold text-foreground mb-4">Task Management</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard title="Total Tasks" value={stats.tasks.total} icon={ClipboardDocumentListIcon} />
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">Task Management</h2>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <StatCard 
+            title="Total Tasks" 
+            value={stats.tasks.total} 
+            icon={ClipboardDocumentListIcon}
+            color="blue"
+            subtitle="All assigned tasks"
+          />
           <StatCard
             title="Pending Assignment"
             value={stats.tasks.pending}
             subtitle="Awaiting assignment"
             icon={ClipboardDocumentListIcon}
-            color="accent"
+            color="gray"
           />
           <StatCard
             title="In Progress"
             value={stats.tasks.in_progress}
             subtitle="Currently active"
             icon={ClipboardDocumentListIcon}
-            color="primary"
+            color="blue"
           />
           <StatCard
             title="Overdue Tasks"
             value={stats.tasks.overdue}
             subtitle="Past due date"
             icon={ClipboardDocumentListIcon}
-            color="destructive"
+            color="red"
           />
         </div>
       </div>
 
-      <div>
-        <h2 className="text-xl font-semibold text-foreground mb-4">Analytics & Trends</h2>
-        <DashboardCharts analytics={analytics} loading={loading} />
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-3">
-        <AlertsPanel alerts={alerts} loading={loading} />
-        <ActivityFeed activities={recentActivity} loading={loading} />
-
-        <Card>
+      {/* Recent Activity and Quick Actions */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Recent Activity */}
+        <Card className="lg:col-span-2 bg-white shadow-sm border border-gray-200">
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+            <CardTitle className="text-lg font-semibold text-gray-900">Recent Activity</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-3">
-              <button className="flex items-center justify-center px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
+            {loading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="animate-pulse flex space-x-3">
+                    <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {recentActivity.map((activity) => (
+                  <div key={activity.id} className="flex items-start space-x-3">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      activity.type === 'equipment' ? 'bg-blue-100 text-blue-600' :
+                      activity.type === 'request' ? 'bg-orange-100 text-orange-600' :
+                      'bg-green-100 text-green-600'
+                    }`}>
+                      {activity.type === 'equipment' ? (
+                        <ComputerDesktopIcon className="w-4 h-4" />
+                      ) : activity.type === 'request' ? (
+                        <ExclamationTriangleIcon className="w-4 h-4" />
+                      ) : (
+                        <ClipboardDocumentListIcon className="w-4 h-4" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-gray-900">{activity.message}</p>
+                      <p className="text-xs text-gray-500">
+                        {activity.user} • {new Date(activity.timestamp).toLocaleTimeString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions */}
+        <Card className="bg-white shadow-sm border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-gray-900">Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <button className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 <ComputerDesktopIcon className="w-5 h-5 mr-2" />
                 Add New Equipment
               </button>
-              <button className="flex items-center justify-center px-4 py-3 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition-colors">
+              <button className="w-full flex items-center justify-center px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
                 <ExclamationTriangleIcon className="w-5 h-5 mr-2" />
                 Create Support Request
               </button>
-              <button className="flex items-center justify-center px-4 py-3 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors">
+              <button className="w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
                 <ClipboardDocumentListIcon className="w-5 h-5 mr-2" />
                 Generate Report
               </button>
-              <button className="flex items-center justify-center px-4 py-3 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors">
+              <button className="w-full flex items-center justify-center px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
                 <ExclamationTriangleIcon className="w-5 h-5 mr-2" />
                 Emergency Response
               </button>
@@ -285,6 +409,38 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* System Alerts */}
+      {alerts.length > 0 && (
+        <Card className="bg-white shadow-sm border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
+              <ExclamationTriangleIcon className="w-5 h-5 mr-2 text-red-600" />
+              System Alerts
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {alerts.map((alert) => (
+                <div key={alert.id} className={`p-3 rounded-lg border-l-4 ${
+                  alert.type === 'critical' ? 'bg-red-50 border-red-500' : 'bg-yellow-50 border-yellow-500'
+                }`}>
+                  <div className="flex justify-between items-start">
+                    <p className={`text-sm font-medium ${
+                      alert.type === 'critical' ? 'text-red-800' : 'text-yellow-800'
+                    }`}>
+                      {alert.message}
+                    </p>
+                    <span className="text-xs text-gray-500">
+                      {new Date(alert.timestamp).toLocaleTimeString()}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

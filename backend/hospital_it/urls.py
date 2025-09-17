@@ -44,8 +44,7 @@ urlpatterns = [
     path('api/inventory/', include('inventory.urls')),
     path('api/requests/', include('requests_system.urls')),
     path('api/tasks/', include('tasks.urls')),
+    path('api/auth/', include('authentication.urls')),
     path('api/auth/', include('rest_framework.urls')),
-    path('api/auth/login/', obtain_auth_token, name='api_token_auth'),
-    path('api/auth/logout/', logout_view, name='api_logout'),
     path('api/auth/user/', user_profile, name='api_user_profile'),
 ]

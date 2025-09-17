@@ -6,32 +6,32 @@ import { cn } from '../../lib/utils'
 
 function Dialog({
   ...props
-})  {
+}) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />
 }
 
 function DialogTrigger({
   ...props
-})  {
+}) {
   return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />
 }
 
 function DialogPortal({
   ...props
-})  {
+}) {
   return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />
 }
 
 function DialogClose({
   ...props
-})  {
+}) {
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />
 }
 
 function DialogOverlay({
   className,
   ...props
-})  {
+}) {
   return (
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
@@ -49,8 +49,6 @@ function DialogContent({
   children,
   showCloseButton = true,
   ...props
-}<typeof DialogPrimitive.Content> & {
-  showCloseButton: boolean
 }) {
   return (
     <DialogPortal data-slot="dialog-portal">
@@ -78,7 +76,7 @@ function DialogContent({
   )
 }
 
-function DialogHeader({ className, ...props })  {
+function DialogHeader({ className, ...props }) {
   return (
     <div
       data-slot="dialog-header"
@@ -88,7 +86,7 @@ function DialogHeader({ className, ...props })  {
   )
 }
 
-function DialogFooter({ className, ...props })  {
+function DialogFooter({ className, ...props }) {
   return (
     <div
       data-slot="dialog-footer"
@@ -104,7 +102,7 @@ function DialogFooter({ className, ...props })  {
 function DialogTitle({
   className,
   ...props
-})  {
+}) {
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
@@ -117,7 +115,7 @@ function DialogTitle({
 function DialogDescription({
   className,
   ...props
-})  {
+}) {
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"

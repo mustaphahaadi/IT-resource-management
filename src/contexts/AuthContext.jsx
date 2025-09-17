@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react"
 import { apiService } from "../services/api"
+import { websocketService } from "../services/websocket"
 
 const AuthContext = createContext()
 
@@ -15,6 +16,8 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [permissions, setPermissions] = useState([])
+  const [notifications, setNotifications] = useState([])
+  const [isOnline, setIsOnline] = useState(navigator.onLine)
 
   useEffect(() => {
     const token = localStorage.getItem("authToken")
@@ -24,13 +27,59 @@ export const AuthProvider = ({ children }) => {
     } else {
       setLoading(false)
     }
+
+    // Set up online/offline listeners
+    const handleOnline = () => setIsOnline(true)
+    const handleOffline = () => setIsOnline(false)
+    
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
   }, [])
+
+  // Set up WebSocket connection when user is authenticated
+  useEffect(() => {
+    if (user && isOnline) {
+      websocketService.connect()
+      websocketService.startHeartbeat()
+
+      // Set up WebSocket event listeners
+      websocketService.onNotification((notification) => {
+        setNotifications(prev => [notification, ...prev.slice(0, 49)]) // Keep last 50
+      })
+
+      websocketService.on('connected', () => {
+        console.log('Real-time connection established')
+      })
+
+      websocketService.on('disconnected', () => {
+        console.log('Real-time connection lost')
+      })
+
+      return () => {
+        websocketService.stopHeartbeat()
+        websocketService.disconnect()
+      }
+    }
+  }, [user, isOnline])
 
   const fetchUserProfile = async () => {
     try {
-      const response = await apiService.get("/auth/user/")
+      const response = await apiService.getCurrentUser()
       setUser(response.data)
       setPermissions(response.data.permissions || [])
+      
+      // Fetch initial notifications
+      try {
+        const notificationsResponse = await apiService.getNotifications({ limit: 20 })
+        setNotifications(notificationsResponse.data.results || notificationsResponse.data || [])
+      } catch (notifError) {
+        console.warn("Could not fetch notifications:", notifError)
+      }
     } catch (error) {
       console.error("Error fetching user profile:", error)
       localStorage.removeItem("authToken")
@@ -47,7 +96,7 @@ export const AuthProvider = ({ children }) => {
       return { success: true }
     } catch (error) {
       return {
-        success,
+        success: false,
         error: error.response?.data?.message || "Login failed",
       }
     }
@@ -59,8 +108,40 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setUser(null)
       setPermissions([])
+      setNotifications([])
       localStorage.removeItem("authToken")
+      websocketService.disconnect()
     }
+  }
+
+  const markNotificationRead = async (notificationId) => {
+    try {
+      await apiService.markNotificationRead(notificationId)
+      setNotifications(prev => 
+        prev.map(notif => 
+          notif.id === notificationId 
+            ? { ...notif, is_read: true }
+            : notif
+        )
+      )
+    } catch (error) {
+      console.error("Error marking notification as read:", error)
+    }
+  }
+
+  const markAllNotificationsRead = async () => {
+    try {
+      await apiService.markAllNotificationsRead()
+      setNotifications(prev => 
+        prev.map(notif => ({ ...notif, is_read: true }))
+      )
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error)
+    }
+  }
+
+  const getUnreadNotificationCount = () => {
+    return notifications.filter(notif => !notif.is_read).length
   }
 
   const hasPermission = (permission) => {
@@ -110,11 +191,17 @@ export const AuthProvider = ({ children }) => {
     logout,
     loading,
     permissions,
+    notifications,
+    isOnline,
     hasPermission,
     hasRole,
     hasAnyRole,
     updateProfile,
     changePassword,
+    markNotificationRead,
+    markAllNotificationsRead,
+    getUnreadNotificationCount,
+    websocketService, // Expose websocket service for components that need it
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

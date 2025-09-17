@@ -6,19 +6,19 @@ import { cn } from '../../lib/utils'
 
 function Select({
   ...props
-})  {
+}) {
   return <SelectPrimitive.Root data-slot="select" {...props} />
 }
 
 function SelectGroup({
   ...props
-})  {
+}) {
   return <SelectPrimitive.Group data-slot="select-group" {...props} />
 }
 
 function SelectValue({
   ...props
-})  {
+}) {
   return <SelectPrimitive.Value data-slot="select-value" {...props} />
 }
 
@@ -27,8 +27,6 @@ function SelectTrigger({
   size = 'default',
   children,
   ...props
-}<typeof SelectPrimitive.Trigger> & {
-  size: 'sm' | 'default'
 }) {
   return (
     <SelectPrimitive.Trigger

@@ -23,7 +23,7 @@ function Alert({
   className,
   variant,
   ...props
-}<'div'> & VariantProps<typeof alertVariants>) {
+}) {
   return (
     <div
       data-slot="alert"

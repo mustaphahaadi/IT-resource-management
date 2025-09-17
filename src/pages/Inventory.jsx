@@ -12,9 +12,7 @@ import {
   WrenchScrewdriverIcon,
 } from "@heroicons/react/24/outline"
 import { apiService } from "../services/api"
-import EquipmentForm from "../components/Inventory/EquipmentForm"
-import EquipmentDetails from "../components/Inventory/EquipmentDetails"
-import EquipmentFilters from "../components/Inventory/EquipmentFilters"
+// Components will be implemented later
 
 const Inventory = () => {
   const [equipment, setEquipment] = useState([])
@@ -38,19 +36,86 @@ const Inventory = () => {
   const fetchEquipment = async () => {
     try {
       setLoading(true)
-      const params = {
-        ...filters,
-        search,
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      // Mock equipment data - replace with real API call
+      const mockEquipment = [
+        {
+          id: 1,
+          name: "MRI Scanner - Siemens",
+          category: "Medical Imaging",
+          status: "active",
+          location: "Radiology - Room 101",
+          serialNumber: "MRI-2023-001",
+          purchaseDate: "2023-01-15",
+          warrantyExpiry: "2026-01-15",
+          lastMaintenance: "2024-01-10",
+          nextMaintenance: "2024-04-10",
+          priority: "high",
+          assignedTo: "Dr. Sarah Johnson",
+          notes: "Regular maintenance scheduled quarterly"
+        },
+        {
+          id: 2,
+          name: "Dell OptiPlex 7090",
+          category: "Computing",
+          status: "active",
+          location: "ICU - Workstation 3",
+          serialNumber: "DELL-2023-045",
+          purchaseDate: "2023-03-20",
+          warrantyExpiry: "2026-03-20",
+          lastMaintenance: "2024-01-05",
+          nextMaintenance: "2024-07-05",
+          priority: "medium",
+          assignedTo: "John Smith",
+          notes: "Windows 11 Pro, 16GB RAM"
+        },
+        {
+          id: 3,
+          name: "Network Switch - Cisco",
+          category: "Networking",
+          status: "maintenance",
+          location: "Server Room A",
+          serialNumber: "CISCO-2022-089",
+          purchaseDate: "2022-11-10",
+          warrantyExpiry: "2025-11-10",
+          lastMaintenance: "2024-01-15",
+          nextMaintenance: "2024-02-15",
+          priority: "critical",
+          assignedTo: "Mike Davis",
+          notes: "Firmware update in progress"
+        }
+      ]
+      
+      // Filter equipment based on search and filters
+      let filteredEquipment = mockEquipment
+      
+      if (searchTerm) {
+        filteredEquipment = filteredEquipment.filter(item =>
+          item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.location.toLowerCase().includes(searchTerm.toLowerCase())
+        )
       }
-      // Remove empty filters
-      Object.keys(params).forEach((key) => {
-        if (!params[key]) delete params[key]
-      })
-
-      const response = await apiService.getEquipment(params)
-      setEquipment(response.data.results || response.data)
+      
+      if (filters.status) {
+        filteredEquipment = filteredEquipment.filter(item => item.status === filters.status)
+      }
+      
+      if (filters.category) {
+        filteredEquipment = filteredEquipment.filter(item => item.category === filters.category)
+      }
+      
+      if (filters.priority) {
+        filteredEquipment = filteredEquipment.filter(item => item.priority === filters.priority)
+      }
+      
+      setEquipment(filteredEquipment)
     } catch (error) {
       console.error("Error fetching equipment:", error)
+      setEquipment([])
     } finally {
       setLoading(false)
     }
@@ -91,39 +156,39 @@ const Inventory = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case "active":
-        return "text-primary bg-primary/10"
+        return "text-green-700 bg-green-100"
       case "maintenance":
-        return "text-accent bg-accent/10"
+        return "text-yellow-700 bg-yellow-100"
       case "retired":
-        return "text-muted-foreground bg-muted"
+        return "text-gray-700 bg-gray-100"
       case "broken":
-        return "text-destructive bg-destructive/10"
+        return "text-red-700 bg-red-100"
       default:
-        return "text-muted-foreground bg-muted"
+        return "text-gray-700 bg-gray-100"
     }
   }
 
   const getPriorityColor = (priority) => {
     switch (priority) {
       case "critical":
-        return "text-destructive bg-destructive/10"
+        return "text-red-700 bg-red-100"
       case "high":
-        return "text-orange-600 bg-orange-100"
+        return "text-orange-700 bg-orange-100"
       case "medium":
-        return "text-accent bg-accent/10"
+        return "text-blue-700 bg-blue-100"
       case "low":
-        return "text-muted-foreground bg-muted"
+        return "text-gray-700 bg-gray-100"
       default:
-        return "text-muted-foreground bg-muted"
+        return "text-gray-700 bg-gray-100"
     }
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">IT Inventory</h1>
-          <p className="text-muted-foreground">Manage hospital IT equipment and assets</p>
+          <h1 className="text-3xl font-bold text-gray-900">IT Inventory</h1>
+          <p className="text-gray-600 mt-1">Manage hospital IT equipment and assets</p>
         </div>
         <Button onClick={handleAddEquipment} className="flex items-center space-x-2">
           <PlusIcon className="w-4 h-4" />
@@ -132,152 +197,125 @@ const Inventory = () => {
       </div>
 
       {/* Search and Filters */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center space-x-4">
-            <div className="flex-1 relative">
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search equipment by name, asset tag, model, or manufacturer..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full bg-input border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-              />
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center space-x-2"
-            >
-              <FunnelIcon className="w-4 h-4" />
-              <span>Filters</span>
-            </Button>
-          </div>
-
-          {showFilters && (
-            <div className="mt-4 pt-4 border-t border-border">
-              <EquipmentFilters filters={filters} onFiltersChange={setFilters} />
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search equipment..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
+        <div className="flex gap-2">
+          <select
+            value={filters.status}
+            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="maintenance">Maintenance</option>
+            <option value="retired">Retired</option>
+            <option value="broken">Broken</option>
+          </select>
+          <select
+            value={filters.category}
+            onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">All Categories</option>
+            <option value="Medical Imaging">Medical Imaging</option>
+            <option value="Computing">Computing</option>
+            <option value="Networking">Networking</option>
+            <option value="Medical Devices">Medical Devices</option>
+          </select>
+        </div>
+      </div>
 
       {/* Equipment List */}
-      <Card>
+      <Card className="bg-white shadow-sm border border-gray-200">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <ComputerDesktopIcon className="w-5 h-5" />
-            <span>Equipment ({equipment.length})</span>
+            <ComputerDesktopIcon className="w-5 h-5 text-blue-600" />
+            <span className="text-gray-900">Equipment ({equipment.length})</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-center py-8">
-              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading equipment...</p>
+            <div className="text-center py-12">
+              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-500">Loading equipment...</p>
             </div>
           ) : equipment.length === 0 ? (
-            <div className="text-center py-8">
-              <ComputerDesktopIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No equipment found</p>
-              <Button onClick={handleAddEquipment} className="mt-4">
-                Add First Equipment
+            <div className="text-center py-12">
+              <ComputerDesktopIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No equipment found</h3>
+              <p className="text-gray-500 mb-4">
+                {searchTerm || Object.values(filters).some(f => f) 
+                  ? "Try adjusting your search or filters" 
+                  : "Get started by adding your first piece of equipment"
+                }
+              </p>
+              <Button onClick={handleAddEquipment}>
+                <PlusIcon className="w-4 h-4 mr-2" />
+                Add Equipment
               </Button>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">Equipment</th>
-                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">Asset Tag</th>
-                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">Category</th>
-                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">Location</th>
-                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">Status</th>
-                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">Priority</th>
-                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">Warranty</th>
-                    <th className="text-right py-3 px-4 font-medium text-muted-foreground">Actions</th>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Equipment</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Category</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Location</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Status</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Priority</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {equipment.map((item) => (
-                    <tr key={item.id} className="border-b border-border hover:bg-muted/50">
-                      <td className="py-3 px-4">
+                    <tr key={item.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-4 px-4">
                         <div>
-                          <p className="font-medium text-foreground">{item.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {item.manufacturer} {item.model}
-                          </p>
+                          <p className="font-medium text-gray-900">{item.name}</p>
+                          <p className="text-sm text-gray-500">S/N: {item.serialNumber}</p>
                         </div>
                       </td>
-                      <td className="py-3 px-4">
-                        <code className="bg-muted px-2 py-1 rounded text-sm">{item.asset_tag}</code>
-                      </td>
-                      <td className="py-3 px-4 text-sm">{item.category_name}</td>
-                      <td className="py-3 px-4 text-sm">{item.location_name}</td>
-                      <td className="py-3 px-4">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                            item.status,
-                          )}`}
-                        >
+                      <td className="py-4 px-4 text-gray-700">{item.category}</td>
+                      <td className="py-4 px-4 text-gray-700">{item.location}</td>
+                      <td className="py-4 px-4">
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(item.status)}`}>
                           {item.status}
                         </span>
                       </td>
-                      <td className="py-3 px-4">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(
-                            item.priority,
-                          )}`}
-                        >
+                      <td className="py-4 px-4">
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(item.priority)}`}>
                           {item.priority}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-sm">
-                        {item.warranty_expiry ? (
-                          <span
-                            className={
-                              new Date(item.warranty_expiry) < new Date()
-                                ? "text-destructive"
-                                : new Date(item.warranty_expiry) < new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
-                                  ? "text-orange-600"
-                                  : "text-foreground"
-                            }
-                          >
-                            {new Date(item.warranty_expiry).toLocaleDateString()}
-                          </span>
-                        ) : (
-                          <span className="text-muted-foreground">N/A</span>
-                        )}
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center justify-end space-x-2">
+                      <td className="py-4 px-4">
+                        <div className="flex items-center space-x-2">
                           <button
                             onClick={() => handleViewEquipment(item)}
-                            className="p-1 text-muted-foreground hover:text-primary"
+                            className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
                             title="View Details"
                           >
                             <EyeIcon className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleEditEquipment(item)}
-                            className="p-1 text-muted-foreground hover:text-accent"
+                            className="p-1 text-gray-400 hover:text-green-600 transition-colors"
                             title="Edit"
                           >
                             <PencilIcon className="w-4 h-4" />
                           </button>
-                          {item.status === "active" && (
-                            <button
-                              className="p-1 text-muted-foreground hover:text-orange-600"
-                              title="Schedule Maintenance"
-                            >
-                              <WrenchScrewdriverIcon className="w-4 h-4" />
-                            </button>
-                          )}
                           <button
-                            onClick={() => handleDeleteEquipment(item.id)}
-                            className="p-1 text-muted-foreground hover:text-destructive"
+                            onClick={() => handleDeleteEquipment(item)}
+                            className="p-1 text-gray-400 hover:text-red-600 transition-colors"
                             title="Delete"
                           >
                             <TrashIcon className="w-4 h-4" />
@@ -293,14 +331,46 @@ const Inventory = () => {
         </CardContent>
       </Card>
 
-      {/* Equipment Form Modal */}
+      {/* Simple modals for forms - placeholder */}
       {showForm && (
-        <EquipmentForm equipment={selectedEquipment} onClose={() => setShowForm(false)} onSuccess={handleFormSuccess} />
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4">
+              {selectedEquipment ? 'Edit Equipment' : 'Add Equipment'}
+            </h3>
+            <p className="text-gray-600 mb-4">Equipment form will be implemented here.</p>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setShowForm(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleFormSuccess}>
+                Save
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
 
-      {/* Equipment Details Modal */}
       {showDetails && selectedEquipment && (
-        <EquipmentDetails equipment={selectedEquipment} onClose={() => setShowDetails(false)} />
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
+            <h3 className="text-lg font-semibold mb-4">Equipment Details</h3>
+            <div className="space-y-2">
+              <p><strong>Name:</strong> {selectedEquipment.name}</p>
+              <p><strong>Category:</strong> {selectedEquipment.category}</p>
+              <p><strong>Location:</strong> {selectedEquipment.location}</p>
+              <p><strong>Status:</strong> {selectedEquipment.status}</p>
+              <p><strong>Serial Number:</strong> {selectedEquipment.serialNumber}</p>
+              <p><strong>Assigned To:</strong> {selectedEquipment.assignedTo}</p>
+              <p><strong>Notes:</strong> {selectedEquipment.notes}</p>
+            </div>
+            <div className="flex justify-end mt-6">
+              <Button onClick={() => setShowDetails(false)}>
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

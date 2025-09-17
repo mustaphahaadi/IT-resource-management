@@ -1,11 +1,11 @@
 import axios from "axios"
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000/api"
+const API_BASE_URL = "http://localhost:8000/api"
 
 class ApiService {
   constructor() {
     this.client = axios.create({
-      baseURL,
+  baseURL: API_BASE_URL,
       headers: {
         "Content-Type": "application/json",
       },
@@ -61,11 +61,92 @@ class ApiService {
 
   // Authentication methods
   async login(credentials) {
-    const response = await this.post("/auth/login/", credentials)
+    const response = await this.client.post("/auth/login/", credentials)
     if (response.data.token) {
       localStorage.setItem("authToken", response.data.token)
     }
     return response
+  }
+
+  async register(userData) {
+    return this.client.post("/auth/register/", userData)
+  }
+
+  async requestPasswordReset(email) {
+    return this.client.post("/auth/request-password-reset/", { email })
+  }
+
+  async resetPassword(token, newPassword, confirmPassword) {
+    return this.client.post("/auth/reset-password/", {
+      token,
+      new_password: newPassword,
+      confirm_password: confirmPassword
+    })
+  }
+
+  async verifyEmail(token) {
+    return this.client.post("/auth/verify-email/", { token })
+  }
+
+  async resendVerificationEmail() {
+    return this.client.post("/auth/resend-verification/")
+  }
+
+  async changePassword(currentPassword, newPassword, confirmPassword) {
+    return this.client.post("/auth/change-password/", {
+      current_password: currentPassword,
+      new_password: newPassword,
+      confirm_password: confirmPassword
+    })
+  }
+
+  async updateProfile(profileData) {
+    return this.client.put("/auth/profile/update/", profileData)
+  }
+
+  // Admin API methods
+  async getUsers(params = {}) {
+    return this.get("/auth/admin/users/", { params })
+  }
+
+  async getUserDetails(userId) {
+    return this.get(`/auth/admin/users/${userId}/`)
+  }
+
+  async updateUser(userId, userData) {
+    return this.put(`/auth/admin/users/${userId}/update/`, userData)
+  }
+
+  async approveUser(userId) {
+    return this.post(`/auth/admin/users/${userId}/approve/`)
+  }
+
+  async disapproveUser(userId) {
+    return this.post(`/auth/admin/users/${userId}/disapprove/`)
+  }
+
+  async activateUser(userId) {
+    return this.post(`/auth/admin/users/${userId}/activate/`)
+  }
+
+  async deactivateUser(userId) {
+    return this.post(`/auth/admin/users/${userId}/deactivate/`)
+  }
+
+  async unlockUserAccount(userId) {
+    return this.post(`/auth/admin/users/${userId}/unlock/`)
+  }
+
+  async deleteUser(userId) {
+    return this.delete(`/auth/admin/users/${userId}/delete/`)
+  }
+
+  async getAdminStatistics() {
+    return this.get("/auth/admin/statistics/")
+  }
+
+  async getRecentLoginAttempts(limit = 50) {
+    return this.get("/auth/admin/login-attempts/", { params: { limit } })
   }
 
   async logout() {
@@ -161,6 +242,137 @@ class ApiService {
 
   async acknowledgeAlert(id) {
     return this.post(`/requests/alerts/${id}/acknowledge/`)
+  }
+
+  // Analytics API methods
+  async getDashboardAnalytics() {
+    return this.get("/analytics/dashboard/")
+  }
+
+  async getEquipmentAnalytics(params = {}) {
+    return this.get("/analytics/equipment/", { params })
+  }
+
+  async getRequestAnalytics(params = {}) {
+    return this.get("/analytics/requests/", { params })
+  }
+
+  async getTaskAnalytics(params = {}) {
+    return this.get("/analytics/tasks/", { params })
+  }
+
+  async getDepartmentAnalytics(params = {}) {
+    return this.get("/analytics/departments/", { params })
+  }
+
+  async getPerformanceMetrics(params = {}) {
+    return this.get("/analytics/performance/", { params })
+  }
+
+  async getSystemHealth() {
+    return this.get("/analytics/system-health/")
+  }
+
+  async getRecentActivity(params = {}) {
+    return this.get("/analytics/recent-activity/", { params })
+  }
+
+  // Reports API methods
+  async generateReport(reportType, params = {}) {
+    return this.post("/reports/generate/", { report_type: reportType, ...params })
+  }
+
+  async getReportHistory(params = {}) {
+    return this.get("/reports/history/", { params })
+  }
+
+  async downloadReport(reportId) {
+    return this.get(`/reports/${reportId}/download/`, { responseType: 'blob' })
+  }
+
+  async scheduleReport(reportConfig) {
+    return this.post("/reports/schedule/", reportConfig)
+  }
+
+  // Categories API methods
+  async getCategories(type = null) {
+    const params = type ? { type } : {}
+    return this.get("/categories/", { params })
+  }
+
+  async getLocations() {
+    return this.get("/locations/")
+  }
+
+  async getDepartments() {
+    return this.get("/departments/")
+  }
+
+  // Notifications API methods
+  async getNotifications(params = {}) {
+    return this.get("/notifications/", { params })
+  }
+
+  async markNotificationRead(id) {
+    return this.patch(`/notifications/${id}/`, { is_read: true })
+  }
+
+  async markAllNotificationsRead() {
+    return this.post("/notifications/mark-all-read/")
+  }
+
+  // File upload methods
+  async uploadFile(file, type = 'general') {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('type', type)
+    
+    return this.post("/files/upload/", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+  }
+
+  // Search methods
+  async globalSearch(query, filters = {}) {
+    return this.get("/search/", { params: { q: query, ...filters } })
+  }
+
+  // User profile methods
+  async getCurrentUser() {
+    return this.get("/auth/user/")
+  }
+
+  async updateUserPreferences(preferences) {
+    return this.patch("/auth/user/preferences/", preferences)
+  }
+
+  // System settings methods (admin only)
+  async getSystemSettings() {
+    return this.get("/admin/settings/")
+  }
+
+  async updateSystemSettings(settings) {
+    return this.patch("/admin/settings/", settings)
+  }
+
+  // Audit log methods
+  async getAuditLogs(params = {}) {
+    return this.get("/admin/audit-logs/", { params })
+  }
+
+  // Backup methods
+  async createBackup() {
+    return this.post("/admin/backup/create/")
+  }
+
+  async getBackupHistory() {
+    return this.get("/admin/backup/history/")
+  }
+
+  async restoreBackup(backupId) {
+    return this.post(`/admin/backup/${backupId}/restore/`)
   }
 }
 
