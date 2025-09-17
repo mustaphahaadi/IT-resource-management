@@ -156,30 +156,30 @@ const Inventory = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case "active":
-        return "text-green-700 bg-green-100"
+        return "bg-green-100 text-green-800"
       case "maintenance":
-        return "text-yellow-700 bg-yellow-100"
+        return "bg-yellow-100 text-yellow-800"
       case "retired":
-        return "text-gray-700 bg-gray-100"
+        return "bg-gray-100 text-gray-800"
       case "broken":
-        return "text-red-700 bg-red-100"
+        return "bg-red-100 text-red-800"
       default:
-        return "text-gray-700 bg-gray-100"
+        return "bg-gray-100 text-gray-800"
     }
   }
 
   const getPriorityColor = (priority) => {
     switch (priority) {
       case "critical":
-        return "text-red-700 bg-red-100"
+        return "bg-red-100 text-red-800"
       case "high":
-        return "text-orange-700 bg-orange-100"
+        return "bg-orange-100 text-orange-800"
       case "medium":
-        return "text-blue-700 bg-blue-100"
+        return "bg-yellow-100 text-yellow-800"
       case "low":
-        return "text-gray-700 bg-gray-100"
+        return "bg-green-100 text-green-800"
       default:
-        return "text-gray-700 bg-gray-100"
+        return "bg-gray-100 text-gray-800"
     }
   }
 

@@ -14,7 +14,7 @@ const Login = () => {
   const [loginAttempts, setLoginAttempts] = useState(0)
 
   if (user) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/app/dashboard" replace />
   }
 
   const handleSubmit = async (e) => {

@@ -17,16 +17,27 @@ import ServerError from "./pages/ServerError"
 import Analytics from "./pages/Analytics"
 import AdminPanel from "./pages/AdminPanel"
 import HomePage from "./pages/HomePage"
+import SearchResults from "./pages/SearchResults"
+import Help from "./pages/Help"
+import SystemStatus from "./pages/SystemStatus"
+import Profile from "./pages/Profile"
+import BackupExport from "./pages/BackupExport"
+import Maintenance from "./pages/Maintenance"
+import Notifications from "./pages/Notifications"
+import ApiDocs from "./pages/ApiDocs"
 import { AuthProvider } from "./contexts/AuthContext"
 import ProtectedRoute from "./components/Auth/ProtectedRoute"
+import ErrorBoundary from "./components/common/ErrorBoundary"
 
 function App() {
   return (
-    <AuthProvider>
-  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <div className="min-h-screen bg-background">
-          <Routes>
+    <ErrorBoundary>
+      <AuthProvider>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <div className="min-h-screen bg-background">
+            <Routes>
             {/* Public routes */}
+            <Route path="/" element={<HomePage />} />
             <Route path="/home" element={<HomePage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -36,12 +47,17 @@ function App() {
             <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="/server-error" element={<ServerError />} />
             
-            {/* Analytics - public demo */}
+            {/* Public pages */}
             <Route path="/analytics" element={<Analytics />} />
+            <Route path="/help" element={<Help />} />
+            <Route path="/status" element={<SystemStatus />} />
+            <Route path="/search" element={<SearchResults />} />
+            <Route path="/maintenance" element={<Maintenance />} />
+            <Route path="/api-docs" element={<ApiDocs />} />
             
-            {/* Protected routes */}
+            {/* Protected routes with nested layout */}
             <Route
-              path="/dashboard"
+              path="/app"
               element={
                 <ProtectedRoute>
                   <Layout />
@@ -49,8 +65,24 @@ function App() {
               }
             >
               <Route index element={<Dashboard />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="inventory" element={<Inventory />} />
+              <Route path="requests" element={<Requests />} />
+              <Route path="tasks" element={<Tasks />} />
+              <Route path="reports" element={<Reports />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="backup" element={<BackupExport />} />
+              <Route path="help" element={<Help />} />
+              <Route path="status" element={<SystemStatus />} />
+              <Route path="search" element={<SearchResults />} />
+              <Route path="notifications" element={<Notifications />} />
+              <Route path="api-docs" element={<ApiDocs />} />
+              <Route path="admin" element={<AdminPanel />} />
             </Route>
             
+            {/* Legacy routes for backward compatibility */}
+            <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
             <Route path="/inventory" element={<ProtectedRoute><Layout><Inventory /></Layout></ProtectedRoute>} />
             <Route path="/requests" element={<ProtectedRoute><Layout><Requests /></Layout></ProtectedRoute>} />
             <Route path="/tasks" element={<ProtectedRoute><Layout><Tasks /></Layout></ProtectedRoute>} />
@@ -58,15 +90,13 @@ function App() {
             <Route path="/settings" element={<ProtectedRoute><Layout><Settings /></Layout></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute><Layout><AdminPanel /></Layout></ProtectedRoute>} />
             
-            {/* Root redirect to homepage */}
-            <Route path="/" element={<HomePage />} />
-            
             {/* Catch all - must be last */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
-  </BrowserRouter>
+      </BrowserRouter>
     </AuthProvider>
+    </ErrorBoundary>
   )
 }
 

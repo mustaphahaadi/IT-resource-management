@@ -10,7 +10,10 @@ import {
   UsersIcon,
   HeartIcon,
   ArrowLeftOnRectangleIcon,
-  UserCircleIcon
+  UserCircleIcon,
+  CloudArrowDownIcon,
+  ServerIcon,
+  QuestionMarkCircleIcon
 } from "@heroicons/react/24/outline"
 
 const Sidebar = ({ isOpen, onToggle }) => {
@@ -18,20 +21,24 @@ const Sidebar = ({ isOpen, onToggle }) => {
   const { user, logout } = useAuth()
 
   const navigation = [
-    { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
-    { name: "Inventory", href: "/inventory", icon: ComputerDesktopIcon },
-    { name: "Requests", href: "/requests", icon: ExclamationTriangleIcon },
-    { name: "Tasks", href: "/tasks", icon: ClipboardDocumentListIcon },
-    { name: "Reports", href: "/reports", icon: ChartBarIcon },
+    { name: "Dashboard", href: "/app/dashboard", icon: HomeIcon },
+    { name: "Inventory", href: "/app/inventory", icon: ComputerDesktopIcon },
+    { name: "Requests", href: "/app/requests", icon: ExclamationTriangleIcon },
+    { name: "Tasks", href: "/app/tasks", icon: ClipboardDocumentListIcon },
+    { name: "Reports", href: "/app/reports", icon: ChartBarIcon },
     { name: "Analytics", href: "/analytics", icon: ChartBarIcon },
   ]
 
   const adminNavigation = [
-    { name: "Admin Panel", href: "/admin", icon: UsersIcon },
+    { name: "Admin Panel", href: "/app/admin", icon: UsersIcon },
+    { name: "Backup & Export", href: "/app/backup", icon: CloudArrowDownIcon },
+    { name: "System Status", href: "/app/status", icon: ServerIcon },
   ]
 
   const userNavigation = [
-    { name: "Settings", href: "/settings", icon: Cog6ToothIcon },
+    { name: "Profile", href: "/app/profile", icon: UserCircleIcon },
+    { name: "Settings", href: "/app/settings", icon: Cog6ToothIcon },
+    { name: "Help", href: "/app/help", icon: QuestionMarkCircleIcon },
   ]
 
   const handleLogout = async () => {
