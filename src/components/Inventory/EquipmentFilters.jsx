@@ -25,15 +25,17 @@ const EquipmentFilters = ({ filters, onFiltersChange }) => {
   const handleFilterChange = (key, value) => {
     onFiltersChange({
       ...filters,
-      [key],
-    )
+      [key]: value,
+    })
+  }
   const clearFilters = () => {
     onFiltersChange({
       status: "",
       category: "",
       location: "",
       priority: "",
-    )
+    })
+  }
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -62,7 +64,9 @@ const EquipmentFilters = ({ filters, onFiltersChange }) => {
             <option value="">All Categories</option>
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
-                {cat.name}) )}
+                {cat.name}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -76,7 +80,9 @@ const EquipmentFilters = ({ filters, onFiltersChange }) => {
             <option value="">All Locations</option>
             {locations.map((loc) => (
               <option key={loc.id} value={loc.id}>
-                {loc.building} - {loc.floor} - {loc.room}) )}
+                {loc.building} - {loc.floor} - {loc.room}
+              </option>
+            ))}
           </select>
         </div>
 

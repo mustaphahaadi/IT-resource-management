@@ -40,7 +40,8 @@ const EquipmentForm = ({ equipment, onClose, onSuccess }) => {
         location: equipment.location || "",
         vendor: equipment.vendor || "",
         assigned_to: equipment.assigned_to || "",
-      )
+      })
+    }
   }, [equipment])
 
   const fetchFormData = async () => {
@@ -174,7 +175,9 @@ const EquipmentForm = ({ equipment, onClose, onSuccess }) => {
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
-                      {cat.name}) )}
+                      {cat.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -190,7 +193,9 @@ const EquipmentForm = ({ equipment, onClose, onSuccess }) => {
                   <option value="">Select Location</option>
                   {locations.map((loc) => (
                     <option key={loc.id} value={loc.id}>
-                      {loc.building} - {loc.floor} - {loc.room}) )}
+                      {loc.building} - {loc.floor} - {loc.room}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -205,7 +210,9 @@ const EquipmentForm = ({ equipment, onClose, onSuccess }) => {
                   <option value="">Select Vendor</option>
                   {vendors.map((vendor) => (
                     <option key={vendor.id} value={vendor.id}>
-                      {vendor.name}) )}
+                      {vendor.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 

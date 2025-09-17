@@ -12,7 +12,8 @@ const TaskFilters = ({ filters, onFiltersChange, personnel }) => {
       priority: "",
       assignee: "",
       search: "",
-    )
+    })
+  }
   return (
     <div className="bg-card border border-border rounded-lg p-4">
       <div className="flex flex-wrap gap-4 items-center">
@@ -64,7 +65,9 @@ const TaskFilters = ({ filters, onFiltersChange, personnel }) => {
             <option value="unassigned">Unassigned</option>
             {personnel.map((person) => (
               <option key={person.id} value={person.id}>
-                {person.name}) )}
+                {person.name}
+              </option>
+            ))}
           </select>
         </div>
 

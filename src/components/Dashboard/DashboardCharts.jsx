@@ -18,31 +18,31 @@ import {
 const DashboardCharts = ({ analytics, loading }) => {
   // Sample data for demonstration - replace with real analytics data
   const equipmentTrendData = [
-    { month: "Jan", active, maintenance, critical: 3 },
-    { month: "Feb", active, maintenance, critical: 2 },
-    { month: "Mar", active, maintenance, critical: 5 },
-    { month: "Apr", active, maintenance, critical: 1 },
-    { month: "May", active, maintenance, critical: 4 },
-    { month: "Jun", active, maintenance, critical: 2 },
+    { month: "Jan", active: 12, maintenance: 4, critical: 3 },
+    { month: "Feb", active: 15, maintenance: 3, critical: 2 },
+    { month: "Mar", active: 10, maintenance: 6, critical: 5 },
+    { month: "Apr", active: 18, maintenance: 2, critical: 1 },
+    { month: "May", active: 14, maintenance: 5, critical: 4 },
+    { month: "Jun", active: 16, maintenance: 3, critical: 2 },
   ]
 
   const requestVolumeData = [
-    { day: "Mon", requests, resolved: 18 },
-    { day: "Tue", requests, resolved: 25 },
-    { day: "Wed", requests, resolved: 22 },
-    { day: "Thu", requests, resolved: 30 },
-    { day: "Fri", requests, resolved: 38 },
-    { day: "Sat", requests, resolved: 12 },
-    { day: "Sun", requests, resolved: 7 },
+    { day: "Mon", requests: 20, resolved: 18 },
+    { day: "Tue", requests: 28, resolved: 25 },
+    { day: "Wed", requests: 25, resolved: 22 },
+    { day: "Thu", requests: 35, resolved: 30 },
+    { day: "Fri", requests: 40, resolved: 38 },
+    { day: "Sat", requests: 15, resolved: 12 },
+    { day: "Sun", requests: 10, resolved: 7 },
   ]
 
   const departmentData = [
-    { name: "Emergency", value, color: "#ef4444" },
-    { name: "ICU", value, color: "#f97316" },
-    { name: "Surgery", value, color: "#eab308" },
-    { name: "Radiology", value, color: "#22c55e" },
-    { name: "Laboratory", value, color: "#3b82f6" },
-    { name: "Other", value, color: "#8b5cf6" },
+    { name: "Emergency", value: 24, color: "#ef4444" },
+    { name: "ICU", value: 18, color: "#f97316" },
+    { name: "Surgery", value: 12, color: "#eab308" },
+    { name: "Radiology", value: 20, color: "#22c55e" },
+    { name: "Laboratory", value: 14, color: "#3b82f6" },
+    { name: "Other", value: 8, color: "#8b5cf6" },
   ]
 
   const responseTimeData = [
@@ -64,7 +64,11 @@ const DashboardCharts = ({ analytics, loading }) => {
               <div className="h-64 bg-muted rounded animate-pulse" />
             </CardContent>
           </Card>
-        )))
+        ))}
+      </div>
+    )
+  }
+
   return (
     <div className="grid gap-6 md:grid-cols-2">
       {/* Equipment Status Trends */}
@@ -166,9 +170,4 @@ const DashboardCharts = ({ analytics, loading }) => {
   )
 }
 
-    </div>
-    </div>
-    </div>
-  )
-}
 export default DashboardCharts

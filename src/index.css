@@ -1,5 +1,6 @@
-@import "tailwindcss";
-@import "tailwindcss-animate";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   /* Updated color scheme for professional hospital IT system with blue primary */

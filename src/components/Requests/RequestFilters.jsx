@@ -25,15 +25,17 @@ const RequestFilters = ({ filters, onFiltersChange }) => {
   const handleFilterChange = (key, value) => {
     onFiltersChange({
       ...filters,
-      [key],
-    )
+      [key]: value,
+    })
+  }
   const clearFilters = () => {
     onFiltersChange({
       status: "",
       priority: "",
       category: "",
       assigned_to: "",
-    )
+    })
+  }
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -79,7 +81,9 @@ const RequestFilters = ({ filters, onFiltersChange }) => {
             <option value="">All Categories</option>
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
-                {cat.name}) )}
+                {cat.name}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -94,7 +98,9 @@ const RequestFilters = ({ filters, onFiltersChange }) => {
             <option value="unassigned">Unassigned</option>
             {personnel.map((person) => (
               <option key={person.id} value={person.user.id}>
-                {person.user_name}) )}
+                {person.user_name}
+              </option>
+            ))}
           </select>
         </div>
       </div>

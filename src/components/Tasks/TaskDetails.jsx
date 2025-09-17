@@ -232,7 +232,9 @@ const TaskDetails = ({ task, personnel, onClose, onEdit, onAssign, onStatusUpdat
                   <option value="">Unassigned</option>
                   {personnel.map((person) => (
                     <option key={person.id} value={person.id}>
-                      {person.name} - {person.role}) )}
+                      {person.name} - {person.role}
+                    </option>
+                  ))}
                 </select>
               </div>
 
