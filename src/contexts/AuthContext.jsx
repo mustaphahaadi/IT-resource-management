@@ -76,9 +76,10 @@ export const AuthProvider = ({ children }) => {
       // Fetch initial notifications
       try {
         const notificationsResponse = await apiService.getNotifications({ limit: 20 })
-        setNotifications(notificationsResponse.data.results || notificationsResponse.data || [])
+        setNotifications(notificationsResponse.data.notifications || notificationsResponse.data.results || notificationsResponse.data || [])
       } catch (notifError) {
         console.warn("Could not fetch notifications:", notifError)
+        setNotifications([]) // Set empty array as fallback
       }
     } catch (error) {
       console.error("Error fetching user profile:", error)

@@ -25,6 +25,7 @@ import BackupExport from "./pages/BackupExport"
 import Maintenance from "./pages/Maintenance"
 import Notifications from "./pages/Notifications"
 import ApiDocs from "./pages/ApiDocs"
+import ActivityLog from "./pages/ActivityLog"
 import { AuthProvider } from "./contexts/AuthContext"
 import ProtectedRoute from "./components/Auth/ProtectedRoute"
 import ErrorBoundary from "./components/common/ErrorBoundary"
@@ -78,6 +79,7 @@ function App() {
               <Route path="search" element={<SearchResults />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="api-docs" element={<ApiDocs />} />
+              <Route path="activity-log" element={<ActivityLog />} />
               <Route path="admin" element={<AdminPanel />} />
             </Route>
             

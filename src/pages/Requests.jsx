@@ -16,6 +16,7 @@ import {
   CalendarIcon
 } from "@heroicons/react/24/outline"
 import { apiService } from "../services/api"
+import RequestDetails from "../components/requests/RequestDetails"
 
 const Requests = () => {
   const [requests, setRequests] = useState([])

@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'inventory',
     'requests_system',
     'tasks',
+    'notifications',
 ]
 
 MIDDLEWARE = [
@@ -129,31 +130,68 @@ ACCOUNT_LOCKOUT_DURATION = 30  # minutes
 PASSWORD_RESET_TIMEOUT = 3600  # 1 hour in seconds
 EMAIL_VERIFICATION_TIMEOUT = 86400  # 24 hours in seconds
 
+# Ensure logs directory exists
+LOGS_DIR = BASE_DIR / 'logs'
+LOGS_DIR.mkdir(exist_ok=True)
+
 # Logging configuration
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'file': {
             'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'hospital_it.log',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOGS_DIR / 'hospital_it.log',
+            'maxBytes': 1024*1024*15,  # 15MB
+            'backupCount': 10,
+            'formatter': 'verbose',
         },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
+            'formatter': 'simple',
         },
     },
+    'root': {
+        'level': 'INFO',
+        'handlers': ['console'],
+    },
     'loggers': {
+        'django': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
         'authentication': {
             'handlers': ['file', 'console'],
             'level': 'INFO',
-            'propagate': True,
+            'propagate': False,
         },
-        'django': {
-            'handlers': ['file'],
+        'inventory': {
+            'handlers': ['file', 'console'],
             'level': 'INFO',
-            'propagate': True,
+            'propagate': False,
+        },
+        'requests_system': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'tasks': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
         },
     },
 }

@@ -27,6 +27,7 @@ const Dashboard = () => {
   const [recentActivity, setRecentActivity] = useState([])
   const [alerts, setAlerts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
   const [refreshInterval, setRefreshInterval] = useState(null)
 
   useEffect(() => {

@@ -13,7 +13,10 @@ import {
   UserCircleIcon,
   CloudArrowDownIcon,
   ServerIcon,
-  QuestionMarkCircleIcon
+  QuestionMarkCircleIcon,
+  DocumentTextIcon,
+  BellIcon,
+  ClipboardDocumentCheckIcon
 } from "@heroicons/react/24/outline"
 
 const Sidebar = ({ isOpen, onToggle }) => {
@@ -31,11 +34,14 @@ const Sidebar = ({ isOpen, onToggle }) => {
 
   const adminNavigation = [
     { name: "Admin Panel", href: "/app/admin", icon: UsersIcon },
+    { name: "Activity Log", href: "/app/activity-log", icon: ClipboardDocumentCheckIcon },
     { name: "Backup & Export", href: "/app/backup", icon: CloudArrowDownIcon },
     { name: "System Status", href: "/app/status", icon: ServerIcon },
+    { name: "API Docs", href: "/app/api-docs", icon: DocumentTextIcon },
   ]
 
   const userNavigation = [
+    { name: "Notifications", href: "/app/notifications", icon: BellIcon },
     { name: "Profile", href: "/app/profile", icon: UserCircleIcon },
     { name: "Settings", href: "/app/settings", icon: Cog6ToothIcon },
     { name: "Help", href: "/app/help", icon: QuestionMarkCircleIcon },

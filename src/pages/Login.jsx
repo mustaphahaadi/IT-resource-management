@@ -6,7 +6,7 @@ import { ComputerDesktopIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/24/
 
 const Login = () => {
   const { user, login } = useAuth()
-  const [credentials, setCredentials] = useState({ username: "", password: "" })
+  const [credentials, setCredentials] = useState({ email: "", password: "" })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -68,18 +68,18 @@ const Login = () => {
             )}
 
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-foreground mb-1">
-                Username
+              <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1">
+                Email
               </label>
               <input
-                id="username"
-                name="username"
-                type="text"
+                id="email"
+                name="email"
+                type="email"
                 required
-                value={credentials.username}
+                value={credentials.email}
                 onChange={handleChange}
                 className="w-full px-3 py-2 bg-input border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                placeholder="Enter your username"
+                placeholder="Enter your email"
               />
             </div>
 

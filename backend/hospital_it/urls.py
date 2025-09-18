@@ -5,8 +5,10 @@ from django.contrib.auth.views import LogoutView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
+
+User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     permissions = serializers.SerializerMethodField()
@@ -20,7 +22,9 @@ class UserSerializer(serializers.ModelSerializer):
         return list(obj.user_permissions.values_list('codename', flat=True))
     
     def get_role(self, obj):
-        if obj.is_superuser:
+        if hasattr(obj, 'role') and obj.role:
+            return obj.role
+        elif obj.is_superuser:
             return 'admin'
         elif obj.groups.filter(name='IT Staff').exists():
             return 'staff'
@@ -47,4 +51,5 @@ urlpatterns = [
     path('api/auth/', include('authentication.urls')),
     path('api/auth/', include('rest_framework.urls')),
     path('api/auth/user/', user_profile, name='api_user_profile'),
+    path('api/notifications/', include('notifications.urls')),
 ]

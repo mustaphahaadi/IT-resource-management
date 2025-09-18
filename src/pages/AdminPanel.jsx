@@ -38,9 +38,9 @@ const AdminPanel = () => {
   
   // Filters
   const [searchTerm, setSearchTerm] = useState("")
-  const [roleFilter, setRoleFilter] = useState("")
-  const [departmentFilter, setDepartmentFilter] = useState("")
-  const [statusFilter, setStatusFilter] = useState("")
+  const [roleFilter, setRoleFilter] = useState("all")
+  const [departmentFilter, setDepartmentFilter] = useState("all")
+  const [statusFilter, setStatusFilter] = useState("all")
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1)
@@ -82,8 +82,8 @@ const AdminPanel = () => {
       const params = {
         page: currentPage,
         search: searchTerm,
-        role: roleFilter,
-        department: departmentFilter,
+        role: roleFilter === "all" ? "" : roleFilter,
+        department: departmentFilter === "all" ? "" : departmentFilter,
         is_active: statusFilter === "active" ? "true" : statusFilter === "inactive" ? "false" : "",
       }
       
@@ -258,7 +258,7 @@ const AdminPanel = () => {
                       <SelectValue placeholder="All roles" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All roles</SelectItem>
+                      <SelectItem value="all">All roles</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
                       <SelectItem value="manager">Manager</SelectItem>
                       <SelectItem value="staff">Staff</SelectItem>
@@ -275,7 +275,7 @@ const AdminPanel = () => {
                       <SelectValue placeholder="All departments" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All departments</SelectItem>
+                      <SelectItem value="all">All departments</SelectItem>
                       <SelectItem value="it">IT</SelectItem>
                       <SelectItem value="admin">Administration</SelectItem>
                       <SelectItem value="medical">Medical</SelectItem>
@@ -297,7 +297,7 @@ const AdminPanel = () => {
                       <SelectValue placeholder="All statuses" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All statuses</SelectItem>
+                      <SelectItem value="all">All statuses</SelectItem>
                       <SelectItem value="active">Active</SelectItem>
                       <SelectItem value="inactive">Inactive</SelectItem>
                     </SelectContent>
