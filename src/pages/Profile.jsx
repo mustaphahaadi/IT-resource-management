@@ -260,7 +260,7 @@ const Profile = () => {
                       value={profileData.first_name}
                       onChange={handleInputChange}
                       disabled={!editing}
-                      className={!editing ? 'bg-gray-50' : ''}
+                      className=""
                     />
                   </div>
 
@@ -272,7 +272,7 @@ const Profile = () => {
                       value={profileData.last_name}
                       onChange={handleInputChange}
                       disabled={!editing}
-                      className={!editing ? 'bg-gray-50' : ''}
+                      className=""
                     />
                   </div>
 
@@ -285,7 +285,7 @@ const Profile = () => {
                       value={profileData.email}
                       onChange={handleInputChange}
                       disabled={!editing}
-                      className={!editing ? 'bg-gray-50' : ''}
+                      className=""
                     />
                   </div>
 
@@ -297,7 +297,7 @@ const Profile = () => {
                       value={profileData.phone_number}
                       onChange={handleInputChange}
                       disabled={!editing}
-                      className={!editing ? 'bg-gray-50' : ''}
+                      className=""
                     />
                   </div>
 
@@ -309,7 +309,7 @@ const Profile = () => {
                       value={profileData.department}
                       onChange={handleInputChange}
                       disabled={!editing}
-                      className={!editing ? 'bg-gray-50' : ''}
+                      className=""
                     />
                   </div>
 
@@ -321,7 +321,7 @@ const Profile = () => {
                       value={profileData.employee_id}
                       onChange={handleInputChange}
                       disabled={!editing}
-                      className={!editing ? 'bg-gray-50' : ''}
+                      className=""
                     />
                   </div>
 
@@ -333,7 +333,7 @@ const Profile = () => {
                       value={profileData.location}
                       onChange={handleInputChange}
                       disabled={!editing}
-                      className={!editing ? 'bg-gray-50' : ''}
+                      className=""
                     />
                   </div>
 
@@ -345,9 +345,7 @@ const Profile = () => {
                       value={profileData.timezone}
                       onChange={handleInputChange}
                       disabled={!editing}
-                      className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                        !editing ? 'bg-gray-50' : ''
-                      }`}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-700 read-only:bg-gray-100 read-only:text-gray-700"
                     >
                       <option value="UTC">UTC</option>
                       <option value="America/New_York">Eastern Time</option>
@@ -367,16 +365,14 @@ const Profile = () => {
                     value={profileData.bio}
                     onChange={handleInputChange}
                     disabled={!editing}
-                    className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      !editing ? 'bg-gray-50' : ''
-                    }`}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-700 read-only:bg-gray-100 read-only:text-gray-700"
                     placeholder="Tell us about yourself..."
                   />
                 </div>
 
                 {editing && (
                   <div className="flex justify-end space-x-3">
-                    <Button type="button" variant="outline" onClick={handleCancel}>
+                    <Button type="button" variant="outline" onClick={handleCancel} className="border border-gray-300 text-gray-700 hover:bg-gray-50">
                       Cancel
                     </Button>
                     <Button type="submit" disabled={loading}>

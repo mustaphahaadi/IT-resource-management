@@ -59,7 +59,7 @@ const VerifyEmail = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md bg-white border border-gray-200">
           <CardContent className="pt-6">
             <div className="text-center space-y-4">
               <div className="flex justify-center">
@@ -81,7 +81,7 @@ const VerifyEmail = () => {
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md bg-white border border-gray-200">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -116,7 +116,7 @@ const VerifyEmail = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md bg-white border border-gray-200">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <div className="w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center">
@@ -155,7 +155,7 @@ const VerifyEmail = () => {
               </Button>
               
               <Link to="/login">
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full border border-gray-300 text-gray-700 hover:bg-gray-50">
                   Go to Login
                 </Button>
               </Link>

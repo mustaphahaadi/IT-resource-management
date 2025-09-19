@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { apiService } from "../../services/api"
+import { NativeSelect } from "../ui/native-select"
 
 const TaskDetails = ({ task, personnel, onClose, onEdit, onAssign, onStatusUpdate }) => {
   const [comments, setComments] = useState([])
@@ -164,10 +165,9 @@ const TaskDetails = ({ task, personnel, onClose, onEdit, onAssign, onStatusUpdat
             <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Reassign Task</label>
-                <select
+                <NativeSelect
                   value={task.assigned_to || ""}
                   onChange={(e) => onAssign(task.id, e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">Unassigned</option>
                   {personnel.map((person) => (
@@ -175,22 +175,21 @@ const TaskDetails = ({ task, personnel, onClose, onEdit, onAssign, onStatusUpdat
                       {person.user_name || person.username} - {person.skill_level}
                     </option>
                   ))}
-                </select>
+                </NativeSelect>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Update Status</label>
-                <select
+                <NativeSelect
                   value={task.status}
                   onChange={(e) => onStatusUpdate(task.id, e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="pending">Pending</option>
                   <option value="assigned">Assigned</option>
                   <option value="in_progress">In Progress</option>
                   <option value="completed">Completed</option>
                   <option value="cancelled">Cancelled</option>
-                </select>
+                </NativeSelect>
               </div>
             </div>
           </div>

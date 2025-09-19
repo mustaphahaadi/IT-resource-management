@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react"
 import { apiService } from "../../services/api"
+import { NativeSelect } from "../ui/native-select"
+import { Textarea } from "../ui/textarea"
 
 const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
@@ -89,7 +91,7 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-            <textarea
+            <Textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
@@ -102,26 +104,24 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
-              <select
+              <NativeSelect
                 name="priority"
                 value={formData.priority}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
                 <option value="high">High</option>
                 <option value="critical">Critical</option>
-              </select>
+              </NativeSelect>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Related Support Request</label>
-              <select
+              <NativeSelect
                 name="related_request"
                 value={formData.related_request}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">Select Request</option>
                 {requests.map((req) => (
@@ -129,18 +129,17 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
                     {req.ticket_number} - {req.title}
                   </option>
                 ))}
-              </select>
+              </NativeSelect>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Assign To</label>
-              <select
+              <NativeSelect
                 name="assigned_to"
                 value={formData.assigned_to}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">Select Personnel</option>
                 {personnel.map((person) => (
@@ -148,23 +147,22 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
                     {person.user_name || person.username} - {person.skill_level}
                   </option>
                 ))}
-              </select>
+              </NativeSelect>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-              <select
+              <NativeSelect
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="pending">Pending</option>
                 <option value="assigned">Assigned</option>
                 <option value="in_progress">In Progress</option>
                 <option value="completed">Completed</option>
                 <option value="cancelled">Cancelled</option>
-              </select>
+              </NativeSelect>
             </div>
           </div>
 

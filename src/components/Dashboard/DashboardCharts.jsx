@@ -15,42 +15,42 @@ import {
   ResponsiveContainer,
 } from "recharts"
 
-const DashboardCharts = ({ analytics, loading }) => {
-  // Sample data for demonstration - replace with real analytics data
-  const equipmentTrendData = [
-    { month: "Jan", active: 12, maintenance: 4, critical: 3 },
-    { month: "Feb", active: 15, maintenance: 3, critical: 2 },
-    { month: "Mar", active: 10, maintenance: 6, critical: 5 },
-    { month: "Apr", active: 18, maintenance: 2, critical: 1 },
-    { month: "May", active: 14, maintenance: 5, critical: 4 },
-    { month: "Jun", active: 16, maintenance: 3, critical: 2 },
-  ]
+const DashboardCharts = ({ analytics = {}, loading }) => {
+  const a = analytics || {}
+  const equipmentTrendData = Array.isArray(a.equipmentTrends)
+    ? a.equipmentTrends
+    : Array.isArray(a.equipment_trends)
+    ? a.equipment_trends
+    : []
 
-  const requestVolumeData = [
-    { day: "Mon", requests: 20, resolved: 18 },
-    { day: "Tue", requests: 28, resolved: 25 },
-    { day: "Wed", requests: 25, resolved: 22 },
-    { day: "Thu", requests: 35, resolved: 30 },
-    { day: "Fri", requests: 40, resolved: 38 },
-    { day: "Sat", requests: 15, resolved: 12 },
-    { day: "Sun", requests: 10, resolved: 7 },
-  ]
+  const requestVolumeData = Array.isArray(a.requestTrends)
+    ? a.requestTrends
+    : Array.isArray(a.request_trends)
+    ? a.request_trends
+    : []
 
-  const departmentData = [
-    { name: "Emergency", value: 24, color: "#ef4444" },
-    { name: "ICU", value: 18, color: "#f97316" },
-    { name: "Surgery", value: 12, color: "#eab308" },
-    { name: "Radiology", value: 20, color: "#22c55e" },
-    { name: "Laboratory", value: 14, color: "#3b82f6" },
-    { name: "Other", value: 8, color: "#8b5cf6" },
-  ]
+  const departmentRaw = Array.isArray(a.departmentStats)
+    ? a.departmentStats
+    : Array.isArray(a.department_stats)
+    ? a.department_stats
+    : []
+  const departmentData = departmentRaw.map((d) => ({
+    name: d.department,
+    value: d.requests,
+  }))
 
-  const responseTimeData = [
-    { priority: "Critical", avgTime: 0.5, target: 1 },
-    { priority: "High", avgTime: 2.3, target: 4 },
-    { priority: "Medium", avgTime: 8.7, target: 12 },
-    { priority: "Low", avgTime: 18.2, target: 24 },
-  ]
+  const perf = a.performanceMetrics || a.performance_metrics || {}
+  const responseTimeData = [{
+    label: "Overall",
+    avgTime: perf?.avg_resolution_time || 0,
+    target: 8, // Target hours (example SLO)
+  }]
+
+  const taskTrendData = Array.isArray(a.taskTrends)
+    ? a.taskTrends
+    : Array.isArray(a.task_trends)
+    ? a.task_trends
+    : []
 
   if (loading) {
     return (
@@ -80,20 +80,12 @@ const DashboardCharts = ({ analytics, loading }) => {
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={equipmentTrendData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
+              <XAxis dataKey="date" />
               <YAxis />
               <Tooltip />
               <Legend />
-              <Area type="monotone" dataKey="active" stackId="1" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} />
-              <Area
-                type="monotone"
-                dataKey="maintenance"
-                stackId="1"
-                stroke="#f59e0b"
-                fill="#f59e0b"
-                fillOpacity={0.6}
-              />
-              <Area type="monotone" dataKey="critical" stackId="1" stroke="#ef4444" fill="#ef4444" fillOpacity={0.6} />
+              <Area type="monotone" dataKey="active" name="Active" stackId="1" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} />
+              <Area type="monotone" dataKey="maintenance" name="Maintenance" stackId="1" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.6} />
             </AreaChart>
           </ResponsiveContainer>
         </CardContent>
@@ -108,12 +100,32 @@ const DashboardCharts = ({ analytics, loading }) => {
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={requestVolumeData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="day" />
+              <XAxis dataKey="date" />
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="requests" fill="#3b82f6" name="New Requests" />
+              <Bar dataKey="created" fill="#3b82f6" name="Created" />
               <Bar dataKey="resolved" fill="#22c55e" name="Resolved" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      {/* Task Trends */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Task Creation vs Completion</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={taskTrendData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="created" fill="#6366f1" name="Created" />
+              <Bar dataKey="completed" fill="#10b981" name="Completed" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -138,7 +150,7 @@ const DashboardCharts = ({ analytics, loading }) => {
                 dataKey="value"
               >
                 {departmentData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+                  <Cell key={`cell-${index}`} fill={["#ef4444", "#f97316", "#eab308", "#22c55e", "#3b82f6", "#8b5cf6"][index % 6]} />
                 ))}
               </Pie>
               <Tooltip />
@@ -157,7 +169,7 @@ const DashboardCharts = ({ analytics, loading }) => {
             <BarChart data={responseTimeData} layout="horizontal">
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis type="number" />
-              <YAxis dataKey="priority" type="category" />
+              <YAxis dataKey="label" type="category" />
               <Tooltip />
               <Legend />
               <Bar dataKey="avgTime" fill="#3b82f6" name="Actual (hours)" />

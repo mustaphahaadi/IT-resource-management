@@ -6,6 +6,8 @@ class WebSocketService {
     this.reconnectInterval = 5000
     this.listeners = new Map()
     this.isConnected = false
+    this.disableUntil = 0 // timestamp in ms when we can try again
+    this.firstErrorLogged = false
   }
 
   connect() {
@@ -15,8 +17,31 @@ class WebSocketService {
       return
     }
 
-    // Check if WebSocket server is available (for development)
-    const wsUrl = `ws://localhost:8000/ws/notifications/?token=${token}`
+    // Feature flag to fully disable WS in dev if backend WS server isn't running
+    const enabled = String(import.meta?.env?.VITE_WS_ENABLED ?? 'true') === 'true'
+    if (!enabled) {
+      if (!this.firstErrorLogged) {
+        console.log('WebSocket disabled via VITE_WS_ENABLED=false. Real-time features are off.')
+        this.firstErrorLogged = true
+      }
+      return
+    }
+
+    // Honor cooldown if we recently failed to connect
+    const now = Date.now()
+    if (this.disableUntil && now < this.disableUntil) {
+      if (!this.firstErrorLogged) {
+        const seconds = Math.ceil((this.disableUntil - now) / 1000)
+        console.log(`WebSocket temporarily disabled (${seconds}s remaining).`)
+        this.firstErrorLogged = true
+      }
+      return
+    }
+
+    // Build URL from env or location
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
+    const base = import.meta?.env?.VITE_WS_URL || `${protocol}://${window.location.hostname}:8000/ws/notifications/`
+    const wsUrl = `${base}?token=${token}`
     
     try {
       this.socket = new WebSocket(wsUrl)
@@ -26,6 +51,7 @@ class WebSocketService {
         this.isConnected = true
         this.reconnectAttempts = 0
         this.emit('connected')
+        this.firstErrorLogged = false
       }
 
       this.socket.onmessage = (event) => {
@@ -45,15 +71,20 @@ class WebSocketService {
         if (!event.wasClean && this.reconnectAttempts < this.maxReconnectAttempts) {
           this.scheduleReconnect()
         } else if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-          console.warn('WebSocket: Max reconnection attempts reached. Real-time features disabled.')
+          console.warn('WebSocket: Max reconnection attempts reached. Real-time features disabled for 10 minutes.')
+          // Cooldown for 10 minutes to avoid repeated browser error logs
+          this.disableUntil = Date.now() + 10 * 60 * 1000
         }
       }
 
       this.socket.onerror = (error) => {
-        // Suppress error logging for connection refused (when WebSocket server is not available)
-        if (this.reconnectAttempts === 0) {
+        // Suppress repeated error logging for connection refused (when WebSocket server is not available)
+        if (!this.firstErrorLogged) {
           console.warn('WebSocket server not available. Real-time features disabled.')
+          this.firstErrorLogged = true
         }
+        // Back off immediately without more attempts in this cycle
+        this.disableUntil = Date.now() + 10 * 60 * 1000
         this.emit('error', error)
       }
 
@@ -124,6 +155,8 @@ class WebSocketService {
       this.listeners.set(event, [])
     }
     this.listeners.get(event).push(callback)
+    // Return unsubscribe function for cleanup
+    return () => this.off(event, callback)
   }
 
   off(event, callback) {
@@ -150,27 +183,27 @@ class WebSocketService {
 
   // Convenience methods for specific events
   onNotification(callback) {
-    this.on('notification', callback)
+    return this.on('notification', callback)
   }
 
   onRequestUpdate(callback) {
-    this.on('requestUpdate', callback)
+    return this.on('requestUpdate', callback)
   }
 
   onTaskUpdate(callback) {
-    this.on('taskUpdate', callback)
+    return this.on('taskUpdate', callback)
   }
 
   onEquipmentUpdate(callback) {
-    this.on('equipmentUpdate', callback)
+    return this.on('equipmentUpdate', callback)
   }
 
   onSystemAlert(callback) {
-    this.on('systemAlert', callback)
+    return this.on('systemAlert', callback)
   }
 
   onUserActivity(callback) {
-    this.on('userActivity', callback)
+    return this.on('userActivity', callback)
   }
 
   // Send specific message types

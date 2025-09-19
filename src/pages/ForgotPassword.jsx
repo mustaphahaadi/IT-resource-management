@@ -78,7 +78,7 @@ const ForgotPassword = () => {
   if (emailSent) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md bg-white border border-gray-200">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -108,7 +108,7 @@ const ForgotPassword = () => {
                   onClick={handleResendEmail} 
                   disabled={loading}
                   variant="outline" 
-                  className="w-full"
+                  className="w-full border border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
                   {loading ? "Sending..." : "Resend Email"}
                 </Button>
@@ -131,7 +131,7 @@ const ForgotPassword = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md bg-white border border-gray-200">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
@@ -151,7 +151,7 @@ const ForgotPassword = () => {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email" className="text-gray-700">Email Address</Label>
               <div className="relative">
                 <Input
                   id="email"
@@ -159,7 +159,7 @@ const ForgotPassword = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Enter your email address"
                 />
                 <EnvelopeIcon className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />

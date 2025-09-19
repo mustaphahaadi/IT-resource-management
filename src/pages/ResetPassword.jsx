@@ -102,7 +102,7 @@ const ResetPassword = () => {
   if (!tokenValid) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md bg-white border border-gray-200">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <div className="w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center">
@@ -138,7 +138,7 @@ const ResetPassword = () => {
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md bg-white border border-gray-200">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -168,7 +168,7 @@ const ResetPassword = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md bg-white border border-gray-200">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
@@ -188,7 +188,7 @@ const ResetPassword = () => {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="new_password">New Password</Label>
+              <Label htmlFor="new_password" className="text-gray-700">New Password</Label>
               <div className="relative">
                 <Input
                   id="new_password"
@@ -196,7 +196,7 @@ const ResetPassword = () => {
                   type={showPassword ? "text" : "password"}
                   value={formData.new_password}
                   onChange={handleChange}
-                  className={errors.new_password ? "border-destructive pr-10" : "pr-10"}
+                  className={`pr-10 bg-white border ${errors.new_password ? "border-destructive" : "border-gray-300"} text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                   placeholder="Enter your new password"
                 />
                 <button
@@ -216,7 +216,7 @@ const ResetPassword = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirm_password">Confirm New Password</Label>
+              <Label htmlFor="confirm_password" className="text-gray-700">Confirm New Password</Label>
               <div className="relative">
                 <Input
                   id="confirm_password"
@@ -224,7 +224,7 @@ const ResetPassword = () => {
                   type={showConfirmPassword ? "text" : "password"}
                   value={formData.confirm_password}
                   onChange={handleChange}
-                  className={errors.confirm_password ? "border-destructive pr-10" : "pr-10"}
+                  className={`pr-10 bg-white border ${errors.confirm_password ? "border-destructive" : "border-gray-300"} text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                   placeholder="Confirm your new password"
                 />
                 <button

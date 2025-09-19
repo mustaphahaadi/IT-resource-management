@@ -65,6 +65,10 @@ const AdminPanel = () => {
   }
 
   useEffect(() => {
+    // Prevent background requests if not admin
+    if (!user || !hasRole('admin')) {
+      return
+    }
     if (activeTab === "users") {
       fetchUsers()
     } else if (activeTab === "statistics") {
@@ -72,7 +76,7 @@ const AdminPanel = () => {
     } else if (activeTab === "security") {
       fetchLoginAttempts()
     }
-  }, [activeTab, currentPage, searchTerm, roleFilter, departmentFilter, statusFilter])
+  }, [activeTab, currentPage, searchTerm, roleFilter, departmentFilter, statusFilter, user])
 
   const fetchUsers = async () => {
     setLoading(true)
@@ -91,7 +95,11 @@ const AdminPanel = () => {
       setUsers(response.data.results)
       setTotalPages(Math.ceil(response.data.count / 20))
     } catch (err) {
-      setError("Failed to fetch users")
+      if (err?.response?.status === 403) {
+        setError("You don't have permission to view users.")
+      } else {
+        setError("Failed to fetch users")
+      }
       console.error("Error fetching users:", err)
     } finally {
       setLoading(false)
@@ -106,7 +114,11 @@ const AdminPanel = () => {
       const response = await apiService.getAdminStatistics()
       setStatistics(response.data)
     } catch (err) {
-      setError("Failed to fetch statistics")
+      if (err?.response?.status === 403) {
+        setError("You don't have permission to view statistics.")
+      } else {
+        setError("Failed to fetch statistics")
+      }
       console.error("Error fetching statistics:", err)
     } finally {
       setLoading(false)
@@ -121,7 +133,11 @@ const AdminPanel = () => {
       const response = await apiService.getRecentLoginAttempts(100)
       setLoginAttempts(response.data)
     } catch (err) {
-      setError("Failed to fetch login attempts")
+      if (err?.response?.status === 403) {
+        setError("You don't have permission to view login attempts.")
+      } else {
+        setError("Failed to fetch login attempts")
+      }
       console.error("Error fetching login attempts:", err)
     } finally {
       setLoading(false)

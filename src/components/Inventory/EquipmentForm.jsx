@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 import { Button } from "../ui/button"
+import { NativeSelect } from "../ui/native-select"
+import { Textarea } from "../ui/textarea"
 import { XMarkIcon } from "@heroicons/react/24/outline"
 import { apiService } from "../../services/api"
 
@@ -165,12 +167,11 @@ const EquipmentForm = ({ equipment, onClose, onSuccess }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
-                <select
+                <NativeSelect
                   name="category"
                   required
                   value={formData.category}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
@@ -178,17 +179,16 @@ const EquipmentForm = ({ equipment, onClose, onSuccess }) => {
                       {cat.name}
                     </option>
                   ))}
-                </select>
+                </NativeSelect>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Location *</label>
-                <select
+                <NativeSelect
                   name="location"
                   required
                   value={formData.location}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">Select Location</option>
                   {locations.map((loc) => (
@@ -196,16 +196,15 @@ const EquipmentForm = ({ equipment, onClose, onSuccess }) => {
                       {loc.building} - {loc.floor} - {loc.room}
                     </option>
                   ))}
-                </select>
+                </NativeSelect>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Vendor</label>
-                <select
+                <NativeSelect
                   name="vendor"
                   value={formData.vendor}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">Select Vendor</option>
                   {vendors.map((vendor) => (
@@ -213,37 +212,35 @@ const EquipmentForm = ({ equipment, onClose, onSuccess }) => {
                       {vendor.name}
                     </option>
                   ))}
-                </select>
+                </NativeSelect>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select
+                <NativeSelect
                   name="status"
                   value={formData.status}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="active">Active</option>
                   <option value="maintenance">Under Maintenance</option>
                   <option value="retired">Retired</option>
                   <option value="broken">Broken</option>
-                </select>
+                </NativeSelect>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-                <select
+                <NativeSelect
                   name="priority"
                   value={formData.priority}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
                   <option value="high">High</option>
                   <option value="critical">Critical</option>
-                </select>
+                </NativeSelect>
               </div>
 
               <div>
@@ -283,7 +280,7 @@ const EquipmentForm = ({ equipment, onClose, onSuccess }) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-              <textarea
+              <Textarea
                 name="description"
                 rows={3}
                 value={formData.description}

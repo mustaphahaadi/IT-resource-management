@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 import { Button } from "../ui/button"
+import { NativeSelect } from "../ui/native-select"
+import { Textarea } from "../ui/textarea"
 import { XMarkIcon } from "@heroicons/react/24/outline"
 import { apiService } from "../../services/api"
 
@@ -104,7 +106,7 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
-              <textarea
+              <Textarea
                 name="description"
                 required
                 rows={4}
@@ -118,12 +120,11 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
-                <select
+                <NativeSelect
                   name="category"
                   required
                   value={formData.category}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
@@ -131,47 +132,44 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
                       {cat.name}
                     </option>
                   ))}
-                </select>
+                </NativeSelect>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-                <select
+                <NativeSelect
                   name="priority"
                   value={formData.priority}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="low">Low - Enhancement/Non-urgent</option>
                   <option value="medium">Medium - Standard Request</option>
                   <option value="high">High - Operations Impact</option>
                   <option value="critical">Critical - Patient Care Impact</option>
-                </select>
+                </NativeSelect>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Request Channel</label>
-                <select
+                <NativeSelect
                   name="channel"
                   value={formData.channel}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="web">Web Portal</option>
                   <option value="mobile">Mobile App</option>
                   <option value="phone">Phone</option>
                   <option value="email">Email</option>
                   <option value="walk_in">Walk-in</option>
-                </select>
+                </NativeSelect>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Related Equipment</label>
-                <select
+                <NativeSelect
                   name="related_equipment"
                   value={formData.related_equipment}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">Select Equipment (Optional)</option>
                   {equipment.map((item) => (
@@ -179,7 +177,7 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
                       {item.name} ({item.asset_tag})
                     </option>
                   ))}
-                </select>
+                </NativeSelect>
               </div>
             </div>
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
+import { NativeSelect } from "../components/ui/native-select"
 import {
   ClipboardDocumentListIcon,
   PlusIcon,
@@ -226,10 +227,10 @@ const Tasks = () => {
                 className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
-            <select
+            <NativeSelect
               value={filters.status}
               onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="rounded-lg"
             >
               <option value="">All Status</option>
               <option value="pending">Pending</option>
@@ -237,22 +238,22 @@ const Tasks = () => {
               <option value="in_progress">In Progress</option>
               <option value="completed">Completed</option>
               <option value="cancelled">Cancelled</option>
-            </select>
-            <select
+            </NativeSelect>
+            <NativeSelect
               value={filters.priority}
               onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="rounded-lg"
             >
               <option value="">All Priorities</option>
               <option value="critical">Critical</option>
               <option value="high">High</option>
               <option value="medium">Medium</option>
               <option value="low">Low</option>
-            </select>
-            <select
+            </NativeSelect>
+            <NativeSelect
               value={filters.assignee}
               onChange={(e) => setFilters({ ...filters, assignee: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="rounded-lg"
             >
               <option value="">All Assignees</option>
               {personnel.map((person) => (
@@ -260,7 +261,7 @@ const Tasks = () => {
                   {person.user_name || person.username}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </div>
         </CardContent>
       </Card>
@@ -344,30 +345,30 @@ const Tasks = () => {
                       </div>
                       <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                         {task.status !== "completed" && (
-                          <select
+                          <NativeSelect
                             value={task.assigned_to || ""}
                             onChange={(e) => handleTaskAssign(task.id, e.target.value)}
-                            className="px-2 py-1 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="px-2 py-1 text-xs rounded"
                           >
                             <option value="">Assign to...</option>
-                              {personnel.map((person) => (
-                                <option key={person.id} value={person.id}>
-                                  {person.user_name || person.username}
-                                </option>
-                              ))}
-                            </select>
+                            {personnel.map((person) => (
+                              <option key={person.id} value={person.id}>
+                                {person.user_name || person.username}
+                              </option>
+                            ))}
+                          </NativeSelect>
                         )}
-                        <select
+                        <NativeSelect
                           value={task.status}
                           onChange={(e) => handleStatusUpdate(task.id, e.target.value)}
-                          className="px-2 py-1 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="px-2 py-1 text-xs rounded"
                         >
                           <option value="pending">Pending</option>
                           <option value="assigned">Assigned</option>
                           <option value="in_progress">In Progress</option>
                           <option value="completed">Completed</option>
                           <option value="cancelled">Cancelled</option>
-                        </select>
+                        </NativeSelect>
                         </div>
                       </div>
                     </div>

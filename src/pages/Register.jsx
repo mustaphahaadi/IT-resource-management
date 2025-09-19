@@ -150,7 +150,7 @@ const Register = () => {
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md bg-white border border-gray-200">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -184,7 +184,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 py-8">
-      <Card className="w-full max-w-2xl">
+      <Card className="w-full max-w-2xl bg-white border border-gray-200">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
@@ -205,17 +205,17 @@ const Register = () => {
 
             {/* Personal Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-foreground">Personal Information</h3>
+              <h3 className="text-lg font-medium text-gray-900">Personal Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="first_name">First Name *</Label>
+                  <Label htmlFor="first_name" className="text-gray-700">First Name *</Label>
                   <Input
                     id="first_name"
                     name="first_name"
                     type="text"
                     value={formData.first_name}
                     onChange={handleChange}
-                    className={errors.first_name ? "border-destructive" : ""}
+                    className={`bg-white border ${errors.first_name ? "border-destructive" : "border-gray-300"} text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                     placeholder="Enter your first name"
                   />
                   {errors.first_name && (
@@ -223,14 +223,14 @@ const Register = () => {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="last_name">Last Name *</Label>
+                  <Label htmlFor="last_name" className="text-gray-700">Last Name *</Label>
                   <Input
                     id="last_name"
                     name="last_name"
                     type="text"
                     value={formData.last_name}
                     onChange={handleChange}
-                    className={errors.last_name ? "border-destructive" : ""}
+                    className={`bg-white border ${errors.last_name ? "border-destructive" : "border-gray-300"} text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                     placeholder="Enter your last name"
                   />
                   {errors.last_name && (
@@ -240,14 +240,14 @@ const Register = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address *</Label>
+                <Label htmlFor="email" className="text-gray-700">Email Address *</Label>
                 <Input
                   id="email"
                   name="email"
                   type="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={errors.email ? "border-destructive" : ""}
+                  className={`bg-white border ${errors.email ? "border-destructive" : "border-gray-300"} text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                   placeholder="Enter your email address"
                 />
                 {errors.email && (
@@ -256,14 +256,14 @@ const Register = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone_number">Phone Number</Label>
+                <Label htmlFor="phone_number" className="text-gray-700">Phone Number</Label>
                 <Input
                   id="phone_number"
                   name="phone_number"
                   type="tel"
                   value={formData.phone_number}
                   onChange={handleChange}
-                  className={errors.phone_number ? "border-destructive" : ""}
+                  className={`bg-white border ${errors.phone_number ? "border-destructive" : "border-gray-300"} text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                   placeholder="Enter your phone number"
                 />
                 {errors.phone_number && (
@@ -274,12 +274,12 @@ const Register = () => {
 
             {/* Work Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-foreground">Work Information</h3>
+              <h3 className="text-lg font-medium text-gray-900">Work Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="department">Department *</Label>
+                  <Label htmlFor="department" className="text-gray-700">Department *</Label>
                   <Select value={formData.department} onValueChange={(value) => handleSelectChange("department", value)}>
-                    <SelectTrigger className={errors.department ? "border-destructive" : ""}>
+                    <SelectTrigger className={`bg-white border ${errors.department ? "border-destructive" : "border-gray-300"} text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}>
                       <SelectValue placeholder="Select your department" />
                     </SelectTrigger>
                     <SelectContent>
@@ -296,14 +296,14 @@ const Register = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="employee_id">Employee ID</Label>
+                  <Label htmlFor="employee_id" className="text-gray-700">Employee ID</Label>
                   <Input
                     id="employee_id"
                     name="employee_id"
                     type="text"
                     value={formData.employee_id}
                     onChange={handleChange}
-                    className={errors.employee_id ? "border-destructive" : ""}
+                    className={`bg-white border ${errors.employee_id ? "border-destructive" : "border-gray-300"} text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                     placeholder="Enter your employee ID"
                   />
                   {errors.employee_id && (
@@ -315,16 +315,16 @@ const Register = () => {
 
             {/* Account Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-foreground">Account Information</h3>
+              <h3 className="text-lg font-medium text-gray-900">Account Information</h3>
               <div className="space-y-2">
-                <Label htmlFor="username">Username *</Label>
+                <Label htmlFor="username" className="text-gray-700">Username *</Label>
                 <Input
                   id="username"
                   name="username"
                   type="text"
                   value={formData.username}
                   onChange={handleChange}
-                  className={errors.username ? "border-destructive" : ""}
+                  className={`bg-white border ${errors.username ? "border-destructive" : "border-gray-300"} text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                   placeholder="Choose a username"
                 />
                 {errors.username && (
@@ -333,7 +333,7 @@ const Register = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password *</Label>
+                <Label htmlFor="password" className="text-gray-700">Password *</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -341,7 +341,7 @@ const Register = () => {
                     type={showPassword ? "text" : "password"}
                     value={formData.password}
                     onChange={handleChange}
-                    className={errors.password ? "border-destructive pr-10" : "pr-10"}
+                    className={`pr-10 bg-white border ${errors.password ? "border-destructive" : "border-gray-300"} text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                     placeholder="Create a strong password"
                   />
                   <button
@@ -361,7 +361,7 @@ const Register = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirm_password">Confirm Password *</Label>
+                <Label htmlFor="confirm_password" className="text-gray-700">Confirm Password *</Label>
                 <div className="relative">
                   <Input
                     id="confirm_password"
@@ -369,7 +369,7 @@ const Register = () => {
                     type={showConfirmPassword ? "text" : "password"}
                     value={formData.confirm_password}
                     onChange={handleChange}
-                    className={errors.confirm_password ? "border-destructive pr-10" : "pr-10"}
+                    className={`pr-10 bg-white border ${errors.confirm_password ? "border-destructive" : "border-gray-300"} text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                     placeholder="Confirm your password"
                   />
                   <button

@@ -47,20 +47,23 @@ export const AuthProvider = ({ children }) => {
       websocketService.connect()
       websocketService.startHeartbeat()
 
-      // Set up WebSocket event listeners
-      websocketService.onNotification((notification) => {
+      // Set up WebSocket event listeners and capture unsubscribe functions
+      const unsubNotif = websocketService.onNotification((notification) => {
         setNotifications(prev => [notification, ...prev.slice(0, 49)]) // Keep last 50
       })
 
-      websocketService.on('connected', () => {
+      const unsubConnected = websocketService.on('connected', () => {
         console.log('Real-time connection established')
       })
 
-      websocketService.on('disconnected', () => {
+      const unsubDisconnected = websocketService.on('disconnected', () => {
         console.log('Real-time connection lost')
       })
 
       return () => {
+        try { unsubNotif && unsubNotif() } catch {}
+        try { unsubConnected && unsubConnected() } catch {}
+        try { unsubDisconnected && unsubDisconnected() } catch {}
         websocketService.stopHeartbeat()
         websocketService.disconnect()
       }
@@ -167,10 +170,7 @@ export const AuthProvider = ({ children }) => {
       setUser(response.data)
       return { success: true }
     } catch (error) {
-      return {
-        success,
-        error: error.response?.data?.message || "Profile update failed",
-      }
+      return { success: false, error: error.response?.data?.message || "Profile update failed" }
     }
   }
 
@@ -179,10 +179,7 @@ export const AuthProvider = ({ children }) => {
       await apiService.post("/auth/change-password/", passwordData)
       return { success: true }
     } catch (error) {
-      return {
-        success,
-        error: error.response?.data?.message || "Password change failed",
-      }
+      return { success: false, error: error.response?.data?.message || "Password change failed" }
     }
   }
 
