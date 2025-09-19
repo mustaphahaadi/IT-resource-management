@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { apiService } from "../../services/api"
 
 const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
@@ -9,8 +10,9 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
     assigned_to: "",
     due_date: "",
     estimated_hours: "",
-    category: "maintenance",
+    related_request: "",
   })
+  const [requests, setRequests] = useState([])
 
   useEffect(() => {
     if (task) {
@@ -22,14 +24,36 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
         assigned_to: task.assigned_to || "",
         due_date: task.due_date ? task.due_date.split("T")[0] : "",
         estimated_hours: task.estimated_hours || "",
-        category: task.category || "maintenance",
+        related_request: task.related_request || "",
       })
     }
   }, [task])
 
+  useEffect(() => {
+    // Load support requests for selection
+    const fetchRequests = async () => {
+      try {
+        const res = await apiService.getSupportRequests({ page_size: 100 })
+        const data = res.data.results || res.data
+        setRequests(Array.isArray(data) ? data : [])
+      } catch (e) {
+        console.error("Error fetching support requests:", e)
+      }
+    }
+    fetchRequests()
+  }, [])
+
   const handleSubmit = (e) => {
     e.preventDefault()
-    onSubmit(formData)
+    const payload = { ...formData }
+    if (payload.due_date && !payload.due_date.includes("T")) {
+      // Convert date to DateTime (UTC midnight)
+      payload.due_date = `${payload.due_date}T00:00:00Z`
+    }
+    // Normalize empty strings to null where appropriate
+    if (payload.assigned_to === "") payload.assigned_to = null
+    if (payload.estimated_hours === "") payload.estimated_hours = null
+    onSubmit(payload)
   }
 
   const handleChange = (e) => {
@@ -42,7 +66,7 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-card border border-border rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-white border border-gray-200 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">{task ? "Edit Task" : "Create New Task"}</h2>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
@@ -52,36 +76,37 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Title</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
             <input
               type="text"
               name="title"
               value={formData.title}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Description</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
               rows={4}
-              className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+              required
+              className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Priority</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
               <select
                 name="priority"
                 value={formData.priority}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
@@ -89,73 +114,74 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
                 <option value="critical">Critical</option>
               </select>
             </div>
-
             <div>
-              <label className="block text-sm font-medium mb-2">Category</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Related Support Request</label>
               <select
-                name="category"
-                value={formData.category}
+                name="related_request"
+                value={formData.related_request}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                required
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                <option value="maintenance">Maintenance</option>
-                <option value="installation">Installation</option>
-                <option value="repair">Repair</option>
-                <option value="upgrade">Upgrade</option>
-                <option value="support">Support</option>
-                <option value="security">Security</option>
+                <option value="">Select Request</option>
+                {requests.map((req) => (
+                  <option key={req.id} value={req.id}>
+                    {req.ticket_number} - {req.title}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Assign To</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Assign To</label>
               <select
                 name="assigned_to"
                 value={formData.assigned_to}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">Select Personnel</option>
                 {personnel.map((person) => (
                   <option key={person.id} value={person.id}>
-                    {person.name} - {person.role}
+                    {person.user_name || person.username} - {person.skill_level}
                   </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Status</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
               <select
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="pending">Pending</option>
+                <option value="assigned">Assigned</option>
                 <option value="in_progress">In Progress</option>
                 <option value="completed">Completed</option>
-                <option value="on_hold">On Hold</option>
+                <option value="cancelled">Cancelled</option>
               </select>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Due Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
               <input
                 type="date"
                 name="due_date"
                 value={formData.due_date}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Estimated Hours</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Estimated Hours</label>
               <input
                 type="number"
                 name="estimated_hours"
@@ -163,7 +189,7 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
                 onChange={handleChange}
                 min="0"
                 step="0.5"
-                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -172,7 +198,7 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-border rounded-md hover:bg-accent"
+              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
             >
               Cancel
             </button>

@@ -52,4 +52,5 @@ urlpatterns = [
     path('api/auth/', include('rest_framework.urls')),
     path('api/auth/user/', user_profile, name='api_user_profile'),
     path('api/notifications/', include('notifications.urls')),
+    path('api/analytics/', include('analytics.urls')),
 ]

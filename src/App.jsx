@@ -68,8 +68,17 @@ function App() {
               <Route index element={<Dashboard />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="inventory" element={<Inventory />} />
+              <Route path="inventory/new" element={<Inventory />} />
+              <Route path="inventory/:equipmentId" element={<Inventory />} />
+              <Route path="inventory/:equipmentId/edit" element={<Inventory />} />
               <Route path="requests" element={<Requests />} />
+              <Route path="requests/new" element={<Requests />} />
+              <Route path="requests/:requestId" element={<Requests />} />
+              <Route path="requests/:requestId/edit" element={<Requests />} />
               <Route path="tasks" element={<Tasks />} />
+              <Route path="tasks/new" element={<Tasks />} />
+              <Route path="tasks/:taskId" element={<Tasks />} />
+              <Route path="tasks/:taskId/edit" element={<Tasks />} />
               <Route path="reports" element={<Reports />} />
               <Route path="settings" element={<Settings />} />
               <Route path="profile" element={<Profile />} />
@@ -86,8 +95,17 @@ function App() {
             {/* Legacy routes for backward compatibility */}
             <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
             <Route path="/inventory" element={<ProtectedRoute><Layout><Inventory /></Layout></ProtectedRoute>} />
+            <Route path="/inventory/new" element={<ProtectedRoute><Layout><Inventory /></Layout></ProtectedRoute>} />
+            <Route path="/inventory/:equipmentId" element={<ProtectedRoute><Layout><Inventory /></Layout></ProtectedRoute>} />
+            <Route path="/inventory/:equipmentId/edit" element={<ProtectedRoute><Layout><Inventory /></Layout></ProtectedRoute>} />
             <Route path="/requests" element={<ProtectedRoute><Layout><Requests /></Layout></ProtectedRoute>} />
+            <Route path="/requests/new" element={<ProtectedRoute><Layout><Requests /></Layout></ProtectedRoute>} />
+            <Route path="/requests/:requestId" element={<ProtectedRoute><Layout><Requests /></Layout></ProtectedRoute>} />
+            <Route path="/requests/:requestId/edit" element={<ProtectedRoute><Layout><Requests /></Layout></ProtectedRoute>} />
             <Route path="/tasks" element={<ProtectedRoute><Layout><Tasks /></Layout></ProtectedRoute>} />
+            <Route path="/tasks/new" element={<ProtectedRoute><Layout><Tasks /></Layout></ProtectedRoute>} />
+            <Route path="/tasks/:taskId" element={<ProtectedRoute><Layout><Tasks /></Layout></ProtectedRoute>} />
+            <Route path="/tasks/:taskId/edit" element={<ProtectedRoute><Layout><Tasks /></Layout></ProtectedRoute>} />
             <Route path="/reports" element={<ProtectedRoute><Layout><Reports /></Layout></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Layout><Settings /></Layout></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute><Layout><AdminPanel /></Layout></ProtectedRoute>} />

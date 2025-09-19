@@ -15,6 +15,7 @@ class WebSocketService {
       return
     }
 
+    // Check if WebSocket server is available (for development)
     const wsUrl = `ws://localhost:8000/ws/notifications/?token=${token}`
     
     try {
@@ -37,22 +38,27 @@ class WebSocketService {
       }
 
       this.socket.onclose = (event) => {
-        console.log('WebSocket disconnected:', event.code, event.reason)
         this.isConnected = false
         this.emit('disconnected')
         
+        // Only attempt reconnection if it wasn't a normal close and we haven't exceeded max attempts
         if (!event.wasClean && this.reconnectAttempts < this.maxReconnectAttempts) {
           this.scheduleReconnect()
+        } else if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+          console.warn('WebSocket: Max reconnection attempts reached. Real-time features disabled.')
         }
       }
 
       this.socket.onerror = (error) => {
-        console.error('WebSocket error:', error)
+        // Suppress error logging for connection refused (when WebSocket server is not available)
+        if (this.reconnectAttempts === 0) {
+          console.warn('WebSocket server not available. Real-time features disabled.')
+        }
         this.emit('error', error)
       }
 
     } catch (error) {
-      console.error('Failed to create WebSocket connection:', error)
+      console.warn('WebSocket not available:', error.message)
     }
   }
 
@@ -66,7 +72,11 @@ class WebSocketService {
 
   scheduleReconnect() {
     this.reconnectAttempts++
-    console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`)
+    
+    // Only log reconnection attempts after the first few to reduce console spam
+    if (this.reconnectAttempts <= 2) {
+      console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`)
+    }
     
     setTimeout(() => {
       this.connect()

@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'requests_system',
     'tasks',
     'notifications',
+    'analytics',
 ]
 
 MIDDLEWARE = [

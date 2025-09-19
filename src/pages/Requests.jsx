@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
 import {
@@ -16,7 +17,9 @@ import {
   CalendarIcon
 } from "@heroicons/react/24/outline"
 import { apiService } from "../services/api"
-import RequestDetails from "../components/requests/RequestDetails"
+import RequestDetails from "../components/Requests/RequestDetails"
+import AlertsPanel from "../components/Requests/AlertsPanel"
+import RequestForm from "../components/Requests/RequestForm"
 
 const Requests = () => {
   const [requests, setRequests] = useState([])
@@ -34,11 +37,63 @@ const Requests = () => {
     category: "",
     assigned_to: "",
   })
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { requestId } = useParams()
+
+  const getBasePath = () => (location.pathname.startsWith("/app/") ? "/app/requests" : "/requests")
 
   useEffect(() => {
     fetchRequests()
     fetchAlerts()
   }, [filters, searchTerm])
+
+  useEffect(() => {
+    const openNew = location.pathname.endsWith("/new")
+    const openEdit = location.pathname.endsWith("/edit")
+
+    if (openNew) {
+      setSelectedRequest(null)
+      setShowForm(true)
+      setShowDetails(false)
+      return
+    }
+
+    if (requestId && openEdit) {
+      const existing = requests.find((r) => r.id?.toString() === requestId)
+      if (existing) {
+        setSelectedRequest(existing)
+      } else {
+        apiService
+          .getSupportRequest(requestId)
+          .then((res) => setSelectedRequest(res.data))
+          .catch(() => {})
+      }
+      setShowForm(true)
+      setShowDetails(false)
+      return
+    }
+
+    if (requestId) {
+      const existing = requests.find((r) => r.id?.toString() === requestId)
+      if (existing) {
+        setSelectedRequest(existing)
+      } else {
+        apiService
+          .getSupportRequest(requestId)
+          .then((res) => setSelectedRequest(res.data))
+          .catch(() => {})
+      }
+      setShowDetails(true)
+      setShowForm(false)
+      return
+    }
+
+    // default close
+    setShowForm(false)
+    setShowDetails(false)
+    setSelectedRequest(null)
+  }, [location.pathname, requestId, requests])
 
   const fetchRequests = async () => {
     try {
@@ -221,17 +276,15 @@ const Requests = () => {
   }
 
   const handleCreateRequest = () => {
-    setSelectedRequest(null)
-    setShowForm(true)
+    navigate(`${getBasePath()}/new`)
   }
 
   const handleViewRequest = (request) => {
-    setSelectedRequest(request)
-    setShowDetails(true)
+    navigate(`${getBasePath()}/${request.id}`)
   }
 
   const handleFormSuccess = () => {
-    setShowForm(false)
+    navigate(getBasePath())
     setSelectedRequest(null)
     fetchRequests()
   }
@@ -448,14 +501,18 @@ const Requests = () => {
 
       {/* Request Form Modal */}
       {showForm && (
-        <RequestForm request={selectedRequest} onClose={() => setShowForm(false)} onSuccess={handleFormSuccess} />
+        <RequestForm
+          request={selectedRequest}
+          onClose={() => navigate(getBasePath())}
+          onSuccess={handleFormSuccess}
+        />
       )}
 
       {/* Request Details Modal */}
       {showDetails && selectedRequest && (
         <RequestDetails
           request={selectedRequest}
-          onClose={() => setShowDetails(false)}
+          onClose={() => navigate(getBasePath())}
           onUpdate={fetchRequests}
           onAssign={handleAssignRequest}
         />

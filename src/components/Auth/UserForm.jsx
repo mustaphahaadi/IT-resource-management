@@ -9,7 +9,7 @@ const UserForm = ({ user, roles, onSubmit, onClose }) => {
     role: "",
     department: "",
     phone: "",
-    is_active,
+    is_active: true,
     password: "",
     confirm_password: "",
   })
@@ -25,10 +25,11 @@ const UserForm = ({ user, roles, onSubmit, onClose }) => {
         role: user.role || "",
         department: user.department || "",
         phone: user.phone || "",
-        is_active: user.is_active !== undefined ? user.is_active ,
+        is_active: user.is_active !== undefined ? user.is_active : true,
         password: "",
         confirm_password: "",
-      )
+      })
+    }
   }, [user])
 
   const validateForm = () => {
@@ -69,7 +70,7 @@ const UserForm = ({ user, roles, onSubmit, onClose }) => {
     const { name, value, type, checked } = e.target
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked ,
+      [name]: type === "checkbox" ? checked : value,
     }))
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }))
@@ -78,7 +79,7 @@ const UserForm = ({ user, roles, onSubmit, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-card border border-border rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-white border border-gray-200 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">{user ? "Edit User" : "Add New User"}</h2>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
@@ -89,28 +90,28 @@ const UserForm = ({ user, roles, onSubmit, onClose }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Username *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Username *</label>
               <input
                 type="text"
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary ${
-                  errors.username ? "border-destructive" : "border-border"
+                className={`w-full px-3 py-2 bg-white border rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  errors.username ? "border-destructive" : "border-gray-300"
                 }`}
               />
               {errors.username && <p className="text-sm text-destructive mt-1">{errors.username}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Email *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary ${
-                  errors.email ? "border-destructive" : "border-border"
+                className={`w-full px-3 py-2 bg-white border rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  errors.email ? "border-destructive" : "border-gray-300"
                 }`}
               />
               {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
@@ -119,28 +120,28 @@ const UserForm = ({ user, roles, onSubmit, onClose }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">First Name *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
               <input
                 type="text"
                 name="first_name"
                 value={formData.first_name}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary ${
-                  errors.first_name ? "border-destructive" : "border-border"
+                className={`w-full px-3 py-2 bg-white border rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  errors.first_name ? "border-destructive" : "border-gray-300"
                 }`}
               />
               {errors.first_name && <p className="text-sm text-destructive mt-1">{errors.first_name}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Last Name *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
               <input
                 type="text"
                 name="last_name"
                 value={formData.last_name}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary ${
-                  errors.last_name ? "border-destructive" : "border-border"
+                className={`w-full px-3 py-2 bg-white border rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  errors.last_name ? "border-destructive" : "border-gray-300"
                 }`}
               />
               {errors.last_name && <p className="text-sm text-destructive mt-1">{errors.last_name}</p>}
@@ -149,71 +150,73 @@ const UserForm = ({ user, roles, onSubmit, onClose }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Role *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Role *</label>
               <select
                 name="role"
                 value={formData.role}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary ${
-                  errors.role ? "border-destructive" : "border-border"
+                className={`w-full px-3 py-2 bg-white border rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  errors.role ? "border-destructive" : "border-gray-300"
                 }`}
               >
                 <option value="">Select Role</option>
                 {roles.map((role) => (
                   <option key={role.id} value={role.name}>
-                    {role.display_name}) )}
+                    {role.display_name}
+                  </option>
+                ))}
               </select>
               {errors.role && <p className="text-sm text-destructive mt-1">{errors.role}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Department</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
               <input
                 type="text"
                 name="department"
                 value={formData.department}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Phone</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
             <input
               type="tel"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
           {(!user || formData.password) && (
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Password {!user && "*"}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Password {!user && "*"}</label>
                 <input
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary ${
-                    errors.password ? "border-destructive" : "border-border"
+                  className={`w-full px-3 py-2 bg-white border rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    errors.password ? "border-destructive" : "border-gray-300"
                   }`}
                 />
                 {errors.password && <p className="text-sm text-destructive mt-1">{errors.password}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Confirm Password {!user && "*"}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password {!user && "*"}</label>
                 <input
                   type="password"
                   name="confirm_password"
                   value={formData.confirm_password}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary ${
-                    errors.confirm_password ? "border-destructive" : "border-border"
+                  className={`w-full px-3 py-2 bg-white border rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    errors.confirm_password ? "border-destructive" : "border-gray-300"
                   }`}
                 />
                 {errors.confirm_password && <p className="text-sm text-destructive mt-1">{errors.confirm_password}</p>}
@@ -228,9 +231,9 @@ const UserForm = ({ user, roles, onSubmit, onClose }) => {
               id="is_active"
               checked={formData.is_active}
               onChange={handleChange}
-              className="h-4 w-4 text-primary focus:ring-primary border-border rounded"
+              className="h-4 w-4 text-primary focus:ring-blue-500 border-gray-300 rounded"
             />
-            <label htmlFor="is_active" className="ml-2 block text-sm text-foreground">
+            <label htmlFor="is_active" className="ml-2 block text-sm text-gray-700">
               Active User
             </label>
           </div>
@@ -239,7 +242,7 @@ const UserForm = ({ user, roles, onSubmit, onClose }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-border rounded-md hover:bg-accent"
+              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
             >
               Cancel
             </button>

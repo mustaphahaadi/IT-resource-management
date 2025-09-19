@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
 import {
@@ -13,6 +14,9 @@ import {
   ExclamationTriangleIcon
 } from "@heroicons/react/24/outline"
 import { apiService } from "../services/api"
+import TaskForm from "../components/Tasks/TaskForm"
+import PersonnelPanel from "../components/Tasks/PersonnelPanel"
+import TaskDetails from "../components/Tasks/TaskDetails"
 
 const Tasks = () => {
   const [tasks, setTasks] = useState([])
@@ -27,120 +31,76 @@ const Tasks = () => {
     assignee: "",
     search: "",
   })
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { taskId } = useParams()
+
+  const getBasePath = () => (location.pathname.startsWith("/app/") ? "/app/tasks" : "/tasks")
 
   useEffect(() => {
     fetchTasks()
     fetchPersonnel()
   }, [filters])
 
+  useEffect(() => {
+    const openNew = location.pathname.endsWith("/new")
+    const openEdit = location.pathname.endsWith("/edit")
+
+    if (openNew) {
+      setSelectedTask(null)
+      setShowTaskForm(true)
+      return
+    }
+
+    if (taskId && openEdit) {
+      const existing = tasks.find((t) => t.id?.toString() === taskId)
+      if (existing) {
+        setSelectedTask(existing)
+      } else {
+        apiService
+          .getTask(taskId)
+          .then((res) => setSelectedTask(res.data))
+          .catch(() => {})
+      }
+      setShowTaskForm(true)
+      return
+    }
+
+    if (taskId) {
+      const existing = tasks.find((t) => t.id?.toString() === taskId)
+      if (existing) {
+        setSelectedTask(existing)
+      } else {
+        apiService
+          .getTask(taskId)
+          .then((res) => setSelectedTask(res.data))
+          .catch(() => {})
+      }
+      setShowTaskForm(false)
+      return
+    }
+
+    // default close
+    setShowTaskForm(false)
+    setSelectedTask(null)
+  }, [location.pathname, taskId, tasks])
+
   const fetchTasks = async () => {
     try {
       setLoading(true)
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      // Mock tasks data
-      const mockTasks = [
-        {
-          id: 1,
-          title: "Update MRI Software",
-          description: "Install latest software update for MRI scanner in Radiology",
-          status: "in_progress",
-          priority: "high",
-          assigned_to: 1,
-          assigned_to_name: "John Smith",
-          due_date: "2024-02-15",
-          created_at: "2024-01-10T10:00:00Z",
-          category: "Software Update",
-          department: "Radiology",
-          estimated_hours: 4
-        },
-        {
-          id: 2,
-          title: "Network Maintenance - ICU",
-          description: "Perform routine network maintenance and security updates for ICU systems",
-          status: "pending",
-          priority: "medium",
-          assigned_to: 2,
-          assigned_to_name: "Sarah Johnson",
-          due_date: "2024-02-20",
-          created_at: "2024-01-12T14:30:00Z",
-          category: "Maintenance",
-          department: "ICU",
-          estimated_hours: 6
-        },
-        {
-          id: 3,
-          title: "Replace Printer Cartridges",
-          description: "Replace toner cartridges for all printers in Emergency Department",
-          status: "completed",
-          priority: "low",
-          assigned_to: 3,
-          assigned_to_name: "Mike Davis",
-          due_date: "2024-01-25",
-          created_at: "2024-01-08T09:15:00Z",
-          category: "Hardware",
-          department: "Emergency",
-          estimated_hours: 2
-        },
-        {
-          id: 4,
-          title: "Security Audit - Laboratory Systems",
-          description: "Conduct comprehensive security audit of laboratory information systems",
-          status: "pending",
-          priority: "critical",
-          assigned_to: null,
-          assigned_to_name: null,
-          due_date: "2024-02-10",
-          created_at: "2024-01-15T11:45:00Z",
-          category: "Security",
-          department: "Laboratory",
-          estimated_hours: 8
-        },
-        {
-          id: 5,
-          title: "Backup System Test",
-          description: "Test and verify backup systems for patient data integrity",
-          status: "on_hold",
-          priority: "high",
-          assigned_to: 1,
-          assigned_to_name: "John Smith",
-          due_date: "2024-02-18",
-          created_at: "2024-01-14T16:20:00Z",
-          category: "System Test",
-          department: "IT",
-          estimated_hours: 3
-        }
-      ]
-      
-      // Apply filters
-      let filteredTasks = mockTasks
-      
-      if (filters.status) {
-        filteredTasks = filteredTasks.filter(task => task.status === filters.status)
-      }
-      
-      if (filters.priority) {
-        filteredTasks = filteredTasks.filter(task => task.priority === filters.priority)
-      }
-      
-      if (filters.assignee) {
-        filteredTasks = filteredTasks.filter(task => task.assigned_to?.toString() === filters.assignee)
-      }
-      
-      if (filters.search) {
-        filteredTasks = filteredTasks.filter(task =>
-          task.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-          task.description.toLowerCase().includes(filters.search.toLowerCase()) ||
-          task.department.toLowerCase().includes(filters.search.toLowerCase())
-        )
-      }
-      
-      setTasks(filteredTasks)
+      const params = {}
+      if (filters.status) params.status = filters.status
+      if (filters.priority) params.priority = filters.priority
+      if (filters.assignee) params.assigned_to = filters.assignee
+      if (filters.search) params.search = filters.search
+      const res = await apiService.getTasks(params)
+      const data = res.data.results || res.data
+      setTasks(Array.isArray(data) ? data : [])
+      return Array.isArray(data) ? data : []
     } catch (error) {
       console.error("Error fetching tasks:", error)
       setTasks([])
+      return []
     } finally {
       setLoading(false)
     }
@@ -148,16 +108,9 @@ const Tasks = () => {
 
   const fetchPersonnel = async () => {
     try {
-      // Mock personnel data
-      const mockPersonnel = [
-        { id: 1, name: "John Smith", role: "Senior IT Technician", department: "IT", email: "john.smith@hospital.com" },
-        { id: 2, name: "Sarah Johnson", role: "Network Administrator", department: "IT", email: "sarah.johnson@hospital.com" },
-        { id: 3, name: "Mike Davis", role: "Hardware Specialist", department: "IT", email: "mike.davis@hospital.com" },
-        { id: 4, name: "Emily Chen", role: "Security Analyst", department: "IT", email: "emily.chen@hospital.com" },
-        { id: 5, name: "David Wilson", role: "Database Administrator", department: "IT", email: "david.wilson@hospital.com" }
-      ]
-      
-      setPersonnel(mockPersonnel)
+      const res = await apiService.getPersonnel({ page_size: 100 })
+      const data = res.data.results || res.data
+      setPersonnel(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error("Error fetching personnel:", error)
       setPersonnel([])
@@ -166,10 +119,13 @@ const Tasks = () => {
 
   const handleTaskSubmit = async (taskData) => {
     try {
-      // Simulate API call
-      console.log('Saving task:', taskData)
-      // In real implementation, would make API call here
-      fetchTasks()
+      if (selectedTask) {
+        await apiService.updateTask(selectedTask.id, taskData)
+      } else {
+        await apiService.createTask(taskData)
+      }
+      await fetchTasks()
+      navigate(getBasePath())
       setShowTaskForm(false)
       setSelectedTask(null)
     } catch (error) {
@@ -179,20 +135,12 @@ const Tasks = () => {
 
   const handleTaskAssign = async (taskId, personnelId) => {
     try {
-      // Simulate API call
-      console.log(`Assigning task ${taskId} to personnel ${personnelId}`)
-      // Update local state for demo
-      setTasks(prevTasks => 
-        prevTasks.map(task => 
-          task.id === taskId 
-            ? { 
-                ...task, 
-                assigned_to: parseInt(personnelId), 
-                assigned_to_name: personnel.find(p => p.id === parseInt(personnelId))?.name || null 
-              }
-            : task
-        )
-      )
+      await apiService.assignTask(taskId, personnelId)
+      const updated = await fetchTasks()
+      if (selectedTask) {
+        const refreshed = updated.find((t) => t.id === selectedTask.id)
+        if (refreshed) setSelectedTask(refreshed)
+      }
     } catch (error) {
       console.error("Error assigning task:", error)
     }
@@ -200,14 +148,18 @@ const Tasks = () => {
 
   const handleStatusUpdate = async (taskId, status) => {
     try {
-      // Simulate API call
-      console.log(`Updating task ${taskId} status to ${status}`)
-      // Update local state for demo
-      setTasks(prevTasks => 
-        prevTasks.map(task => 
-          task.id === taskId ? { ...task, status } : task
-        )
-      )
+      if (status === "in_progress") {
+        await apiService.startTask(taskId)
+      } else if (status === "completed") {
+        await apiService.completeTask(taskId)
+      } else {
+        await apiService.updateTask(taskId, { status })
+      }
+      const updated = await fetchTasks()
+      if (selectedTask) {
+        const refreshed = updated.find((t) => t.id === selectedTask.id)
+        if (refreshed) setSelectedTask(refreshed)
+      }
     } catch (error) {
       console.error("Error updating task status:", error)
     }
@@ -216,9 +168,10 @@ const Tasks = () => {
   const getStatusColor = (status) => {
     const colors = {
       pending: "bg-yellow-100 text-yellow-800",
-      in_progress: "bg-blue-100 text-blue-800",
+      assigned: "bg-blue-100 text-blue-800",
+      in_progress: "bg-blue-200 text-blue-900",
       completed: "bg-green-100 text-green-800",
-      on_hold: "bg-gray-100 text-gray-800",
+      cancelled: "bg-gray-100 text-gray-800",
     }
     return colors[status] || "bg-gray-100 text-gray-800"
   }
@@ -250,7 +203,7 @@ const Tasks = () => {
             <span>Manage Personnel</span>
           </Button>
           <Button
-            onClick={() => setShowTaskForm(true)}
+            onClick={() => navigate(`${getBasePath()}/new`)}
             className="flex items-center space-x-2"
           >
             <PlusIcon className="w-4 h-4" />
@@ -280,9 +233,10 @@ const Tasks = () => {
             >
               <option value="">All Status</option>
               <option value="pending">Pending</option>
+              <option value="assigned">Assigned</option>
               <option value="in_progress">In Progress</option>
               <option value="completed">Completed</option>
-              <option value="on_hold">On Hold</option>
+              <option value="cancelled">Cancelled</option>
             </select>
             <select
               value={filters.priority}
@@ -303,7 +257,7 @@ const Tasks = () => {
               <option value="">All Assignees</option>
               {personnel.map((person) => (
                 <option key={person.id} value={person.id}>
-                  {person.name}
+                  {person.user_name || person.username}
                 </option>
               ))}
             </select>
@@ -347,7 +301,7 @@ const Tasks = () => {
                     <div
                       key={task.id}
                       className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
-                      onClick={() => setSelectedTask(task)}
+                      onClick={() => navigate(`${getBasePath()}/${task.id}`)}
                     >
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex-1">
@@ -363,54 +317,57 @@ const Tasks = () => {
                           </span>
                         </div>
                       </div>
-                      
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-3">
-                        <div className="flex items-center gap-1">
-                          <UserGroupIcon className="w-4 h-4" />
-                          <span>{task.assigned_to_name || "Unassigned"}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <CalendarIcon className="w-4 h-4" />
-                          <span>{task.due_date ? new Date(task.due_date).toLocaleDateString() : "No due date"}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <ClockIcon className="w-4 h-4" />
-                          <span>{task.estimated_hours}h estimated</span>
-                        </div>
-                        <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
-                          {task.department}
-                        </span>
+                    
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-3">
+                      <div className="flex items-center gap-1">
+                        <UserGroupIcon className="w-4 h-4" />
+                        <span>{task.assigned_to_name || "Unassigned"}</span>
                       </div>
-                      
-                      <div className="flex justify-between items-center">
-                        <div className="text-xs text-gray-500">
-                          Created {new Date(task.created_at).toLocaleDateString()}
-                        </div>
-                        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                          {task.status !== "completed" && (
-                            <select
-                              value={task.assigned_to || ""}
-                              onChange={(e) => handleTaskAssign(task.id, e.target.value)}
-                              className="px-2 py-1 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            >
-                              <option value="">Assign to...</option>
+                      <div className="flex items-center gap-1">
+                        <CalendarIcon className="w-4 h-4" />
+                        <span>{task.due_date ? new Date(task.due_date).toLocaleDateString() : "No due date"}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <ClockIcon className="w-4 h-4" />
+                        <span>{task.estimated_hours}h estimated</span>
+                      </div>
+                      {task.request_ticket && (
+                        <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
+                          Req {task.request_ticket}
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <div className="text-xs text-gray-500">
+                        Created {new Date(task.created_at).toLocaleDateString()}
+                      </div>
+                      <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                        {task.status !== "completed" && (
+                          <select
+                            value={task.assigned_to || ""}
+                            onChange={(e) => handleTaskAssign(task.id, e.target.value)}
+                            className="px-2 py-1 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          >
+                            <option value="">Assign to...</option>
                               {personnel.map((person) => (
                                 <option key={person.id} value={person.id}>
-                                  {person.name}
+                                  {person.user_name || person.username}
                                 </option>
                               ))}
                             </select>
-                          )}
-                          <select
-                            value={task.status}
-                            onChange={(e) => handleStatusUpdate(task.id, e.target.value)}
-                            className="px-2 py-1 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          >
-                            <option value="pending">Pending</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="completed">Completed</option>
-                            <option value="on_hold">On Hold</option>
-                          </select>
+                        )}
+                        <select
+                          value={task.status}
+                          onChange={(e) => handleStatusUpdate(task.id, e.target.value)}
+                          className="px-2 py-1 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="assigned">Assigned</option>
+                          <option value="in_progress">In Progress</option>
+                          <option value="completed">Completed</option>
+                          <option value="cancelled">Cancelled</option>
+                        </select>
                         </div>
                       </div>
                     </div>
@@ -451,9 +408,9 @@ const Tasks = () => {
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">On Hold</span>
+                  <span className="text-gray-600">Cancelled</span>
                   <span className="font-semibold text-gray-600">
-                    {tasks.filter((t) => t.status === "on_hold").length}
+                    {tasks.filter((t) => t.status === "cancelled").length}
                   </span>
                 </div>
               </div>
@@ -471,8 +428,8 @@ const Tasks = () => {
                   return (
                     <div key={person.id} className="flex justify-between items-center">
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{person.name}</p>
-                        <p className="text-xs text-gray-500">{person.role}</p>
+                        <p className="text-sm font-medium text-gray-900">{person.user_name || person.username}</p>
+                        <p className="text-xs text-gray-500 capitalize">{person.skill_level}</p>
                       </div>
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -494,67 +451,40 @@ const Tasks = () => {
         </div>
       </div>
 
-      {/* Simple modals - placeholders */}
+      {/* Task Form */}
       {showTaskForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">
-              {selectedTask ? 'Edit Task' : 'Create Task'}
-            </h3>
-            <p className="text-gray-600 mb-4">Task form will be implemented here.</p>
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => {
-                setShowTaskForm(false)
-                setSelectedTask(null)
-              }}>
-                Cancel
-              </Button>
-              <Button onClick={handleTaskSubmit}>
-                Save
-              </Button>
-            </div>
-          </div>
-        </div>
+        <TaskForm
+          task={selectedTask}
+          personnel={personnel}
+          onSubmit={handleTaskSubmit}
+          onClose={() => {
+            navigate(getBasePath())
+            setShowTaskForm(false)
+            setSelectedTask(null)
+          }}
+        />
       )}
 
       {selectedTask && !showTaskForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
-            <h3 className="text-lg font-semibold mb-4">Task Details</h3>
-            <div className="space-y-3">
-              <div><strong>Title:</strong> {selectedTask.title}</div>
-              <div><strong>Description:</strong> {selectedTask.description}</div>
-              <div><strong>Status:</strong> {selectedTask.status}</div>
-              <div><strong>Priority:</strong> {selectedTask.priority}</div>
-              <div><strong>Assigned to:</strong> {selectedTask.assigned_to_name || 'Unassigned'}</div>
-              <div><strong>Due Date:</strong> {selectedTask.due_date || 'No due date'}</div>
-              <div><strong>Department:</strong> {selectedTask.department}</div>
-              <div><strong>Estimated Hours:</strong> {selectedTask.estimated_hours}h</div>
-            </div>
-            <div className="flex justify-end space-x-2 mt-6">
-              <Button variant="outline" onClick={() => setSelectedTask(null)}>
-                Close
-              </Button>
-              <Button onClick={() => setShowTaskForm(true)}>
-                Edit Task
-              </Button>
-            </div>
-          </div>
-        </div>
+        <TaskDetails
+          task={selectedTask}
+          personnel={personnel}
+          onClose={() => navigate(getBasePath())}
+          onEdit={() => navigate(`${getBasePath()}/${selectedTask?.id}/edit`)}
+          onAssign={handleTaskAssign}
+          onStatusUpdate={handleStatusUpdate}
+        />
       )}
 
       {showPersonnelPanel && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Manage Personnel</h3>
-            <p className="text-gray-600 mb-4">Personnel management will be implemented here.</p>
-            <div className="flex justify-end">
-              <Button onClick={() => setShowPersonnelPanel(false)}>
-                Close
-              </Button>
-            </div>
-          </div>
-        </div>
+        <PersonnelPanel
+          personnel={personnel}
+          onClose={() => setShowPersonnelPanel(false)}
+          onUpdate={async () => {
+            await fetchPersonnel()
+            await fetchTasks()
+          }}
+        />
       )}
     </div>
   )

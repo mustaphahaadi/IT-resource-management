@@ -74,7 +74,7 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white border border-gray-200">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>{request ? "Edit Request" : "Create New Support Request"}</CardTitle>
           <button onClick={onClose} className="p-1 hover:bg-muted rounded">
@@ -90,40 +90,40 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Title *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
               <input
                 type="text"
                 name="title"
                 required
                 value={formData.title}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Brief description of the issue"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Description *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
               <textarea
                 name="description"
                 required
                 rows={4}
                 value={formData.description}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Detailed description of the issue, steps to reproduce, and any error messages"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Category *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
                 <select
                   name="category"
                   required
                   value={formData.category}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
@@ -135,12 +135,12 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Priority</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
                 <select
                   name="priority"
                   value={formData.priority}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="low">Low - Enhancement/Non-urgent</option>
                   <option value="medium">Medium - Standard Request</option>
@@ -150,12 +150,12 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Request Channel</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Request Channel</label>
                 <select
                   name="channel"
                   value={formData.channel}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="web">Web Portal</option>
                   <option value="mobile">Mobile App</option>
@@ -166,12 +166,12 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Related Equipment</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Related Equipment</label>
                 <select
                   name="related_equipment"
                   value={formData.related_equipment}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">Select Equipment (Optional)</option>
                   {equipment.map((item) => (
@@ -185,46 +185,46 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Phone Number</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
                 <input
                   type="tel"
                   name="requester_phone"
                   value={formData.requester_phone}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Contact phone number"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Department *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Department *</label>
                 <input
                   type="text"
                   name="requester_department"
                   required
                   value={formData.requester_department}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Your department"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Location *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Location *</label>
                 <input
                   type="text"
                   name="requester_location"
                   required
                   value={formData.requester_location}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Building, floor, room number"
                 />
               </div>
             </div>
 
             <div className="flex justify-end space-x-3 pt-4">
-              <Button type="button" variant="outline" onClick={onClose}>
+              <Button type="button" variant="outline" onClick={onClose} className="border border-gray-300 text-gray-700 hover:bg-gray-50">
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>

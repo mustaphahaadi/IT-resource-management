@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
 import {
@@ -12,7 +13,9 @@ import {
   WrenchScrewdriverIcon,
 } from "@heroicons/react/24/outline"
 import { apiService } from "../services/api"
-// Components will be implemented later
+import EquipmentFilters from "../components/Inventory/EquipmentFilters"
+import EquipmentForm from "../components/Inventory/EquipmentForm"
+import EquipmentDetails from "../components/Inventory/EquipmentDetails"
 
 const Inventory = () => {
   const [equipment, setEquipment] = useState([])
@@ -28,91 +31,74 @@ const Inventory = () => {
     location: "",
     priority: "",
   })
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { equipmentId } = useParams()
+
+  const getBasePath = () => (location.pathname.startsWith("/app/") ? "/app/inventory" : "/inventory")
 
   useEffect(() => {
     fetchEquipment()
   }, [filters, searchTerm])
 
+  useEffect(() => {
+    const base = getBasePath()
+    const openNew = location.pathname.endsWith("/new")
+    const openEdit = location.pathname.endsWith("/edit")
+
+    if (openNew) {
+      setSelectedEquipment(null)
+      setShowForm(true)
+      setShowDetails(false)
+      return
+    }
+
+    if (equipmentId && openEdit) {
+      const existing = equipment.find((e) => e.id?.toString() === equipmentId)
+      if (existing) {
+        setSelectedEquipment(existing)
+      } else {
+        apiService
+          .getEquipmentById(equipmentId)
+          .then((res) => setSelectedEquipment(res.data))
+          .catch(() => {})
+      }
+      setShowForm(true)
+      setShowDetails(false)
+      return
+    }
+
+    if (equipmentId) {
+      const existing = equipment.find((e) => e.id?.toString() === equipmentId)
+      if (existing) {
+        setSelectedEquipment(existing)
+      } else {
+        apiService
+          .getEquipmentById(equipmentId)
+          .then((res) => setSelectedEquipment(res.data))
+          .catch(() => {})
+      }
+      setShowDetails(true)
+      setShowForm(false)
+      return
+    }
+
+    // default close
+    setShowForm(false)
+    setShowDetails(false)
+    setSelectedEquipment(null)
+  }, [location.pathname, equipmentId, equipment])
+
   const fetchEquipment = async () => {
     try {
       setLoading(true)
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      // Mock equipment data - replace with real API call
-      const mockEquipment = [
-        {
-          id: 1,
-          name: "MRI Scanner - Siemens",
-          category: "Medical Imaging",
-          status: "active",
-          location: "Radiology - Room 101",
-          serialNumber: "MRI-2023-001",
-          purchaseDate: "2023-01-15",
-          warrantyExpiry: "2026-01-15",
-          lastMaintenance: "2024-01-10",
-          nextMaintenance: "2024-04-10",
-          priority: "high",
-          assignedTo: "Dr. Sarah Johnson",
-          notes: "Regular maintenance scheduled quarterly"
-        },
-        {
-          id: 2,
-          name: "Dell OptiPlex 7090",
-          category: "Computing",
-          status: "active",
-          location: "ICU - Workstation 3",
-          serialNumber: "DELL-2023-045",
-          purchaseDate: "2023-03-20",
-          warrantyExpiry: "2026-03-20",
-          lastMaintenance: "2024-01-05",
-          nextMaintenance: "2024-07-05",
-          priority: "medium",
-          assignedTo: "John Smith",
-          notes: "Windows 11 Pro, 16GB RAM"
-        },
-        {
-          id: 3,
-          name: "Network Switch - Cisco",
-          category: "Networking",
-          status: "maintenance",
-          location: "Server Room A",
-          serialNumber: "CISCO-2022-089",
-          purchaseDate: "2022-11-10",
-          warrantyExpiry: "2025-11-10",
-          lastMaintenance: "2024-01-15",
-          nextMaintenance: "2024-02-15",
-          priority: "critical",
-          assignedTo: "Mike Davis",
-          notes: "Firmware update in progress"
-        }
-      ]
-      
-      // Filter equipment based on search and filters
-      let filteredEquipment = mockEquipment
-      
-      if (searchTerm) {
-        filteredEquipment = filteredEquipment.filter(item =>
-          item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.location.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+      const params = {
+        ...filters,
       }
-      
-      if (filters.status) {
-        filteredEquipment = filteredEquipment.filter(item => item.status === filters.status)
-      }
-      
-      if (filters.category) {
-        filteredEquipment = filteredEquipment.filter(item => item.category === filters.category)
-      }
-      
-      if (filters.priority) {
-        filteredEquipment = filteredEquipment.filter(item => item.priority === filters.priority)
-      }
-      
-      setEquipment(filteredEquipment)
+      if (searchTerm) params.search = searchTerm
+      const res = await apiService.getEquipment(params)
+      const data = res.data.results || res.data
+      setEquipment(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error("Error fetching equipment:", error)
       setEquipment([])
@@ -122,18 +108,15 @@ const Inventory = () => {
   }
 
   const handleAddEquipment = () => {
-    setSelectedEquipment(null)
-    setShowForm(true)
+    navigate(`${getBasePath()}/new`)
   }
 
   const handleEditEquipment = (item) => {
-    setSelectedEquipment(item)
-    setShowForm(true)
+    navigate(`${getBasePath()}/${item.id}/edit`)
   }
 
   const handleViewEquipment = (item) => {
-    setSelectedEquipment(item)
-    setShowDetails(true)
+    navigate(`${getBasePath()}/${item.id}`)
   }
 
   const handleDeleteEquipment = async (id) => {
@@ -148,7 +131,7 @@ const Inventory = () => {
   }
 
   const handleFormSuccess = () => {
-    setShowForm(false)
+    navigate(getBasePath())
     setSelectedEquipment(null)
     fetchEquipment()
   }
@@ -197,41 +180,30 @@ const Inventory = () => {
       </div>
 
       {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search equipment..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search equipment..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <Button variant="outline" onClick={() => setShowFilters((s) => !s)} className="flex items-center gap-2">
+            <FunnelIcon className="w-4 h-4" />
+            <span>Filters</span>
+          </Button>
         </div>
-        <div className="flex gap-2">
-          <select
-            value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="">All Status</option>
-            <option value="active">Active</option>
-            <option value="maintenance">Maintenance</option>
-            <option value="retired">Retired</option>
-            <option value="broken">Broken</option>
-          </select>
-          <select
-            value={filters.category}
-            onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="">All Categories</option>
-            <option value="Medical Imaging">Medical Imaging</option>
-            <option value="Computing">Computing</option>
-            <option value="Networking">Networking</option>
-            <option value="Medical Devices">Medical Devices</option>
-          </select>
-        </div>
+        {showFilters && (
+          <Card className="bg-white shadow-sm border border-gray-200">
+            <CardContent className="p-4">
+              <EquipmentFilters filters={filters} onFiltersChange={setFilters} />
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Equipment List */}
@@ -282,11 +254,11 @@ const Inventory = () => {
                       <td className="py-4 px-4">
                         <div>
                           <p className="font-medium text-gray-900">{item.name}</p>
-                          <p className="text-sm text-gray-500">S/N: {item.serialNumber}</p>
+                          <p className="text-sm text-gray-500">S/N: {item.serial_number || "N/A"}</p>
                         </div>
                       </td>
-                      <td className="py-4 px-4 text-gray-700">{item.category}</td>
-                      <td className="py-4 px-4 text-gray-700">{item.location}</td>
+                      <td className="py-4 px-4 text-gray-700">{item.category_name}</td>
+                      <td className="py-4 px-4 text-gray-700">{item.location_name}</td>
                       <td className="py-4 px-4">
                         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(item.status)}`}>
                           {item.status}
@@ -314,7 +286,7 @@ const Inventory = () => {
                             <PencilIcon className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDeleteEquipment(item)}
+                            onClick={() => handleDeleteEquipment(item.id)}
                             className="p-1 text-gray-400 hover:text-red-600 transition-colors"
                             title="Delete"
                           >
@@ -331,46 +303,17 @@ const Inventory = () => {
         </CardContent>
       </Card>
 
-      {/* Simple modals for forms - placeholder */}
+      {/* Equipment Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">
-              {selectedEquipment ? 'Edit Equipment' : 'Add Equipment'}
-            </h3>
-            <p className="text-gray-600 mb-4">Equipment form will be implemented here.</p>
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setShowForm(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleFormSuccess}>
-                Save
-              </Button>
-            </div>
-          </div>
-        </div>
+        <EquipmentForm
+          equipment={selectedEquipment}
+          onClose={() => navigate(getBasePath())}
+          onSuccess={handleFormSuccess}
+        />
       )}
 
       {showDetails && selectedEquipment && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
-            <h3 className="text-lg font-semibold mb-4">Equipment Details</h3>
-            <div className="space-y-2">
-              <p><strong>Name:</strong> {selectedEquipment.name}</p>
-              <p><strong>Category:</strong> {selectedEquipment.category}</p>
-              <p><strong>Location:</strong> {selectedEquipment.location}</p>
-              <p><strong>Status:</strong> {selectedEquipment.status}</p>
-              <p><strong>Serial Number:</strong> {selectedEquipment.serialNumber}</p>
-              <p><strong>Assigned To:</strong> {selectedEquipment.assignedTo}</p>
-              <p><strong>Notes:</strong> {selectedEquipment.notes}</p>
-            </div>
-            <div className="flex justify-end mt-6">
-              <Button onClick={() => setShowDetails(false)}>
-                Close
-              </Button>
-            </div>
-          </div>
-        </div>
+        <EquipmentDetails equipment={selectedEquipment} onClose={() => navigate(getBasePath())} />
       )}
     </div>
   )

@@ -102,7 +102,7 @@ const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+      <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white border border-gray-200">
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex items-center space-x-3">
             <ExclamationTriangleIcon className="w-6 h-6 text-primary" />
@@ -111,7 +111,7 @@ const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
               <p className="text-sm text-muted-foreground">Ticket: {request.ticket_number}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1 hover:bg-muted rounded">
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">
             <XMarkIcon className="w-5 h-5" />
           </button>
         </CardHeader>
@@ -142,21 +142,21 @@ const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Description</p>
-                  <p className="text-foreground whitespace-pre-wrap">{request.description}</p>
+                  <p className="text-sm font-medium text-gray-700">Description</p>
+                  <p className="text-gray-900 whitespace-pre-wrap">{request.description}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Category</p>
-                  <p className="text-foreground">{request.category_name}</p>
+                  <p className="text-sm font-medium text-gray-700">Category</p>
+                  <p className="text-gray-900">{request.category_name}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Channel</p>
-                  <p className="text-foreground">{request.channel}</p>
+                  <p className="text-sm font-medium text-gray-700">Channel</p>
+                  <p className="text-gray-900">{request.channel}</p>
                 </div>
                 {request.equipment_name && (
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Related Equipment</p>
-                    <p className="text-foreground">{request.equipment_name}</p>
+                    <p className="text-sm font-medium text-gray-700">Related Equipment</p>
+                    <p className="text-gray-900">{request.equipment_name}</p>
                   </div>
                 )}
               </CardContent>
@@ -168,21 +168,21 @@ const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Name</p>
-                  <p className="text-foreground">{request.requester_name}</p>
+                  <p className="text-sm font-medium text-gray-700">Name</p>
+                  <p className="text-gray-900">{request.requester_name}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Department</p>
-                  <p className="text-foreground">{request.requester_department}</p>
+                  <p className="text-sm font-medium text-gray-700">Department</p>
+                  <p className="text-gray-900">{request.requester_department}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Location</p>
-                  <p className="text-foreground">{request.requester_location}</p>
+                  <p className="text-sm font-medium text-gray-700">Location</p>
+                  <p className="text-gray-900">{request.requester_location}</p>
                 </div>
                 {request.requester_phone && (
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Phone</p>
-                    <p className="text-foreground">{request.requester_phone}</p>
+                    <p className="text-sm font-medium text-gray-700">Phone</p>
+                    <p className="text-gray-900">{request.requester_phone}</p>
                   </div>
                 )}
               </CardContent>
@@ -203,7 +203,7 @@ const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
                   </div>
                   <select
                     onChange={(e) => e.target.value && handleAssign(e.target.value)}
-                    className="px-3 py-1 bg-input border border-border rounded-md text-sm"
+                    className="px-3 py-1 bg-white border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     defaultValue=""
                   >
                     <option value="">Reassign to...</option>
@@ -219,7 +219,7 @@ const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
                   <span className="text-muted-foreground">Unassigned</span>
                   <select
                     onChange={(e) => e.target.value && handleAssign(e.target.value)}
-                    className="px-3 py-1 bg-input border border-border rounded-md text-sm"
+                    className="px-3 py-1 bg-white border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     defaultValue=""
                   >
                     <option value="">Assign to...</option>
@@ -235,7 +235,7 @@ const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
           </Card>
 
           {/* Timeline */}
-          <Card>
+          <Card className="bg-white border border-gray-200">
             <CardHeader>
               <CardTitle className="text-lg flex items-center space-x-2">
                 <ClockIcon className="w-5 h-5" />
@@ -244,26 +244,26 @@ const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Created</p>
-                <p className="text-foreground">{new Date(request.created_at).toLocaleString()}</p>
+                <p className="text-sm font-medium text-gray-700">Created</p>
+                <p className="text-gray-900">{new Date(request.created_at).toLocaleString()}</p>
               </div>
               {request.assigned_at && (
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Assigned</p>
-                  <p className="text-foreground">{new Date(request.assigned_at).toLocaleString()}</p>
+                  <p className="text-sm font-medium text-gray-700">Assigned</p>
+                  <p className="text-gray-900">{new Date(request.assigned_at).toLocaleString()}</p>
                 </div>
               )}
               {request.resolved_at && (
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Resolved</p>
-                  <p className="text-foreground">{new Date(request.resolved_at).toLocaleString()}</p>
+                  <p className="text-sm font-medium text-gray-700">Resolved</p>
+                  <p className="text-gray-900">{new Date(request.resolved_at).toLocaleString()}</p>
                 </div>
               )}
             </CardContent>
           </Card>
 
           {/* Comments */}
-          <Card>
+          <Card className="bg-white border border-gray-200">
             <CardHeader>
               <CardTitle className="text-lg flex items-center space-x-2">
                 <ChatBubbleLeftIcon className="w-5 h-5" />
@@ -278,7 +278,7 @@ const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder="Add a comment..."
                   rows={3}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
                 <div className="flex items-center justify-between">
                   <label className="flex items-center space-x-2">
@@ -288,7 +288,7 @@ const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
                       onChange={(e) => setIsInternal(e.target.checked)}
                       className="rounded border-border"
                     />
-                    <span className="text-sm text-muted-foreground">Internal comment</span>
+                    <span className="text-sm text-gray-700">Internal comment</span>
                   </label>
                   <Button type="submit" disabled={loading || !newComment.trim()}>
                     {loading ? "Adding..." : "Add Comment"}

@@ -50,14 +50,23 @@ const Dashboard = () => {
         apiService.getRecentActivity({ limit: 10 })
       ])
 
-      setAnalytics(analyticsResponse.data)
-      setRecentActivity(activityResponse.data.results || activityResponse.data || [])
+      const data = analyticsResponse.data || {}
+      // Normalize backend snake_case to the structure this page expects
+      setAnalytics({
+        equipmentTrends: data.equipment_trends || [],
+        requestTrends: data.request_trends || [],
+        taskTrends: data.task_trends || [],
+        performanceMetrics: data.performance_metrics || {},
+        departmentStats: data.department_stats || [],
+      })
+      // Recent activity endpoint returns { activities: [...] }
+      setRecentActivity(activityResponse.data?.activities || [])
 
       // Update stats state with actual data from backend
       setStats({
-        equipment: analyticsResponse.data.equipmentStats,
-        requests: analyticsResponse.data.requestStats,
-        tasks: analyticsResponse.data.taskStats,
+        equipment: data.equipment || { total: 0, active: 0, maintenance: 0, critical: 0 },
+        requests: data.requests || { total: 0, open: 0, critical: 0, overdue: 0 },
+        tasks: data.tasks || { total: 0, pending: 0, in_progress: 0, overdue: 0 },
       })
     } catch (err) {
       setError("Failed to load dashboard data.")
@@ -67,30 +76,34 @@ const Dashboard = () => {
       if (process.env.NODE_ENV === 'development') {
         console.warn('Using fallback mock data for dashboard')
         const mockAnalytics = {
-          performanceMetrics: {
-            systemUptime: 99.2,
-            avgResponseTime: 2.4,
-            resolutionRate: 87.3,
-            activePersonnel: 12
+          performance_metrics: {
+            system_uptime: 99.2,
+            avg_resolution_time: 2.4,
+            user_satisfaction: 4.5,
+            total_users: 12,
           },
-          equipmentStats: {
+          equipment: {
             total: 156,
             active: 142,
             maintenance: 8,
-            critical: 6
+            critical: 6,
           },
-          requestStats: {
+          requests: {
             total: 89,
             open: 23,
             critical: 6,
-            overdue: 4
+            overdue: 4,
           },
-          taskStats: {
+          tasks: {
             total: 45,
             pending: 12,
             in_progress: 18,
-            overdue: 3
-          }
+            overdue: 3,
+          },
+          equipment_trends: [],
+          request_trends: [],
+          task_trends: [],
+          department_stats: [],
         }
 
         const mockActivity = [
@@ -117,7 +130,18 @@ const Dashboard = () => {
           }
         ]
 
-        setAnalytics(mockAnalytics)
+        setAnalytics({
+          equipmentTrends: mockAnalytics.equipment_trends,
+          requestTrends: mockAnalytics.request_trends,
+          taskTrends: mockAnalytics.task_trends,
+          performanceMetrics: mockAnalytics.performance_metrics,
+          departmentStats: mockAnalytics.department_stats,
+        })
+        setStats({
+          equipment: mockAnalytics.equipment,
+          requests: mockAnalytics.requests,
+          tasks: mockAnalytics.tasks,
+        })
         setRecentActivity(mockActivity)
         setError("") // Clear error when using fallback data
       }
@@ -154,13 +178,18 @@ const Dashboard = () => {
   )
 
   const calculateUptime = () => {
+    // Prefer backend metric if available, else compute from equipment stats
+    if (analytics.performanceMetrics?.system_uptime !== undefined) {
+      return analytics.performanceMetrics.system_uptime
+    }
     const totalEquipment = stats.equipment.total
     const activeEquipment = stats.equipment.active
     return totalEquipment > 0 ? ((activeEquipment / totalEquipment) * 100).toFixed(1) : 0
   }
 
   const calculateResponseTime = () => {
-    return analytics.performanceMetrics?.avgResponseTime || 0
+    // Backend provides avg_resolution_time (hours)
+    return analytics.performanceMetrics?.avg_resolution_time || 0
   }
 
   const calculateResolutionRate = () => {
@@ -220,7 +249,7 @@ const Dashboard = () => {
           />
           <StatCard
             title="Active Personnel"
-            value={analytics.performanceMetrics?.activePersonnel || 0}
+            value={analytics.performanceMetrics?.total_users || 0}
             subtitle="IT staff on duty"
             icon={UserGroupIcon}
             color="indigo"
@@ -371,7 +400,10 @@ const Dashboard = () => {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-900">{activity.message}</p>
+                      <p className="text-sm text-gray-900">{activity.title || activity.message}</p>
+                      {activity.description && (
+                        <p className="text-xs text-gray-500">{activity.description}</p>
+                      )}
                       <p className="text-xs text-gray-500">
                         {activity.user} • {new Date(activity.timestamp).toLocaleTimeString()}
                       </p>

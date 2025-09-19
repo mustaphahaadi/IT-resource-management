@@ -170,6 +170,10 @@ class ApiService {
     return this.patch(`/inventory/equipment/${id}/`, data)
   }
 
+  async getEquipmentById(id) {
+    return this.get(`/inventory/equipment/${id}/`)
+  }
+
   async deleteEquipment(id) {
     return this.delete(`/inventory/equipment/${id}/`)
   }
@@ -177,6 +181,10 @@ class ApiService {
   // Support Requests API methods
   async getSupportRequests(params = {}) {
     return this.get("/requests/support-requests/", { params })
+  }
+
+  async getSupportRequest(id) {
+    return this.get(`/requests/support-requests/${id}/`)
   }
 
   async createSupportRequest(data) {
@@ -194,13 +202,17 @@ class ApiService {
   async addRequestComment(id, comment, isInternal = false) {
     return this.post(`/requests/support-requests/${id}/add_comment/`, {
       comment,
-      is_internal,
+      is_internal: isInternal,
     })
   }
 
   // Tasks API methods
   async getTasks(params = {}) {
     return this.get("/tasks/tasks/", { params })
+  }
+
+  async getTask(id) {
+    return this.get(`/tasks/tasks/${id}/`)
   }
 
   async createTask(data) {
@@ -221,9 +233,17 @@ class ApiService {
 
   async completeTask(id, completionNotes = "", actualHours = null) {
     return this.post(`/tasks/tasks/${id}/complete/`, {
-      completion_notes,
-      actual_hours,
+      completion_notes: completionNotes,
+      actual_hours: actualHours,
     })
+  }
+
+  async getTaskComments(id, params = {}) {
+    return this.get(`/tasks/tasks/${id}/comments/`, { params })
+  }
+
+  async addTaskComment(id, comment) {
+    return this.post(`/tasks/tasks/${id}/comments/`, { comment })
   }
 
   // Personnel API methods
@@ -233,6 +253,18 @@ class ApiService {
 
   async getAvailablePersonnel() {
     return this.get("/tasks/personnel/available/")
+  }
+
+  async createPersonnel(data) {
+    return this.post("/tasks/personnel/", data)
+  }
+
+  async updatePersonnel(id, data) {
+    return this.patch(`/tasks/personnel/${id}/`, data)
+  }
+
+  async deletePersonnel(id) {
+    return this.delete(`/tasks/personnel/${id}/`)
   }
 
   // Alerts API methods

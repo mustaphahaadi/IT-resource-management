@@ -88,7 +88,7 @@ const EquipmentForm = ({ equipment, onClose, onSuccess }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white border border-gray-200">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>{equipment ? "Edit Equipment" : "Add New Equipment"}</CardTitle>
           <button onClick={onClose} className="p-1 hover:bg-muted rounded">
@@ -105,72 +105,72 @@ const EquipmentForm = ({ equipment, onClose, onSuccess }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Equipment Name *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Equipment Name *</label>
                 <input
                   type="text"
                   name="name"
                   required
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Asset Tag *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Asset Tag *</label>
                 <input
                   type="text"
                   name="asset_tag"
                   required
                   value={formData.asset_tag}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Serial Number</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Serial Number</label>
                 <input
                   type="text"
                   name="serial_number"
                   value={formData.serial_number}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Model *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Model *</label>
                 <input
                   type="text"
                   name="model"
                   required
                   value={formData.model}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Manufacturer *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Manufacturer *</label>
                 <input
                   type="text"
                   name="manufacturer"
                   required
                   value={formData.manufacturer}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Category *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
                 <select
                   name="category"
                   required
                   value={formData.category}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
@@ -182,13 +182,13 @@ const EquipmentForm = ({ equipment, onClose, onSuccess }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Location *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Location *</label>
                 <select
                   name="location"
                   required
                   value={formData.location}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">Select Location</option>
                   {locations.map((loc) => (
@@ -200,12 +200,12 @@ const EquipmentForm = ({ equipment, onClose, onSuccess }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Vendor</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Vendor</label>
                 <select
                   name="vendor"
                   value={formData.vendor}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">Select Vendor</option>
                   {vendors.map((vendor) => (
@@ -217,12 +217,12 @@ const EquipmentForm = ({ equipment, onClose, onSuccess }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Status</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                 <select
                   name="status"
                   value={formData.status}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="active">Active</option>
                   <option value="maintenance">Under Maintenance</option>
@@ -232,12 +232,12 @@ const EquipmentForm = ({ equipment, onClose, onSuccess }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Priority</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
                 <select
                   name="priority"
                   value={formData.priority}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -247,53 +247,53 @@ const EquipmentForm = ({ equipment, onClose, onSuccess }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Purchase Date</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
                 <input
                   type="date"
                   name="purchase_date"
                   value={formData.purchase_date}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Warranty Expiry</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Warranty Expiry</label>
                 <input
                   type="date"
                   name="warranty_expiry"
                   value={formData.warranty_expiry}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Purchase Cost</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Cost</label>
                 <input
                   type="number"
                   step="0.01"
                   name="purchase_cost"
                   value={formData.purchase_cost}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
               <textarea
                 name="description"
                 rows={3}
                 value={formData.description}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
             <div className="flex justify-end space-x-3 pt-4">
-              <Button type="button" variant="outline" onClick={onClose}>
+              <Button type="button" variant="outline" onClick={onClose} className="border border-gray-300 text-gray-700 hover:bg-gray-50">
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>

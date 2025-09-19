@@ -85,6 +85,22 @@ class TaskViewSet(viewsets.ModelViewSet):
         
         return Response({'message': 'Task completed successfully'})
 
+    @action(detail=True, methods=['get', 'post'])
+    def comments(self, request, pk=None):
+        """List or create comments for a task"""
+        task = self.get_object()
+        if request.method.lower() == 'get':
+            comments = TaskComment.objects.filter(task=task).order_by('created_at')
+            serializer = TaskCommentSerializer(comments, many=True)
+            return Response(serializer.data)
+        # POST
+        comment_text = request.data.get('comment', '').strip()
+        if not comment_text:
+            return Response({'error': 'comment is required'}, status=status.HTTP_400_BAD_REQUEST)
+        comment = TaskComment.objects.create(task=task, author=request.user, comment=comment_text)
+        serializer = TaskCommentSerializer(comment)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 class ITPersonnelViewSet(viewsets.ModelViewSet):
     queryset = ITPersonnel.objects.all()
     serializer_class = ITPersonnelSerializer
