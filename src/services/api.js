@@ -16,12 +16,16 @@ class ApiService {
     this.client.interceptors.request.use(
       (config) => {
         const token = localStorage.getItem("authToken")
+        console.log('API Request:', config.url, 'Token exists:', !!token)
         if (token) {
           config.headers.Authorization = `Token ${token}`
+        } else {
+          console.warn('No auth token found in localStorage')
         }
         return config
       },
       (error) => {
+        console.error('Request interceptor error:', error)
         return Promise.reject(error)
       },
     )
@@ -37,6 +41,56 @@ class ApiService {
         return Promise.reject(error)
       },
     )
+  }
+
+  // Analytics API methods
+  async getRequestAnalytics(params = {}) {
+    return this.get("/analytics/requests/", { params })
+  }
+
+  async getDashboardAnalytics() {
+    return this.get("/analytics/dashboard/")
+  }
+  
+  async getRecentActivity(params = {}) {
+    return this.get("/analytics/recent-activity/", { params })
+  }
+  
+  async getAlerts(params = {}) {
+    return this.get("/alerts/", { params })
+  }
+  
+  // Quick action endpoints
+  async createSupportRequest(data) {
+    return this.post("/requests/", data)
+  }
+  
+  async createTask(data) {
+    return this.post("/tasks/", data)
+  }
+  
+  async reportIssue(data) {
+    return this.post("/reports/issues/", data)
+  }
+
+  // Reports API methods
+  async generateReport(reportType, params = {}) {
+    return this.post("/reports/generate/", { report_type: reportType, ...params })
+  }
+
+  async getReportHistory(params = {}) {
+    return this.get("/reports/history/", { params })
+  }
+
+  async downloadReport(reportId, format = 'pdf') {
+    return this.get(`/reports/${reportId}/download/`, { 
+      responseType: 'blob', 
+      params: { format } 
+    })
+  }
+
+  async scheduleReport(reportConfig) {
+    return this.post("/reports/schedule/", reportConfig)
   }
 
   // Generic HTTP methods

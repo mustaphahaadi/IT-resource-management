@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
+import { Button } from "../components/ui/button"
 import {
   ComputerDesktopIcon,
   ExclamationTriangleIcon,
@@ -8,10 +10,15 @@ import {
   ChartBarIcon,
   ClockIcon,
   UserGroupIcon,
+  PlusIcon,
+  ArrowTopRightOnSquareIcon,
+  ArrowPathIcon
 } from "@heroicons/react/24/outline"
 import { apiService } from "../services/api"
+import { formatDistanceToNow } from "date-fns"
 
 const Dashboard = () => {
+  const navigate = useNavigate()
   const [stats, setStats] = useState({
     equipment: { total: 0, active: 0, maintenance: 0, critical: 0 },
     requests: { total: 0, open: 0, critical: 0, overdue: 0 },
@@ -29,6 +36,36 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [refreshInterval, setRefreshInterval] = useState(null)
+  
+  // Quick action handlers
+  const handleQuickAction = (action) => {
+    switch(action) {
+      case 'newRequest':
+        navigate('/requests/new')
+        break
+      case 'newTask':
+        navigate('/tasks/new')
+        break
+      case 'reportIssue':
+        navigate('/reports/issue')
+        break
+      case 'viewAnalytics':
+        navigate('/analytics')
+        break
+      default:
+        break
+    }
+  }
+  
+  // Format activity timestamp
+  const formatActivityTime = (timestamp) => {
+    if (!timestamp) return ''
+    try {
+      return formatDistanceToNow(new Date(timestamp), { addSuffix: true })
+    } catch (e) {
+      return ''
+    }
+  }
 
   useEffect(() => {
     fetchDashboardData()
@@ -44,30 +81,56 @@ const Dashboard = () => {
     setLoading(true)
     setError("")
     try {
+      // Check if user is authenticated
+      const token = localStorage.getItem("authToken")
+      if (!token) {
+        console.error('No auth token found, redirecting to login')
+        navigate('/login')
+        return
+      }
+
       // Fetch real analytics data from backend
-      const [analyticsResponse, activityResponse] = await Promise.all([
+      const [analyticsResponse, activityResponse] = await Promise.allSettled([
         apiService.getDashboardAnalytics(),
         apiService.getRecentActivity({ limit: 10 })
       ])
 
-      const data = analyticsResponse.data || {}
-      // Normalize backend snake_case to the structure this page expects
-      setAnalytics({
-        equipmentTrends: data.equipment_trends || [],
-        requestTrends: data.request_trends || [],
-        taskTrends: data.task_trends || [],
-        performanceMetrics: data.performance_metrics || {},
-        departmentStats: data.department_stats || [],
-      })
-      // Recent activity endpoint returns { activities: [...] }
-      setRecentActivity(activityResponse.data?.activities || [])
+      // Handle analytics response
+      if (analyticsResponse.status === 'fulfilled') {
+        const data = analyticsResponse.value?.data || {}
+        
+        // Update analytics state
+        setAnalytics({
+          equipmentTrends: data.equipment_trends || [],
+          requestTrends: data.request_trends || [],
+          taskTrends: data.task_trends || [],
+          performanceMetrics: data.performance_metrics || {},
+          departmentStats: data.department_stats || [],
+        })
+        
+        // Update stats state with the same data
+        setStats({
+          equipment: data.equipment || { total: 0, active: 0, maintenance: 0, critical: 0 },
+          requests: data.requests || { total: 0, open: 0, critical: 0, overdue: 0 },
+          tasks: data.tasks || { total: 0, pending: 0, in_progress: 0, overdue: 0 },
+        })
+      } else {
+        console.error('Failed to fetch analytics:', analyticsResponse.reason)
+        if (analyticsResponse.reason?.response?.status === 403) {
+          setError('You do not have permission to view this data')
+        } else {
+          setError('Failed to load analytics data. Please try again later.')
+        }
+      }
 
-      // Update stats state with actual data from backend
-      setStats({
-        equipment: data.equipment || { total: 0, active: 0, maintenance: 0, critical: 0 },
-        requests: data.requests || { total: 0, open: 0, critical: 0, overdue: 0 },
-        tasks: data.tasks || { total: 0, pending: 0, in_progress: 0, overdue: 0 },
-      })
+      // Handle activity response
+      if (activityResponse.status === 'fulfilled') {
+        // Recent activity endpoint returns { activities: [...] }
+        setRecentActivity(activityResponse.value?.data?.activities || [])
+      } else {
+        console.error('Failed to fetch recent activity:', activityResponse.reason)
+        // Don't show error for activity feed as it's not critical
+      }
     } catch (err) {
       setError("Failed to load dashboard data.")
       console.error('Dashboard data fetch error:', err)
@@ -126,23 +189,44 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">IT Dashboard</h1>
-          <p className="text-gray-600 mt-1">Real-time overview of hospital IT infrastructure and operations</p>
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-sm text-gray-500">Overview of your hospital's IT resources and activities</p>
         </div>
-        <div className="flex items-center gap-4 text-sm text-gray-500">
-          <div className="flex items-center gap-1">
-            <ClockIcon className="w-4 h-4" />
-            Last updated: {new Date().toLocaleTimeString()}
-          </div>
-          <button
-            onClick={fetchDashboardData}
-            disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+        <div className="flex flex-wrap gap-2 w-full md:w-auto">
+          <Button 
+            variant="outline" 
+            onClick={() => handleQuickAction('newRequest')}
+            className="flex items-center gap-1"
           >
-            {loading ? "Loading..." : "Refresh"}
-          </button>
+            <PlusIcon className="h-4 w-4" />
+            <span>New Request</span>
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={() => handleQuickAction('newTask')}
+            className="flex items-center gap-1"
+          >
+            <PlusIcon className="h-4 w-4" />
+            <span>New Task</span>
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={() => handleQuickAction('reportIssue')}
+            className="flex items-center gap-1"
+          >
+            <ExclamationTriangleIcon className="h-4 w-4" />
+            <span>Report Issue</span>
+          </Button>
+          <Button 
+            onClick={fetchDashboardData}
+            variant="outline"
+            className="ml-auto"
+          >
+            <ArrowPathIcon className="h-4 w-4 mr-1" />
+            Refresh
+          </Button>
         </div>
       </div>
 
@@ -289,119 +373,195 @@ const Dashboard = () => {
       </div>
 
       {/* Recent Activity and Quick Actions */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Recent Activity */}
-        <Card className="lg:col-span-2 bg-white shadow-sm border border-gray-200">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-900">Recent Activity</CardTitle>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-lg">Recent Activity</CardTitle>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate('/activity')}
+              className="text-sm text-blue-600 hover:text-blue-800"
+            >
+              View All
+            </Button>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             {loading ? (
-              <div className="space-y-3">
+              <div className="space-y-4 p-6">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="animate-pulse flex space-x-3">
-                    <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-                    <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                    </div>
+                  <div key={i} className="animate-pulse">
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-3 bg-gray-100 rounded w-1/2"></div>
                   </div>
                 ))}
               </div>
+            ) : error ? (
+              <div className="p-6 text-red-500">{error}</div>
             ) : (
-              <div className="space-y-4">
-                {recentActivity.map((activity) => (
-                  <div key={activity.id} className="flex items-start space-x-3">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      activity.type === 'equipment' ? 'bg-blue-100 text-blue-600' :
-                      activity.type === 'request' ? 'bg-orange-100 text-orange-600' :
-                      'bg-green-100 text-green-600'
-                    }`}>
-                      {activity.type === 'equipment' ? (
-                        <ComputerDesktopIcon className="w-4 h-4" />
-                      ) : activity.type === 'request' ? (
-                        <ExclamationTriangleIcon className="w-4 h-4" />
-                      ) : (
-                        <ClipboardDocumentListIcon className="w-4 h-4" />
+              <div className="divide-y divide-gray-100">
+                {recentActivity.length > 0 ? (
+                  recentActivity.slice(0, 5).map((activity) => (
+                    <div 
+                      key={activity.id} 
+                      className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                      onClick={() => handleActivityClick(activity)}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {activity.title || 'Activity'}
+                          </p>
+                          {activity.description && (
+                            <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                              {activity.description}
+                            </p>
+                          )}
+                        </div>
+                        <span className="text-xs text-gray-400 whitespace-nowrap ml-2">
+                          {formatActivityTime(activity.timestamp || activity.created_at)}
+                        </span>
+                      </div>
+                      {activity.type && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium mt-2"
+                          style={{
+                            backgroundColor: getActivityTypeColor(activity.type).bg,
+                            color: getActivityTypeColor(activity.type).text
+                          }}>
+                          {getActivityTypeLabel(activity.type)}
+                        </span>
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-900">{activity.title || activity.message}</p>
-                      {activity.description && (
-                        <p className="text-xs text-gray-500">{activity.description}</p>
-                      )}
-                      <p className="text-xs text-gray-500">
-                        {activity.user} • {new Date(activity.timestamp).toLocaleTimeString()}
-                      </p>
-                    </div>
+                  ))
+                ) : (
+                  <div className="p-6 text-center text-gray-500">
+                    <p>No recent activity found</p>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="mt-2 text-blue-600"
+                      onClick={() => window.location.reload()}
+                    >
+                      Refresh
+                    </Button>
                   </div>
-                ))}
+                )}
               </div>
             )}
           </CardContent>
         </Card>
+      </div>
 
-        {/* Quick Actions */}
-        <Card className="bg-white shadow-sm border border-gray-200">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-900">Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <button className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                <ComputerDesktopIcon className="w-5 h-5 mr-2" />
-                Add New Equipment
-              </button>
-              <button className="w-full flex items-center justify-center px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
-                <ExclamationTriangleIcon className="w-5 h-5 mr-2" />
-                Create Support Request
-              </button>
-              <button className="w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                <ClipboardDocumentListIcon className="w-5 h-5 mr-2" />
-                Generate Report
-              </button>
-              <button className="w-full flex items-center justify-center px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                <ExclamationTriangleIcon className="w-5 h-5 mr-2" />
-                Emergency Response
-              </button>
+      {/* Alerts */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card className="border-l-4 border-red-500">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <ExclamationTriangleIcon className="h-5 w-5 text-red-500 mr-2" />
+                <CardTitle className="text-lg">Alerts</CardTitle>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigate('/alerts')}
+                className="text-sm text-red-600 hover:text-red-800"
+              >
+                View All
+              </Button>
             </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            {loading ? (
+              <div className="space-y-3 p-6">
+                {[1, 2].map((i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-3 bg-gray-100 rounded w-1/2"></div>
+                  </div>
+                ))}
+              </div>
+            ) : alerts.length > 0 ? (
+              <div className="divide-y divide-red-100">
+                {alerts.slice(0, 3).map((alert) => (
+                  <div 
+                    key={alert.id} 
+                    className="p-4 hover:bg-red-50 cursor-pointer transition-colors"
+                    onClick={() => handleAlertClick(alert)}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-sm font-medium text-red-800">{alert.title || 'Alert'}</p>
+                        <p className="text-xs text-red-700 mt-1">
+                          {alert.message || 'No details available'}
+                        </p>
+                      </div>
+                      <span className="text-xs text-red-400 whitespace-nowrap ml-2">
+                        {formatActivityTime(alert.timestamp || alert.created_at)}
+                      </span>
+                    </div>
+                    {alert.severity && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium mt-2 bg-red-100 text-red-800">
+                        {alert.severity.charAt(0).toUpperCase() + alert.severity.slice(1)}
+                      </span>
+                    )}
+                  </div>
+                ))}
+                {alerts.length > 3 && (
+                  <div className="p-4 text-center border-t border-red-100">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => navigate('/alerts')}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      View all {alerts.length} alerts
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="p-6 text-center">
+                <p className="text-gray-500">No active alerts</p>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="mt-2 text-blue-600"
+                  onClick={fetchDashboardData}
+                >
+                  Refresh
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
-
-      {/* System Alerts */}
-      {alerts.length > 0 && (
-        <Card className="bg-white shadow-sm border border-gray-200">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-              <ExclamationTriangleIcon className="w-5 h-5 mr-2 text-red-600" />
-              System Alerts
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {alerts.map((alert) => (
-                <div key={alert.id} className={`p-3 rounded-lg border-l-4 ${
-                  alert.type === 'critical' ? 'bg-red-50 border-red-500' : 'bg-yellow-50 border-yellow-500'
-                }`}>
-                  <div className="flex justify-between items-start">
-                    <p className={`text-sm font-medium ${
-                      alert.type === 'critical' ? 'text-red-800' : 'text-yellow-800'
-                    }`}>
-                      {alert.message}
-                    </p>
-                    <span className="text-xs text-gray-500">
-                      {new Date(alert.timestamp).toLocaleTimeString()}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   )
+}
+
+// Helper function to get activity type styling
+const getActivityTypeColor = (type) => {
+  const types = {
+    request: { bg: '#DBEAFE', text: '#1E40AF' },
+    task: { bg: '#D1FAE5', text: '#065F46' },
+    alert: { bg: '#FEE2E2', text: '#B91C1C' },
+    system: { bg: '#E0E7FF', text: '#3730A3' },
+    default: { bg: '#F3F4F6', text: '#4B5563' }
+  }
+  return types[type] || types.default
+}
+
+// Helper function to get activity type label
+const getActivityTypeLabel = (type) => {
+  const labels = {
+    request: 'Request',
+    task: 'Task',
+    alert: 'Alert',
+    system: 'System',
+    default: 'Activity'
+  }
+  return labels[type] || labels.default
 }
 
 export default Dashboard
