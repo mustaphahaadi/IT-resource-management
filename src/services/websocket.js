@@ -38,9 +38,9 @@ class WebSocketService {
       return
     }
 
-    // Build URL from env or location
+    // Build URL from env or location. Prefer VITE_WS_URL; fallback to current host.
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
-    const base = import.meta?.env?.VITE_WS_URL || `${protocol}://${window.location.hostname}:8000/ws/notifications/`
+    const base = import.meta?.env?.VITE_WS_URL || `${protocol}://${window.location.host}/ws/notifications/`
     const wsUrl = `${base}?token=${token}`
     
     try {

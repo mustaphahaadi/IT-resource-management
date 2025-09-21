@@ -24,6 +24,7 @@ const SystemStatus = () => {
   const [lastUpdated, setLastUpdated] = useState(new Date())
   const [incidents, setIncidents] = useState([])
   const [maintenanceSchedule, setMaintenanceSchedule] = useState([])
+  const [error, setError] = useState("")
 
   useEffect(() => {
     fetchSystemStatus()
@@ -36,104 +37,10 @@ const SystemStatus = () => {
       const response = await apiService.getSystemHealth()
       setSystemHealth(response.data)
       setLastUpdated(new Date())
+      setError("")
     } catch (error) {
       console.error('Error fetching system status:', error)
-      // Fallback to mock data
-      setSystemHealth({
-        overall_status: 'operational',
-        services: [
-          {
-            name: 'Web Application',
-            status: 'operational',
-            response_time: 145,
-            uptime: 99.98,
-            last_incident: null
-          },
-          {
-            name: 'Database',
-            status: 'operational',
-            response_time: 23,
-            uptime: 99.95,
-            last_incident: null
-          },
-          {
-            name: 'API Services',
-            status: 'operational',
-            response_time: 89,
-            uptime: 99.99,
-            last_incident: null
-          },
-          {
-            name: 'File Storage',
-            status: 'operational',
-            response_time: 67,
-            uptime: 99.92,
-            last_incident: null
-          },
-          {
-            name: 'Email Service',
-            status: 'degraded',
-            response_time: 234,
-            uptime: 98.45,
-            last_incident: '2024-01-15T10:30:00Z'
-          },
-          {
-            name: 'Backup Systems',
-            status: 'operational',
-            response_time: 156,
-            uptime: 99.87,
-            last_incident: null
-          }
-        ],
-        metrics: {
-          total_requests: 1245678,
-          avg_response_time: 127,
-          error_rate: 0.02,
-          active_users: 234,
-          system_load: 45.6,
-          memory_usage: 67.8,
-          disk_usage: 34.2,
-          network_latency: 12
-        }
-      })
-      setIncidents([
-        {
-          id: 1,
-          title: 'Email Service Degradation',
-          status: 'investigating',
-          severity: 'minor',
-          started_at: '2024-01-15T10:30:00Z',
-          description: 'Some users may experience delays in email notifications. Our team is investigating the issue.',
-          updates: [
-            {
-              timestamp: '2024-01-15T10:30:00Z',
-              message: 'Issue identified and investigation started'
-            },
-            {
-              timestamp: '2024-01-15T11:15:00Z',
-              message: 'Root cause identified, implementing fix'
-            }
-          ]
-        }
-      ])
-      setMaintenanceSchedule([
-        {
-          id: 1,
-          title: 'Database Maintenance',
-          scheduled_for: '2024-01-20T02:00:00Z',
-          duration: '2 hours',
-          impact: 'System will be unavailable during maintenance window',
-          status: 'scheduled'
-        },
-        {
-          id: 2,
-          title: 'Security Updates',
-          scheduled_for: '2024-01-25T01:00:00Z',
-          duration: '1 hour',
-          impact: 'Brief service interruptions possible',
-          status: 'scheduled'
-        }
-      ])
+      setError('Failed to fetch system status.')
     } finally {
       setLoading(false)
     }
@@ -197,6 +104,13 @@ const SystemStatus = () => {
 
   return (
     <div className="space-y-6">
+      {error && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-sm text-red-700">{error}</div>
+          </CardContent>
+        </Card>
+      )}
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

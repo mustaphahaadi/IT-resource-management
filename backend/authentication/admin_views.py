@@ -18,9 +18,12 @@ class IsAdminUser(permissions.BasePermission):
     
     def has_permission(self, request, view):
         return (
-            request.user and 
-            request.user.is_authenticated and 
-            request.user.can_access_admin()
+            request.user
+            and request.user.is_authenticated
+            and (
+                getattr(request.user, 'is_superuser', False)
+                or request.user.can_access_admin()
+            )
         )
 
 

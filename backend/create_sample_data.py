@@ -35,7 +35,9 @@ def create_users():
             'first_name': 'Admin',
             'last_name': 'User',
             'is_staff': True,
-            'is_superuser': True
+            'is_superuser': True,
+            'role': 'admin',
+            'is_approved': True,
         }
     )
     if created:
@@ -58,7 +60,9 @@ def create_users():
                 'email': email,
                 'first_name': first_name,
                 'last_name': last_name,
-                'is_staff': True
+                'is_staff': True,
+                'role': 'staff',
+                'is_approved': True,
             }
         )
         if created:
@@ -81,7 +85,10 @@ def create_users():
             defaults={
                 'email': email,
                 'first_name': first_name,
-                'last_name': last_name
+                'last_name': last_name,
+                # Promote 'admin_carol' to an approved admin for testing
+                'role': 'admin' if username == 'admin_carol' else 'user',
+                'is_approved': True if username == 'admin_carol' else False,
             }
         )
         if created:

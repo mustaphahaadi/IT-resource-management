@@ -65,7 +65,16 @@ class CustomUser(AbstractUser):
     
     def can_access_admin(self):
         """Check if user can access admin features"""
-        return self.role in ['admin', 'manager'] and self.is_approved
+        # Superusers always have access
+        if getattr(self, 'is_superuser', False):
+            return True
+        # Admin role gets access without additional approval checks
+        if self.role == 'admin':
+            return True
+        # Managers require explicit approval
+        if self.role == 'manager':
+            return self.is_approved is True
+        return False
     
     def can_manage_users(self):
         """Check if user can manage other users"""

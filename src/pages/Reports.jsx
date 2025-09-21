@@ -31,90 +31,40 @@ const Reports = () => {
     setLoading(true)
     setError("")
     try {
-      // Fetch real analytics data from backend
-      const [analyticsResponse, requestsResponse] = await Promise.all([
+      // Fetch request analytics (overview) + dashboard analytics for system-level metrics
+      const [reqAnalyticsRes, dashboardRes, requestsRes] = await Promise.all([
         apiService.getRequestAnalytics({
           start_date: dateRange.startDate,
           end_date: dateRange.endDate,
           report_type: reportType
         }),
+        apiService.getDashboardAnalytics(),
         apiService.getSupportRequests({
           limit: 10,
           start_date: dateRange.startDate,
           end_date: dateRange.endDate
         })
       ])
-      
-      setAnalytics(analyticsResponse.data)
-      setRequests(requestsResponse.data.results || requestsResponse.data || [])
+      const reqData = reqAnalyticsRes.data || {}
+      const dashData = dashboardRes.data || {}
+      const overview = reqData.overview || {}
+      const perf = dashData.performance_metrics || {}
+      const equipment = dashData.equipment || {}
+
+      // Normalize to fields this page renders
+      setAnalytics({
+        totalEquipment: equipment.total || 0,
+        activeEquipment: equipment.active || 0,
+        totalRequests: overview.total_requests || 0,
+        resolvedRequests: overview.resolved_requests || 0,
+        avgResponseTime: perf.avg_resolution_time || 0,
+        systemUptime: perf.system_uptime || 0,
+        departmentBreakdown: dashData.department_stats || [],
+      })
+      setRequests(requestsRes.data.results || requestsRes.data || [])
     } catch (err) {
       setError("Failed to load reports data.")
       console.error('Error fetching reports data:', err)
-      
-      // Fallback to mock data for development
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('Using fallback mock data for reports')
-        const mockAnalytics = {
-        totalEquipment: 156,
-        activeEquipment: 142,
-        totalRequests: 89,
-        resolvedRequests: 66,
-        avgResponseTime: 2.4,
-        systemUptime: 99.2,
-        departmentBreakdown: [
-          { department: 'ICU', equipment: 45, requests: 12 },
-          { department: 'Emergency', equipment: 38, requests: 18 },
-          { department: 'Radiology', equipment: 25, requests: 8 },
-          { department: 'Laboratory', equipment: 22, requests: 15 },
-          { department: 'Surgery', equipment: 26, requests: 6 }
-        ],
-        monthlyTrends: [
-          { month: 'Jan', requests: 45, resolved: 42 },
-          { month: 'Feb', requests: 52, resolved: 48 },
-          { month: 'Mar', requests: 38, resolved: 35 },
-          { month: 'Apr', requests: 61, resolved: 58 },
-          { month: 'May', requests: 47, resolved: 44 }
-        ]
-      }
-      
-      // Mock recent requests
-      const mockRequests = [
-        {
-          id: 1,
-          ticket_number: 'REQ-2024-001',
-          title: 'Network connectivity issue in ICU',
-          category_name: 'Network',
-          priority: 'high',
-          status: 'resolved',
-          created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          department: 'ICU'
-        },
-        {
-          id: 2,
-          ticket_number: 'REQ-2024-002',
-          title: 'Printer not working in Pharmacy',
-          category_name: 'Hardware',
-          priority: 'medium',
-          status: 'in_progress',
-          created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-          department: 'Pharmacy'
-        },
-        {
-          id: 3,
-          ticket_number: 'REQ-2024-003',
-          title: 'Software update required for MRI system',
-          category_name: 'Software',
-          priority: 'critical',
-          status: 'open',
-          created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-          department: 'Radiology'
-        }
-      ]
-      
-        setAnalytics(mockAnalytics)
-        setRequests(mockRequests)
-        setError("") // Clear error when using fallback data
-      }
     } finally {
       setLoading(false)
     }
@@ -264,7 +214,7 @@ const Reports = () => {
                   <p className="text-sm font-medium text-gray-600">Total Equipment</p>
                   <p className="text-2xl font-bold text-gray-900">{analytics.totalEquipment}</p>
                   <p className="text-xs text-green-600">
-                    {analytics.activeEquipment} active ({((analytics.activeEquipment / analytics.totalEquipment) * 100).toFixed(1)}%)
+                    {analytics.activeEquipment} active ({analytics.totalEquipment > 0 ? ((analytics.activeEquipment / analytics.totalEquipment) * 100).toFixed(1) : '0.0'}%)
                   </p>
                 </div>
                 <ChartBarIcon className="w-8 h-8 text-blue-600" />
@@ -279,7 +229,7 @@ const Reports = () => {
                   <p className="text-sm font-medium text-gray-600">Support Requests</p>
                   <p className="text-2xl font-bold text-gray-900">{analytics.totalRequests}</p>
                   <p className="text-xs text-green-600">
-                    {analytics.resolvedRequests} resolved ({((analytics.resolvedRequests / analytics.totalRequests) * 100).toFixed(1)}%)
+                    {analytics.resolvedRequests} resolved ({analytics.totalRequests > 0 ? ((analytics.resolvedRequests / analytics.totalRequests) * 100).toFixed(1) : '0.0'}%)
                   </p>
                 </div>
                 <ChartBarIcon className="w-8 h-8 text-orange-600" />
@@ -339,7 +289,7 @@ const Reports = () => {
                       <td className="py-3 px-4 text-gray-700">{dept.equipment}</td>
                       <td className="py-3 px-4 text-gray-700">{dept.requests}</td>
                       <td className="py-3 px-4 text-gray-700">
-                        {((dept.requests / dept.equipment) * 100).toFixed(1)}%
+                        {dept.equipment > 0 ? ((dept.requests / dept.equipment) * 100).toFixed(1) : '0.0'}%
                       </td>
                     </tr>
                   ))}
@@ -380,7 +330,7 @@ const Reports = () => {
                     <tr key={req.id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-3 px-4 font-mono text-sm">{req.ticket_number}</td>
                       <td className="py-3 px-4 text-gray-900">{req.title}</td>
-                      <td className="py-3 px-4 text-gray-700">{req.department}</td>
+                      <td className="py-3 px-4 text-gray-700">{req.requester_department}</td>
                       <td className="py-3 px-4 text-gray-700">{req.category_name}</td>
                       <td className="py-3 px-4">
                         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${

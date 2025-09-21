@@ -1,6 +1,7 @@
 import axios from "axios"
 
-const API_BASE_URL = "http://localhost:8000/api"
+// Prefer env-configured API base; fallback to relative '/api' (proxied in dev)
+const API_BASE_URL = import.meta?.env?.VITE_API_BASE_URL || "/api"
 
 class ApiService {
   constructor() {
@@ -61,7 +62,10 @@ class ApiService {
 
   // Authentication methods
   async login(credentials) {
-    const response = await this.client.post("/auth/login/", credentials)
+    // Align payload with backend serializer: expects email, password, remember_me
+    const { email, password } = credentials
+    const remember_me = Boolean(credentials.remember_me ?? credentials.rememberMe ?? false)
+    const response = await this.client.post("/auth/login/", { email, password, remember_me })
     if (response.data.token) {
       localStorage.setItem("authToken", response.data.token)
     }
@@ -318,26 +322,30 @@ class ApiService {
     return this.get("/reports/history/", { params })
   }
 
-  async downloadReport(reportId) {
-    return this.get(`/reports/${reportId}/download/`, { responseType: 'blob' })
+  async downloadReport(reportId, format = 'pdf') {
+    return this.get(`/reports/${reportId}/download/`, { responseType: 'blob', params: { format } })
   }
 
   async scheduleReport(reportConfig) {
     return this.post("/reports/schedule/", reportConfig)
   }
 
-  // Categories API methods
+  // Categories & Taxonomy API methods
   async getCategories(type = null) {
     const params = type ? { type } : {}
-    return this.get("/categories/", { params })
+    return this.get("/inventory/categories/", { params })
+  }
+
+  async getRequestCategories(params = {}) {
+    return this.get("/requests/categories/", { params })
   }
 
   async getLocations() {
-    return this.get("/locations/")
+    return this.get("/inventory/locations/")
   }
 
   async getDepartments() {
-    return this.get("/departments/")
+    return this.get("/inventory/departments/")
   }
 
   // Notifications API methods
@@ -346,11 +354,23 @@ class ApiService {
   }
 
   async markNotificationRead(id) {
-    return this.patch(`/notifications/${id}/`, { is_read: true })
+    return this.post(`/notifications/${id}/read/`)
   }
 
   async markAllNotificationsRead() {
     return this.post("/notifications/mark-all-read/")
+  }
+
+  async dismissNotification(id) {
+    return this.delete(`/notifications/${id}/dismiss/`)
+  }
+
+  async getNotificationPreferences() {
+    return this.get("/notifications/preferences/")
+  }
+
+  async updateNotificationPreferences(preferences) {
+    return this.put("/notifications/preferences/", preferences)
   }
 
   // File upload methods
@@ -376,8 +396,20 @@ class ApiService {
     return this.get("/auth/user/")
   }
 
+  async getUserPreferences() {
+    return this.get("/auth/user/preferences/")
+  }
+
   async updateUserPreferences(preferences) {
     return this.patch("/auth/user/preferences/", preferences)
+  }
+
+  async getUserStats() {
+    return this.get("/auth/user/stats/")
+  }
+
+  async getUserActivity(params = {}) {
+    return this.get("/auth/user/activity/", { params })
   }
 
   // System settings methods (admin only)

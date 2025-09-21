@@ -41,6 +41,9 @@ def log_login_attempt(request, user=None, success=False, attempted_username=''):
     except Exception as e:
         logger.error(f"Failed to log login attempt: {e}")
 
+# In-memory user preferences store (stub). Replace with a proper model in production.
+USER_PREFERENCES_STORE = {}
+
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
@@ -305,11 +308,12 @@ def resend_verification_email(request):
 def send_verification_email(user, token):
     """Send email verification email"""
     subject = 'Verify your Hospital IT System account'
+    verify_link = f"{settings.FRONTEND_URL.rstrip('/')}/verify-email/{token.token}"
     message = f"""
     Hello {user.get_full_name()},
     
     Please click the following link to verify your email address:
-    http://localhost:3000/verify-email/{token.token}
+    {verify_link}
     
     This link will expire in 24 hours.
     
@@ -329,16 +333,143 @@ def send_verification_email(user, token):
     )
 
 
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def user_stats(request):
+    """Return basic activity stats for the current user. Safe defaults if related apps unavailable."""
+    try:
+        user = request.user
+        requests_created = 0
+        tasks_completed = 0
+        equipment_managed = 0
+        reports_generated = 0
+
+        try:
+            from requests_system.models import SupportRequest
+            requests_created = SupportRequest.objects.filter(requester=user).count()
+        except Exception:
+            pass
+
+        try:
+            from tasks.models import Task
+            tasks_completed = Task.objects.filter(assigned_to=user, status='completed').count()
+        except Exception:
+            pass
+
+        try:
+            from inventory.models import Equipment
+            equipment_managed = Equipment.objects.filter(assigned_to=user).count()
+        except Exception:
+            pass
+
+        return Response({
+            'member_since': getattr(user, 'date_joined', None),
+            'last_login': getattr(user, 'last_login', None),
+            'requests_created': requests_created,
+            'tasks_completed': tasks_completed,
+            'equipment_managed': equipment_managed,
+            'reports_generated': reports_generated,
+        })
+    except Exception as e:
+        logger.error(f"user_stats failed: {e}")
+        return Response({
+            'member_since': None,
+            'last_login': None,
+            'requests_created': 0,
+            'tasks_completed': 0,
+            'equipment_managed': 0,
+            'reports_generated': 0,
+        })
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def user_activity(request):
+    """Recent activity for the current user, composed from requests and tasks. Safe fallbacks."""
+    try:
+        user = request.user
+        limit = int(request.GET.get('limit', 10))
+        activities = []
+
+        try:
+            from requests_system.models import SupportRequest
+            reqs = SupportRequest.objects.filter(requester=user).order_by('-created_at')[:limit]
+            for r in reqs:
+                activities.append({
+                    'id': f'user_req_{r.id}',
+                    'type': 'request',
+                    'action': 'Created support request',
+                    'description': getattr(r, 'title', '') or getattr(r, 'description', ''),
+                    'timestamp': getattr(r, 'created_at', None),
+                })
+        except Exception:
+            pass
+
+        try:
+            from tasks.models import Task
+            tks = Task.objects.filter(assigned_to=user).order_by('-created_at')[:limit]
+            for t in tks:
+                activities.append({
+                    'id': f'user_task_{t.id}',
+                    'type': 'task',
+                    'action': f"Task {getattr(t, 'status', 'updated')}",
+                    'description': getattr(t, 'title', ''),
+                    'timestamp': getattr(t, 'created_at', None),
+                })
+        except Exception:
+            pass
+
+        # Sort by timestamp desc
+        try:
+            activities.sort(key=lambda x: x['timestamp'] or '', reverse=True)
+        except Exception:
+            pass
+
+        return Response({'results': activities[:limit]})
+    except Exception as e:
+        logger.error(f"user_activity failed: {e}")
+        return Response({'results': []})
+
+
+@api_view(['GET', 'PATCH'])
+@permission_classes([permissions.IsAuthenticated])
+def user_preferences(request):
+    """Simple per-user preferences using an in-memory store.
+    Frontend calls: GET to read, PATCH to update.
+    Keys are flexible; common examples: theme, timezone, notifications.
+    """
+    try:
+        uid = request.user.id
+        current = USER_PREFERENCES_STORE.get(uid, {
+            'theme': 'light',
+            'timezone': getattr(request.user, 'timezone', 'UTC') or 'UTC',
+            'notifications_enabled': True,
+        })
+        if request.method == 'GET':
+            return Response(current)
+        # PATCH
+        data = request.data or {}
+        # Only take JSON-serializable primitives
+        for k, v in data.items():
+            current[k] = v
+        USER_PREFERENCES_STORE[uid] = current
+        return Response(current)
+    except Exception as e:
+        logger.error(f"user_preferences failed: {e}")
+        return Response({'theme': 'light', 'timezone': 'UTC', 'notifications_enabled': True})
+
+
 def send_password_reset_email(user, token):
     """Send password reset email"""
     subject = 'Reset your Hospital IT System password'
+    reset_link = f"{settings.FRONTEND_URL.rstrip('/')}/reset-password/{token.token}"
     message = f"""
     Hello {user.get_full_name()},
     
     You requested a password reset for your Hospital IT System account.
     
     Please click the following link to reset your password:
-    http://localhost:3000/reset-password/{token.token}
+    {reset_link}
     
     This link will expire in 1 hour.
     

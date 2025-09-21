@@ -66,16 +66,7 @@ const Profile = () => {
       setActivityStats(response.data)
     } catch (error) {
       console.error('Error fetching user stats:', error)
-      // Mock data fallback
-      setActivityStats({
-        requests_created: 23,
-        tasks_completed: 45,
-        equipment_managed: 12,
-        reports_generated: 8,
-        login_count: 156,
-        last_login: user?.last_login || new Date().toISOString(),
-        member_since: user?.created_at || '2024-01-01T00:00:00Z'
-      })
+      setActivityStats(null)
     }
   }
 
@@ -85,30 +76,7 @@ const Profile = () => {
       setRecentActivity(response.data.results || response.data || [])
     } catch (error) {
       console.error('Error fetching recent activity:', error)
-      // Mock data fallback
-      setRecentActivity([
-        {
-          id: 1,
-          type: 'request',
-          action: 'Created support request',
-          description: 'Network issue in ICU',
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: 2,
-          type: 'task',
-          action: 'Completed task',
-          description: 'Updated firewall configuration',
-          timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: 3,
-          type: 'equipment',
-          action: 'Updated equipment',
-          description: 'Added new workstation to inventory',
-          timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
-        }
-      ])
+      setRecentActivity([])
     }
   }
 

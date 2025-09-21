@@ -125,6 +125,9 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 
+# Frontend base URL used in emails and redirects
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+
 # Security settings
 ACCOUNT_LOCKOUT_ATTEMPTS = 5
 ACCOUNT_LOCKOUT_DURATION = 30  # minutes

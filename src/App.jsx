@@ -82,14 +82,49 @@ function App() {
               <Route path="reports" element={<Reports />} />
               <Route path="settings" element={<Settings />} />
               <Route path="profile" element={<Profile />} />
-              <Route path="backup" element={<BackupExport />} />
+              <Route
+                path="backup"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <BackupExport />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="help" element={<Help />} />
-              <Route path="status" element={<SystemStatus />} />
+              <Route
+                path="status"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <SystemStatus />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="search" element={<SearchResults />} />
               <Route path="notifications" element={<Notifications />} />
-              <Route path="api-docs" element={<ApiDocs />} />
-              <Route path="activity-log" element={<ActivityLog />} />
-              <Route path="admin" element={<AdminPanel />} />
+              <Route
+                path="api-docs"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <ApiDocs />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="activity-log"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <ActivityLog />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="admin"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminPanel />
+                  </ProtectedRoute>
+                }
+              />
             </Route>
             
             {/* Legacy routes for backward compatibility */}
@@ -108,7 +143,16 @@ function App() {
             <Route path="/tasks/:taskId/edit" element={<ProtectedRoute><Layout><Tasks /></Layout></ProtectedRoute>} />
             <Route path="/reports" element={<ProtectedRoute><Layout><Reports /></Layout></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Layout><Settings /></Layout></ProtectedRoute>} />
-            <Route path="/admin" element={<ProtectedRoute><Layout><AdminPanel /></Layout></ProtectedRoute>} />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <Layout>
+                    <AdminPanel />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
             
             {/* Catch all - must be last */}
             <Route path="*" element={<NotFound />} />

@@ -98,148 +98,24 @@ const Requests = () => {
   const fetchRequests = async () => {
     try {
       setLoading(true)
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      // Mock requests data
-      const mockRequests = [
-        {
-          id: 1,
-          ticket_number: 'REQ-2024-001',
-          title: 'Network connectivity issue in ICU',
-          description: 'Intermittent network connectivity issues affecting patient monitoring systems in ICU Room 302. Requires immediate attention as it impacts critical patient care.',
-          status: 'open',
-          priority: 'critical',
-          category: 'Network',
-          category_name: 'Network & Connectivity',
-          requester: 'Dr. Sarah Wilson',
-          requester_email: 'sarah.wilson@hospital.com',
-          department: 'ICU',
-          assigned_to: 'John Smith',
-          assigned_to_id: 1,
-          created_at: '2024-01-15T08:30:00Z',
-          updated_at: '2024-01-15T10:15:00Z',
-          due_date: '2024-01-16T08:30:00Z',
-          resolution_notes: null,
-          estimated_hours: 4,
-          actual_hours: null
-        },
-        {
-          id: 2,
-          ticket_number: 'REQ-2024-002',
-          title: 'Printer not working in Pharmacy',
-          description: 'Main prescription printer in pharmacy is not responding. Staff unable to print medication labels.',
-          status: 'in_progress',
-          priority: 'high',
-          category: 'Hardware',
-          category_name: 'Hardware Issues',
-          requester: 'Mike Johnson',
-          requester_email: 'mike.johnson@hospital.com',
-          department: 'Pharmacy',
-          assigned_to: 'Sarah Davis',
-          assigned_to_id: 2,
-          created_at: '2024-01-14T14:20:00Z',
-          updated_at: '2024-01-15T09:45:00Z',
-          due_date: '2024-01-17T14:20:00Z',
-          resolution_notes: 'Ordered replacement toner cartridge',
-          estimated_hours: 2,
-          actual_hours: 1.5
-        },
-        {
-          id: 3,
-          ticket_number: 'REQ-2024-003',
-          title: 'Software update for MRI system',
-          description: 'Scheduled software update for MRI scanner to latest version. Includes security patches and performance improvements.',
-          status: 'resolved',
-          priority: 'medium',
-          category: 'Software',
-          category_name: 'Software Updates',
-          requester: 'Dr. Emily Chen',
-          requester_email: 'emily.chen@hospital.com',
-          department: 'Radiology',
-          assigned_to: 'Mike Davis',
-          assigned_to_id: 3,
-          created_at: '2024-01-12T11:00:00Z',
-          updated_at: '2024-01-14T16:30:00Z',
-          due_date: '2024-01-20T11:00:00Z',
-          resolution_notes: 'Software successfully updated during maintenance window. All systems tested and functioning normally.',
-          estimated_hours: 6,
-          actual_hours: 5.5
-        },
-        {
-          id: 4,
-          ticket_number: 'REQ-2024-004',
-          title: 'New user account setup',
-          description: 'Create new user accounts for 3 new nurses starting in Emergency Department. Include access to EMR system and department-specific applications.',
-          status: 'pending',
-          priority: 'low',
-          category: 'Access',
-          category_name: 'User Access',
-          requester: 'HR Department',
-          requester_email: 'hr@hospital.com',
-          department: 'Emergency',
-          assigned_to: null,
-          assigned_to_id: null,
-          created_at: '2024-01-13T09:15:00Z',
-          updated_at: '2024-01-13T09:15:00Z',
-          due_date: '2024-01-18T09:15:00Z',
-          resolution_notes: null,
-          estimated_hours: 3,
-          actual_hours: null
-        },
-        {
-          id: 5,
-          ticket_number: 'REQ-2024-005',
-          title: 'Email server maintenance',
-          description: 'Scheduled maintenance for email server including security updates and performance optimization.',
-          status: 'scheduled',
-          priority: 'medium',
-          category: 'Maintenance',
-          category_name: 'System Maintenance',
-          requester: 'IT Department',
-          requester_email: 'it@hospital.com',
-          department: 'IT',
-          assigned_to: 'John Smith',
-          assigned_to_id: 1,
-          created_at: '2024-01-10T16:00:00Z',
-          updated_at: '2024-01-12T10:30:00Z',
-          due_date: '2024-01-19T02:00:00Z',
-          resolution_notes: null,
-          estimated_hours: 8,
-          actual_hours: null
-        }
-      ]
-      
-      // Apply filters
-      let filteredRequests = mockRequests
-      
-      if (searchTerm) {
-        filteredRequests = filteredRequests.filter(req =>
-          req.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          req.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          req.ticket_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          req.department.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+
+      const params = { ...filters }
+      // Map filters to API query params and remove empties
+      if (searchTerm) params.search = searchTerm
+      Object.keys(params).forEach((k) => {
+        if (params[k] === "" || params[k] === null || params[k] === undefined) delete params[k]
+      })
+
+      // Handle special 'unassigned' value for assigned_to via client-side filtering
+      const wantsUnassigned = filters.assigned_to === "unassigned"
+      if (wantsUnassigned) delete params.assigned_to
+
+      const res = await apiService.getSupportRequests(params)
+      let items = res.data?.results || res.data || []
+      if (wantsUnassigned) {
+        items = items.filter((r) => !r.assigned_to)
       }
-      
-      if (filters.status) {
-        filteredRequests = filteredRequests.filter(req => req.status === filters.status)
-      }
-      
-      if (filters.priority) {
-        filteredRequests = filteredRequests.filter(req => req.priority === filters.priority)
-      }
-      
-      if (filters.category) {
-        filteredRequests = filteredRequests.filter(req => req.category === filters.category)
-      }
-      
-      if (filters.assigned_to) {
-        filteredRequests = filteredRequests.filter(req => req.assigned_to_id?.toString() === filters.assigned_to)
-      }
-      
-      setRequests(filteredRequests)
+      setRequests(items)
     } catch (error) {
       console.error("Error fetching requests:", error)
       setRequests([])
@@ -250,25 +126,8 @@ const Requests = () => {
 
   const fetchAlerts = async () => {
     try {
-      // Mock alerts data
-      const mockAlerts = [
-        {
-          id: 1,
-          type: 'critical',
-          message: '3 critical requests overdue',
-          count: 3,
-          timestamp: new Date().toISOString()
-        },
-        {
-          id: 2,
-          type: 'warning',
-          message: '5 requests approaching SLA deadline',
-          count: 5,
-          timestamp: new Date().toISOString()
-        }
-      ]
-      
-      setAlerts(mockAlerts)
+      const res = await apiService.getAlerts({ is_acknowledged: false })
+      setAlerts(res.data?.results || res.data || [])
     } catch (error) {
       console.error("Error fetching alerts:", error)
       setAlerts([])

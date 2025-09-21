@@ -30,50 +30,7 @@ const ActivityFeed = ({ activities = [], loading = false }) => {
 		return colors[type] || "text-gray-600"
 	}
 
-	const sampleActivities = [
-		{
-			id: 1,
-			type: "equipment",
-			title: "New MRI Scanner Added",
-			description: "MRI-2024-001 added to Radiology Department",
-			timestamp: new Date(Date.now() - 5 * 60 * 1000),
-			user: "Dr. Smith",
-		},
-		{
-			id: 2,
-			type: "request",
-			title: "Critical Support Request",
-			description: "Network outage in Emergency Department",
-			timestamp: new Date(Date.now() - 15 * 60 * 1000),
-			user: "Nurse Johnson",
-		},
-		{
-			id: 3,
-			type: "task",
-			title: "Task Completed",
-			description: "Server maintenance in Data Center completed",
-			timestamp: new Date(Date.now() - 30 * 60 * 1000),
-			user: "IT Team",
-		},
-		{
-			id: 4,
-			type: "maintenance",
-			title: "Scheduled Maintenance",
-			description: "UPS system maintenance scheduled for tonight",
-			timestamp: new Date(Date.now() - 45 * 60 * 1000),
-			user: "System Admin",
-		},
-		{
-			id: 5,
-			type: "user",
-			title: "New Personnel Added",
-			description: "John Doe joined as Network Engineer",
-			timestamp: new Date(Date.now() - 60 * 60 * 1000),
-			user: "HR Department",
-		},
-	]
 
-	const displayActivities = activities.length > 0 ? activities : sampleActivities
 
 	const formatTimeAgo = (timestamp) => {
 		const now = new Date()
@@ -106,9 +63,11 @@ const ActivityFeed = ({ activities = [], loading = false }) => {
 							</div>
 						))}
 					</div>
+				) : activities.length === 0 ? (
+					<div className="text-sm text-muted-foreground p-3">No recent activity</div>
 				) : (
 					<div className="space-y-3 max-h-96 overflow-y-auto">
-						{displayActivities.map((activity) => {
+						{activities.map((activity) => {
 							const Icon = getActivityIcon(activity.type)
 							return (
 								<div key={activity.id} className="flex items-start space-x-3 p-3 bg-muted/50 rounded-lg">

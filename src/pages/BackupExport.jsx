@@ -53,36 +53,8 @@ const BackupExport = () => {
       setBackups(response.data.results || response.data || [])
     } catch (error) {
       console.error('Error fetching backups:', error)
-      // Mock data fallback
-      setBackups([
-        {
-          id: 1,
-          filename: 'hospital_it_backup_2024_01_15.sql',
-          size: '45.2 MB',
-          created_at: '2024-01-15T02:00:00Z',
-          status: 'completed',
-          type: 'full',
-          created_by: 'System Scheduler'
-        },
-        {
-          id: 2,
-          filename: 'hospital_it_backup_2024_01_14.sql',
-          size: '44.8 MB',
-          created_at: '2024-01-14T02:00:00Z',
-          status: 'completed',
-          type: 'full',
-          created_by: 'System Scheduler'
-        },
-        {
-          id: 3,
-          filename: 'hospital_it_backup_2024_01_13.sql',
-          size: '44.1 MB',
-          created_at: '2024-01-13T02:00:00Z',
-          status: 'completed',
-          type: 'incremental',
-          created_by: 'John Doe'
-        }
-      ])
+      setBackups([])
+      setError('Failed to load backup history.')
     } finally {
       setLoading(false)
     }

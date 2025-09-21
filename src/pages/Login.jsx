@@ -69,17 +69,18 @@ const Login = () => {
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email
+                Email or Username
               </label>
               <input
                 id="email"
                 name="email"
-                type="email"
+                type="text"
+                autoComplete="username"
                 required
                 value={credentials.email}
                 onChange={handleChange}
                 className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter your email"
+                placeholder="Enter your email or username"
               />
             </div>
 
@@ -92,6 +93,7 @@ const Login = () => {
                   id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
                   required
                   value={credentials.password}
                   onChange={handleChange}

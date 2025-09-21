@@ -23,6 +23,7 @@ const ActivityLog = () => {
   const { user, hasPermission } = useAuth()
   const [activities, setActivities] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
   const [filters, setFilters] = useState({
     user: '',
     action_type: '',
@@ -45,6 +46,7 @@ const ActivityLog = () => {
   const fetchActivityLog = async () => {
     try {
       setLoading(true)
+      setError("")
       const params = {
         ...filters,
         page: pagination.page,
@@ -56,97 +58,20 @@ const ActivityLog = () => {
         if (!params[key]) delete params[key]
       })
 
-      const response = await apiService.get('/admin/activity-log/', { params })
-      setActivities(response.data.results || response.data || [])
+      // Use available analytics endpoint for recent activity
+      const response = await apiService.getRecentActivity({ limit: pagination.limit })
+      const list = response.data?.activities || response.data?.results || response.data || []
+      setActivities(Array.isArray(list) ? list : [])
       setPagination(prev => ({
         ...prev,
-        total: response.data.count || response.data.length || 0,
-        pages: Math.ceil((response.data.count || response.data.length || 0) / prev.limit)
+        total: Array.isArray(list) ? list.length : 0,
+        pages: 1,
       }))
     } catch (error) {
       console.error('Error fetching activity log:', error)
-      // Mock data fallback
-      setActivities([
-        {
-          id: 1,
-          user: { username: 'john.doe', first_name: 'John', last_name: 'Doe' },
-          action_type: 'create',
-          resource_type: 'equipment',
-          resource_name: 'Dell OptiPlex 7090',
-          description: 'Created new equipment record',
-          ip_address: '192.168.1.100',
-          user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-          details: {
-            equipment_id: 123,
-            serial_number: 'DL123456',
-            location: 'ICU'
-          }
-        },
-        {
-          id: 2,
-          user: { username: 'jane.smith', first_name: 'Jane', last_name: 'Smith' },
-          action_type: 'update',
-          resource_type: 'request',
-          resource_name: 'Network Issue - ICU',
-          description: 'Updated support request status to resolved',
-          ip_address: '192.168.1.101',
-          user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          details: {
-            request_id: 456,
-            old_status: 'in_progress',
-            new_status: 'resolved'
-          }
-        },
-        {
-          id: 3,
-          user: { username: 'admin', first_name: 'System', last_name: 'Admin' },
-          action_type: 'login',
-          resource_type: 'user',
-          resource_name: 'admin',
-          description: 'User logged in',
-          ip_address: '192.168.1.1',
-          user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-          details: {
-            login_method: 'password',
-            session_duration: '8 hours'
-          }
-        },
-        {
-          id: 4,
-          user: { username: 'mike.wilson', first_name: 'Mike', last_name: 'Wilson' },
-          action_type: 'delete',
-          resource_type: 'task',
-          resource_name: 'Update firewall rules',
-          description: 'Deleted completed task',
-          ip_address: '192.168.1.102',
-          user_agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-          timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-          details: {
-            task_id: 789,
-            completion_date: '2024-01-15'
-          }
-        },
-        {
-          id: 5,
-          user: { username: 'system', first_name: 'System', last_name: 'Automated' },
-          action_type: 'backup',
-          resource_type: 'system',
-          resource_name: 'Daily Backup',
-          description: 'Automated system backup completed',
-          ip_address: '127.0.0.1',
-          user_agent: 'System/1.0',
-          timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-          details: {
-            backup_size: '45.2 MB',
-            backup_type: 'full',
-            duration: '15 minutes'
-          }
-        }
-      ])
-      setPagination(prev => ({ ...prev, total: 5, pages: 1 }))
+      setError('Failed to load activity log.')
+      setActivities([])
+      setPagination(prev => ({ ...prev, total: 0, pages: 0 }))
     } finally {
       setLoading(false)
     }
@@ -154,24 +79,38 @@ const ActivityLog = () => {
 
   const exportActivityLog = async () => {
     try {
-      const params = { ...filters, format: 'csv' }
-      Object.keys(params).forEach(key => {
-        if (!params[key]) delete params[key]
-      })
-
-      const response = await apiService.get('/admin/activity-log/export/', {
-        params,
-        responseType: 'blob'
-      })
-
-      const url = window.URL.createObjectURL(new Blob([response.data]))
+      // Build CSV from current activities in memory
+      const headers = ['id','type','title','description','user','timestamp','status','resource_type','resource_name']
+      const rows = [headers.join(',')]
+      for (const a of activities) {
+        const safe = (v) => {
+          if (v === undefined || v === null) return ''
+          const s = String(v)
+          // Escape quotes and wrap in quotes if contains comma or quote
+          const esc = s.replace(/"/g, '""')
+          return /[",\n]/.test(esc) ? `"${esc}"` : esc
+        }
+        rows.push([
+          safe(a.id),
+          safe(a.type || a.action_type || ''),
+          safe(a.title || ''),
+          safe(a.description || ''),
+          safe(a.user?.username || (typeof a.user === 'string' ? a.user : '') ),
+          safe(a.timestamp || ''),
+          safe(a.status || ''),
+          safe(a.resource_type || ''),
+          safe(a.resource_name || ''),
+        ].join(','))
+      }
+      const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
       link.download = `activity_log_${new Date().toISOString().split('T')[0]}.csv`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
+      URL.revokeObjectURL(url)
     } catch (error) {
       console.error('Error exporting activity log:', error)
     }
@@ -367,6 +306,15 @@ const ActivityLog = () => {
         </CardContent>
       </Card>
 
+      {/* Error */}
+      {error && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-sm text-red-700">{error}</div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Activity List */}
       <Card>
         <CardHeader>
@@ -403,21 +351,27 @@ const ActivityLog = () => {
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center space-x-3">
                           <h4 className="text-sm font-medium text-gray-900">
-                            {activity.user.first_name} {activity.user.last_name}
+                            {activity.user?.first_name
+                              ? `${activity.user.first_name} ${activity.user.last_name}`
+                              : (activity.user || 'Unknown')}
                           </h4>
                           <span className={`px-2 py-1 text-xs font-medium rounded-full ${getActionColor(activity.action_type)}`}>
                             {activity.action_type}
                           </span>
-                          <span className="text-xs text-gray-500 capitalize">
-                            {activity.resource_type}
-                          </span>
+                          {activity.resource_type && (
+                            <span className="text-xs text-gray-500 capitalize">
+                              {activity.resource_type}
+                            </span>
+                          )}
                         </div>
                         <span className="text-xs text-gray-500">
                           {formatTimeAgo(activity.timestamp)}
                         </span>
                       </div>
                       
-                      <p className="text-sm text-gray-700 mb-2">{activity.description}</p>
+                      {activity.description && (
+                        <p className="text-sm text-gray-700 mb-2">{activity.description}</p>
+                      )}
                       
                       {activity.resource_name && (
                         <p className="text-sm text-gray-600 mb-2">
@@ -427,10 +381,15 @@ const ActivityLog = () => {
                       
                       <div className="flex items-center justify-between text-xs text-gray-500">
                         <div className="flex items-center space-x-4">
-                          <span>IP: {activity.ip_address}</span>
-                          <span>User: @{activity.user.username}</span>
+                          {activity.ip_address && <span>IP: {activity.ip_address}</span>}
+                          {activity.user?.username && <span>User: @{activity.user.username}</span>}
+                          {typeof activity.user === 'string' && !activity.user?.username && (
+                            <span>User: {activity.user}</span>
+                          )}
                         </div>
-                        <span>{new Date(activity.timestamp).toLocaleString()}</span>
+                        {activity.timestamp && (
+                          <span>{new Date(activity.timestamp).toLocaleString()}</span>
+                        )}
                       </div>
                       
                       {activity.details && Object.keys(activity.details).length > 0 && (

@@ -26,7 +26,7 @@ import {
 } from "@heroicons/react/24/outline"
 
 const AdminPanel = () => {
-  const { user, hasRole } = useAuth()
+  const { user, canAccessAdmin } = useAuth()
   const [activeTab, setActiveTab] = useState("users")
   const [users, setUsers] = useState([])
   const [statistics, setStatistics] = useState(null)
@@ -47,7 +47,7 @@ const AdminPanel = () => {
   const [totalPages, setTotalPages] = useState(1)
 
   // Check if user has admin access
-  if (!user || !hasRole('admin')) {
+  if (!user || !canAccessAdmin()) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
         <Card className="w-full max-w-md">
@@ -66,7 +66,7 @@ const AdminPanel = () => {
 
   useEffect(() => {
     // Prevent background requests if not admin
-    if (!user || !hasRole('admin')) {
+    if (!user || !canAccessAdmin()) {
       return
     }
     if (activeTab === "users") {

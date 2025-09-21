@@ -38,16 +38,17 @@ class SupportRequestViewSet(viewsets.ModelViewSet):
         assigned_to_id = request.data.get('assigned_to')
         
         if assigned_to_id:
-            from django.contrib.auth.models import User
+            from django.contrib.auth import get_user_model
+            UserModel = get_user_model()
             try:
-                user = User.objects.get(id=assigned_to_id)
+                user = UserModel.objects.get(id=assigned_to_id)
                 support_request.assigned_to = user
                 support_request.status = 'assigned'
                 support_request.assigned_at = timezone.now()
                 support_request.save()
                 
                 return Response({'message': 'Request assigned successfully'})
-            except User.DoesNotExist:
+            except UserModel.DoesNotExist:
                 return Response({'error': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
         
         return Response({'error': 'assigned_to is required'}, status=status.HTTP_400_BAD_REQUEST)

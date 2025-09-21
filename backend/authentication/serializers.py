@@ -77,40 +77,43 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 
 class UserLoginSerializer(serializers.Serializer):
-    """Serializer for user login"""
-    email = serializers.EmailField()
+    """Serializer for user login (accepts email or username in 'email' field)"""
+    email = serializers.CharField()  # accepts either email or username identifier
     password = serializers.CharField(write_only=True)
     remember_me = serializers.BooleanField(default=False)
     
     def validate(self, attrs):
-        email = attrs.get('email')
+        identifier = attrs.get('email')
         password = attrs.get('password')
         
-        if email and password:
-            # Check if user exists
+        if identifier and password:
+            # Resolve identifier to a user by email or username
+            user_obj = None
             try:
-                user = CustomUser.objects.get(email=email)
+                if '@' in identifier:
+                    user_obj = CustomUser.objects.get(email=identifier)
+                else:
+                    user_obj = CustomUser.objects.get(username=identifier)
             except CustomUser.DoesNotExist:
-                raise serializers.ValidationError("Invalid email or password.")
+                raise serializers.ValidationError("Invalid email/username or password.")
             
             # Check if account is locked
-            if user.is_account_locked():
+            if user_obj.is_account_locked():
                 raise serializers.ValidationError("Account is temporarily locked due to multiple failed login attempts.")
             
-            # Authenticate user
-            user = authenticate(username=email, password=password)
+            # Authenticate using the account's primary identifier (email)
+            user = authenticate(username=user_obj.email, password=password)
             if not user:
                 # Increment failed login attempts
                 try:
-                    user = CustomUser.objects.get(email=email)
-                    user.failed_login_attempts += 1
-                    if user.failed_login_attempts >= 5:
-                        user.lock_account()
-                    user.save()
-                except CustomUser.DoesNotExist:
+                    user_obj.failed_login_attempts += 1
+                    if user_obj.failed_login_attempts >= 5:
+                        user_obj.lock_account()
+                    user_obj.save()
+                except Exception:
                     pass
                 
-                raise serializers.ValidationError("Invalid email or password.")
+                raise serializers.ValidationError("Invalid email/username or password.")
             
             if not user.is_active:
                 raise serializers.ValidationError("Account is disabled.")

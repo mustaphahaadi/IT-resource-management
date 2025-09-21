@@ -10,6 +10,9 @@ urlpatterns = [
     # Profile management
     path('profile/', views.get_user_profile, name='profile'),
     path('profile/update/', views.update_user_profile, name='update_profile'),
+    path('user/stats/', views.user_stats, name='user_stats'),
+    path('user/activity/', views.user_activity, name='user_activity'),
+    path('user/preferences/', views.user_preferences, name='user_preferences'),
     
     # Password management
     path('change-password/', views.change_password, name='change_password'),

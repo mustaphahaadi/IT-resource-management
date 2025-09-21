@@ -99,9 +99,21 @@ export const AuthProvider = ({ children }) => {
       setPermissions(response.data.user.permissions || [])
       return { success: true }
     } catch (error) {
+      // Extract DRF serializer errors if present
+      const data = error.response?.data
+      let message = data?.message
+      if (!message && data) {
+        if (Array.isArray(data.non_field_errors) && data.non_field_errors.length) {
+          message = data.non_field_errors[0]
+        } else if (Array.isArray(data.email) && data.email.length) {
+          message = data.email[0]
+        } else if (Array.isArray(data.password) && data.password.length) {
+          message = data.password[0]
+        }
+      }
       return {
         success: false,
-        error: error.response?.data?.message || "Login failed",
+        error: message || "Invalid credentials. Please check your email/username and password.",
       }
     }
   }
@@ -156,12 +168,22 @@ export const AuthProvider = ({ children }) => {
 
   const hasRole = (role) => {
     if (!user) return false
+    if (user.is_superuser) return true
     return user.role === role
   }
 
   const hasAnyRole = (roles) => {
     if (!user) return false
+    if (user.is_superuser) return true
     return roles.includes(user.role)
+  }
+
+  const canAccessAdmin = () => {
+    if (!user) return false
+    if (user.is_superuser) return true
+    if (user.role === 'admin') return true
+    if (user.role === 'manager') return user.is_approved === true
+    return false
   }
 
   const updateProfile = async (profileData) => {
@@ -194,6 +216,7 @@ export const AuthProvider = ({ children }) => {
     hasPermission,
     hasRole,
     hasAnyRole,
+    canAccessAdmin,
     updateProfile,
     changePassword,
     markNotificationRead,

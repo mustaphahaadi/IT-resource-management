@@ -23,6 +23,7 @@ const Notifications = () => {
   const { user, markNotificationRead, markAllNotificationsRead } = useAuth()
   const [notifications, setNotifications] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [selectedNotifications, setSelectedNotifications] = useState([])
   const [filters, setFilters] = useState({
     status: 'all', // all, read, unread
@@ -49,9 +50,18 @@ const Notifications = () => {
   const fetchNotifications = async () => {
     try {
       setLoading(true)
+      setError('')
       const params = {
         ...filters,
         limit: 50
+      }
+      // Map UI filters to backend-supported params
+      if (params.status === 'unread') {
+        params.unread_only = true
+      }
+      // Backend uses 'maintenance' type instead of 'equipment'
+      if (params.type === 'equipment') {
+        params.type = 'maintenance'
       }
       
       // Remove 'all' values
@@ -60,64 +70,15 @@ const Notifications = () => {
           delete params[key]
         }
       })
+      delete params.status
 
       const response = await apiService.getNotifications(params)
-      setNotifications(response.data.results || response.data || [])
+      const list = response.data?.notifications || response.data?.results || response.data || []
+      setNotifications(Array.isArray(list) ? list : [])
     } catch (error) {
       console.error('Error fetching notifications:', error)
-      // Mock data fallback
-      setNotifications([
-        {
-          id: 1,
-          title: 'Critical Equipment Alert',
-          message: 'MRI Scanner in Radiology requires immediate attention',
-          type: 'equipment',
-          priority: 'critical',
-          is_read: false,
-          created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-          action_url: '/app/inventory?id=123'
-        },
-        {
-          id: 2,
-          title: 'New Support Request',
-          message: 'Network connectivity issue reported in ICU',
-          type: 'request',
-          priority: 'high',
-          is_read: false,
-          created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          action_url: '/app/requests?id=456'
-        },
-        {
-          id: 3,
-          title: 'Task Assignment',
-          message: 'You have been assigned to update firewall configuration',
-          type: 'task',
-          priority: 'medium',
-          is_read: true,
-          created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-          action_url: '/app/tasks?id=789'
-        },
-        {
-          id: 4,
-          title: 'System Maintenance',
-          message: 'Scheduled maintenance will begin at 2:00 AM tomorrow',
-          type: 'system',
-          priority: 'medium',
-          is_read: false,
-          created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-          action_url: '/app/status'
-        },
-        {
-          id: 5,
-          title: 'Backup Completed',
-          message: 'Daily system backup completed successfully',
-          type: 'system',
-          priority: 'low',
-          is_read: true,
-          created_at: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-          action_url: '/app/backup'
-        }
-      ])
+      setNotifications([])
+      setError('Failed to load notifications.')
     } finally {
       setLoading(false)
     }
@@ -125,8 +86,26 @@ const Notifications = () => {
 
   const fetchNotificationSettings = async () => {
     try {
-      const response = await apiService.get('/auth/user/notification-settings/')
-      setNotificationSettings(response.data)
+      const response = await apiService.getNotificationPreferences()
+      const prefs = response.data || {}
+      const hasEmail = (v) => v === 'email' || v === 'both'
+      const hasWeb = (v) => v === 'web' || v === 'both'
+      const sys = prefs.system_notifications
+      const req = prefs.request_notifications
+      const task = prefs.task_notifications
+      const maint = prefs.maintenance_notifications
+      setNotificationSettings(prev => ({
+        // Global channel toggles derived from any type having the channel
+        email_notifications: [sys, req, task, maint].some(hasEmail),
+        push_notifications: [sys, req, task, maint].some(hasWeb),
+        // Per-type enable/disable
+        system_alerts: sys !== 'none' && !!sys,
+        request_updates: req !== 'none' && !!req,
+        task_assignments: task !== 'none' && !!task,
+        maintenance_reminders: maint !== 'none' && !!maint,
+        // Keep equipment_alerts as-is (not supported in backend preferences)
+        equipment_alerts: prev.equipment_alerts,
+      }))
     } catch (error) {
       console.error('Error fetching notification settings:', error)
     }
@@ -177,7 +156,7 @@ const Notifications = () => {
   const handleDeleteNotifications = async (notificationIds) => {
     try {
       for (const id of notificationIds) {
-        await apiService.delete(`/notifications/${id}/`)
+        await apiService.dismissNotification(id)
       }
       setNotifications(prev =>
         prev.filter(n => !notificationIds.includes(n.id))
@@ -209,8 +188,24 @@ const Notifications = () => {
     const newSettings = { ...notificationSettings, [setting]: value }
     setNotificationSettings(newSettings)
     
+    // Map UI booleans to backend delivery choices per type
+    const computePref = (enabled, emailOn, pushOn) => {
+      if (!enabled) return 'none'
+      if (emailOn && pushOn) return 'both'
+      if (emailOn) return 'email'
+      if (pushOn) return 'web'
+      return 'none'
+    }
+
+    const prefsPayload = {
+      system_notifications: computePref(newSettings.system_alerts, newSettings.email_notifications, newSettings.push_notifications),
+      request_notifications: computePref(newSettings.request_updates, newSettings.email_notifications, newSettings.push_notifications),
+      task_notifications: computePref(newSettings.task_assignments, newSettings.email_notifications, newSettings.push_notifications),
+      maintenance_notifications: computePref(newSettings.maintenance_reminders, newSettings.email_notifications, newSettings.push_notifications),
+    }
+
     try {
-      await apiService.patch('/auth/user/notification-settings/', newSettings)
+      await apiService.updateNotificationPreferences(prefsPayload)
     } catch (error) {
       console.error('Error updating notification settings:', error)
     }
@@ -265,13 +260,16 @@ const Notifications = () => {
     return `${diffInDays}d ago`
   }
 
-  const filteredNotifications = notifications.filter(notification => {
+  const filteredNotifications = (Array.isArray(notifications) ? notifications : []).filter(notification => {
     if (filters.status !== 'all') {
       if (filters.status === 'read' && !notification.is_read) return false
       if (filters.status === 'unread' && notification.is_read) return false
     }
     
-    if (filters.type !== 'all' && notification.type !== filters.type) return false
+    if (filters.type !== 'all') {
+      const typeToMatch = filters.type === 'equipment' ? 'maintenance' : filters.type
+      if (notification.type !== typeToMatch) return false
+    }
     if (filters.priority !== 'all' && notification.priority !== filters.priority) return false
     
     if (filters.search) {
@@ -341,6 +339,15 @@ const Notifications = () => {
                 </div>
               ))}
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Error */}
+      {error && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-sm text-red-700">{error}</div>
           </CardContent>
         </Card>
       )}
