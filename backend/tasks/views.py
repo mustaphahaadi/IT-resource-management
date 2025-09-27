@@ -1,4 +1,4 @@
-from rest_framework import viewsets, filters, status
+from rest_framework import viewsets, filters, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
@@ -8,15 +8,29 @@ from .serializers import (
     TaskSerializer, ITPersonnelSerializer, TaskCommentSerializer,
     WorkflowTemplateSerializer, TaskAssignmentRuleSerializer
 )
+from authentication.permissions import IsOwnerOrStaff, IsStaffOrReadOnly, IsAdminUser
 
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
+    permission_classes = [IsOwnerOrStaff]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['status', 'priority', 'assigned_to', 'related_request']
     search_fields = ['title', 'description', 'related_request__ticket_number']
     ordering_fields = ['created_at', 'priority', 'due_date']
     ordering = ['-created_at']
+    
+    def get_queryset(self):
+        """Filter tasks based on user role."""
+        queryset = Task.objects.all()
+        user = self.request.user
+        
+        # Staff and admin can see all tasks
+        if user.role in ['admin', 'staff'] or user.is_staff:
+            return queryset
+        
+        # Regular users can only see tasks assigned to them
+        return queryset.filter(assigned_to__user=user)
 
     @action(detail=False, methods=['get'])
     def dashboard_stats(self, request):
@@ -104,6 +118,7 @@ class TaskViewSet(viewsets.ModelViewSet):
 class ITPersonnelViewSet(viewsets.ModelViewSet):
     queryset = ITPersonnel.objects.all()
     serializer_class = ITPersonnelSerializer
+    permission_classes = [IsStaffOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['department', 'skill_level', 'is_available']
     search_fields = ['user__first_name', 'user__last_name', 'employee_id', 'specializations']
@@ -121,6 +136,7 @@ class ITPersonnelViewSet(viewsets.ModelViewSet):
 class WorkflowTemplateViewSet(viewsets.ModelViewSet):
     queryset = WorkflowTemplate.objects.all()
     serializer_class = WorkflowTemplateSerializer
+    permission_classes = [IsStaffOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['category', 'is_active']
     search_fields = ['name', 'description']
@@ -128,6 +144,7 @@ class WorkflowTemplateViewSet(viewsets.ModelViewSet):
 class TaskAssignmentRuleViewSet(viewsets.ModelViewSet):
     queryset = TaskAssignmentRule.objects.all()
     serializer_class = TaskAssignmentRuleSerializer
+    permission_classes = [permissions.IsAdminUser]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['rule_type', 'is_active']
     ordering = ['-priority']

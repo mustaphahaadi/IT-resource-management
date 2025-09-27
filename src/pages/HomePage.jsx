@@ -64,17 +64,17 @@ const HomePage = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+    <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+      <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-[#2F327D] rounded-lg flex items-center justify-center">
                 <HeartIcon className="w-5 h-5 text-white" />
               </div>
-              <span className="font-bold text-lg text-gray-900">Hospital IT</span>
+              <span className="font-bold text-lg text-[#2F327D]">Hospital IT</span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -83,7 +83,7 @@ const HomePage = () => {
                 <Link
                   key={item.name}
                   to={item.href}
-                  className="text-gray-600 hover:text-blue-600 font-medium transition-colors duration-200"
+                  className="text-gray-600 hover:text-[#2F327D] font-medium transition-colors duration-200"
                 >
                   {item.name}
                 </Link>
@@ -134,7 +134,7 @@ const HomePage = () => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className="text-gray-600 hover:text-blue-600 font-medium transition-colors duration-200 px-2 py-1"
+                    className="text-gray-600 hover:text-[#2F327D] font-medium transition-colors duration-200 px-2 py-1"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {item.name}
@@ -167,24 +167,23 @@ const HomePage = () => {
       </nav>
 
       {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-green-600/10"></div>
+      <div className="relative overflow-hidden bg-[#2F327D]">
         <div className="relative container mx-auto px-4 py-16">
           <div className="text-center max-w-4xl mx-auto">
             <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-green-600 rounded-full flex items-center justify-center">
-                <HeartIcon className="w-10 h-10 text-white" />
+              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
+                <HeartIcon className="w-10 h-10 text-[#2F327D]" />
               </div>
             </div>
             
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
               Hospital IT
-              <span className="bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
+              <span className="text-white">
                 {" "}Management System
               </span>
             </h1>
             
-            <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+            <p className="text-xl text-white/90 mb-8 leading-relaxed">
               Comprehensive IT resource management solution designed specifically for healthcare environments. 
               Streamline operations, enhance security, and improve patient care through intelligent technology management.
             </p>
@@ -220,7 +219,7 @@ const HomePage = () => {
       {/* Features Section */}
       <div id="features" className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-[#2F327D] mb-4">
             Powerful Features for Healthcare IT
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -230,12 +229,12 @@ const HomePage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((feature, index) => (
-            <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <Card key={index} className="border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-300 hover:border-[#2F327D]">
               <CardHeader className="text-center pb-4">
-                <div className={`w-12 h-12 rounded-lg ${feature.color} flex items-center justify-center mx-auto mb-4`}>
+                <div className="w-12 h-12 rounded-lg bg-[#2F327D] text-white flex items-center justify-center mx-auto mb-4">
                   <feature.icon className="w-6 h-6" />
                 </div>
-                <CardTitle className="text-lg">{feature.title}</CardTitle>
+                <CardTitle className="text-lg text-[#2F327D]">{feature.title}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 text-center text-sm leading-relaxed">
@@ -252,7 +251,7 @@ const HomePage = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">
+              <h2 className="text-3xl font-bold text-[#2F327D] mb-6">
                 Why Choose Our Platform?
               </h2>
               <p className="text-lg text-gray-600 mb-8">
@@ -263,8 +262,8 @@ const HomePage = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {benefits.map((benefit, index) => (
                   <div key={index} className="flex items-center gap-3">
-                    <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <CheckCircleIcon className="w-3 h-3 text-green-600" />
+                    <div className="w-5 h-5 bg-[#2F327D]/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <CheckCircleIcon className="w-3 h-3 text-[#2F327D]" />
                     </div>
                     <span className="text-gray-700 text-sm">{benefit}</span>
                   </div>
@@ -275,10 +274,10 @@ const HomePage = () => {
             <div className="relative">
               <div className="bg-white rounded-2xl shadow-2xl p-8">
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <div className="w-16 h-16 bg-[#2F327D] rounded-full flex items-center justify-center mx-auto mb-6">
                     <CogIcon className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                  <h3 className="text-xl font-semibold text-[#2F327D] mb-4">
                     Enterprise-Grade Solution
                   </h3>
                   <p className="text-gray-600 mb-6">
@@ -286,15 +285,15 @@ const HomePage = () => {
                   </p>
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
-                      <div className="text-2xl font-bold text-blue-600">99.9%</div>
+                      <div className="text-2xl font-bold text-[#2F327D]">99.9%</div>
                       <div className="text-xs text-gray-500">Uptime</div>
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-green-600">24/7</div>
+                      <div className="text-2xl font-bold text-[#2F327D]">24/7</div>
                       <div className="text-xs text-gray-500">Support</div>
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-purple-600">SOC2</div>
+                      <div className="text-2xl font-bold text-[#2F327D]">SOC2</div>
                       <div className="text-xs text-gray-500">Compliant</div>
                     </div>
                   </div>
@@ -308,12 +307,12 @@ const HomePage = () => {
     
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className="bg-[#2F327D] text-white py-12">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <HeartIcon className="w-6 h-6 text-blue-400" />
+                <HeartIcon className="w-6 h-6 text-white" />
                 <span className="font-semibold text-lg">Hospital IT System</span>
               </div>
               <p className="text-gray-400 text-sm">

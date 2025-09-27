@@ -1,19 +1,37 @@
-from rest_framework import viewsets, filters, status
+from rest_framework import viewsets, filters, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils import timezone
 from .models import SupportRequest, RequestCategory, RequestComment, Alert
 from .serializers import SupportRequestSerializer, RequestCategorySerializer, RequestCommentSerializer, AlertSerializer
+from authentication.permissions import IsOwnerOrStaff, IsStaffOrReadOnly
 
 class SupportRequestViewSet(viewsets.ModelViewSet):
     queryset = SupportRequest.objects.all()
     serializer_class = SupportRequestSerializer
+    permission_classes = [IsOwnerOrStaff]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['status', 'priority', 'category', 'assigned_to', 'requester_department']
     search_fields = ['ticket_number', 'title', 'description', 'requester__first_name', 'requester__last_name']
     ordering_fields = ['created_at', 'priority', 'status', 'resolution_due']
     ordering = ['-created_at']
+    
+    def get_queryset(self):
+        """Filter requests based on user role."""
+        queryset = SupportRequest.objects.all()
+        user = self.request.user
+        
+        # Staff and admin can see all requests
+        if user.role in ['admin', 'staff'] or user.is_staff:
+            return queryset
+        
+        # Regular users can only see their own requests
+        return queryset.filter(requester=user)
+    
+    def perform_create(self, serializer):
+        """Set the requester to the current user when creating a request."""
+        serializer.save(requester=self.request.user)
 
     @action(detail=False, methods=['get'])
     def dashboard_stats(self, request):
@@ -74,10 +92,12 @@ class SupportRequestViewSet(viewsets.ModelViewSet):
 class RequestCategoryViewSet(viewsets.ModelViewSet):
     queryset = RequestCategory.objects.all()
     serializer_class = RequestCategorySerializer
+    permission_classes = [IsStaffOrReadOnly]
 
 class AlertViewSet(viewsets.ModelViewSet):
     queryset = Alert.objects.all()
     serializer_class = AlertSerializer
+    permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['alert_type', 'is_acknowledged']
     ordering = ['-created_at']

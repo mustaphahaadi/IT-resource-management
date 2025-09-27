@@ -236,6 +236,10 @@ class ApiService {
     return this.delete(`/inventory/equipment/${id}/`)
   }
 
+  async getEquipmentStats() {
+    return this.get("/inventory/equipment/dashboard_stats/")
+  }
+
   // Support Requests API methods
   async getSupportRequests(params = {}) {
     return this.get("/requests/support-requests/", { params })
@@ -262,6 +266,10 @@ class ApiService {
       comment,
       is_internal: isInternal,
     })
+  }
+
+  async getRequestStats() {
+    return this.get("/requests/support-requests/dashboard_stats/")
   }
 
   // Tasks API methods
@@ -302,6 +310,10 @@ class ApiService {
 
   async addTaskComment(id, comment) {
     return this.post(`/tasks/tasks/${id}/comments/`, { comment })
+  }
+
+  async getTaskStats() {
+    return this.get("/tasks/tasks/dashboard_stats/")
   }
 
   // Personnel API methods
@@ -402,6 +414,10 @@ class ApiService {
     return this.get("/inventory/departments/")
   }
 
+  async getVendors() {
+    return this.get("/inventory/vendors/")
+  }
+
   // Notifications API methods
   async getNotifications(params = {}) {
     return this.get("/notifications/", { params })
@@ -485,12 +501,16 @@ class ApiService {
     return this.post("/admin/backup/create/")
   }
 
-  async getBackupHistory() {
-    return this.get("/admin/backup/history/")
+  async deleteBackup(backupId) {
+    return this.delete(`/admin/backup/${backupId}/`)
   }
 
   async restoreBackup(backupId) {
     return this.post(`/admin/backup/${backupId}/restore/`)
+  }
+
+  async downloadBackup(backupId) {
+    return this.get(`/admin/backup/${backupId}/download/`, { responseType: 'blob' })
   }
 }
 

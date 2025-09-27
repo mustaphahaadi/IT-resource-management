@@ -26,24 +26,28 @@ const Analytics = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Advanced Analytics</h1>
-        <p className="text-muted-foreground">Deep dive into system metrics and trends</p>
-      </div>
-      {error && (
-        <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-          <p className="text-sm text-destructive">{error}</p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="bg-[#2F327D] text-white py-8">
+        <div className="container mx-auto px-4">
+          <h1 className="text-3xl font-bold">Advanced Analytics</h1>
+          <p className="text-white/90">Deep dive into system metrics and trends</p>
         </div>
-      )}
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>Analytics Dashboard</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <DashboardCharts analytics={analytics || {}} loading={loading} />
-        </CardContent>
-      </Card>
+      </div>
+      <div className="container mx-auto px-4 py-8 space-y-6">
+        {error && (
+          <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
+        <Card className="border border-gray-200 shadow-lg">
+          <CardHeader className="bg-white border-b border-gray-200">
+            <CardTitle className="text-[#2F327D]">Analytics Dashboard</CardTitle>
+          </CardHeader>
+          <CardContent className="bg-white">
+            <DashboardCharts analytics={analytics || {}} loading={loading} />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

@@ -26,6 +26,16 @@ export default defineConfig(({ mode }) => {
           target: BACKEND_URL,
           changeOrigin: true,
           ws: true,
+          configure: (proxy, options) => {
+            proxy.on('error', (err, req, res) => {
+              console.log('WebSocket proxy error:', err.message);
+            });
+            proxy.on('proxyReqWs', (proxyReq, req, socket) => {
+              socket.on('error', (err) => {
+                console.log('WebSocket socket error:', err.message);
+              });
+            });
+          },
         },
       },
     },

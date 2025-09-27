@@ -48,22 +48,22 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#2F327D] px-4">
       <Card className="w-full max-w-md bg-white border border-gray-200">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-              <ComputerDesktopIcon className="w-8 h-8 text-primary-foreground" />
+            <div className="w-12 h-12 bg-[#2F327D] rounded-lg flex items-center justify-center">
+              <ComputerDesktopIcon className="w-8 h-8 text-white" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-foreground">Hospital IT System</CardTitle>
-          <p className="text-muted-foreground">Sign in to access the IT management portal</p>
+          <CardTitle className="text-2xl font-bold text-[#2F327D]">Hospital IT System</CardTitle>
+          <p className="text-gray-600">Sign in to access the IT management portal</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                <p className="text-sm text-destructive">{error}</p>
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-sm text-red-600">{error}</p>
               </div>
             )}
 
@@ -79,7 +79,7 @@ const Login = () => {
                 required
                 value={credentials.email}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#2F327D] focus:border-[#2F327D]"
                 placeholder="Enter your email or username"
               />
             </div>
@@ -97,13 +97,13 @@ const Login = () => {
                   required
                   value={credentials.password}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 pr-10 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 pr-10 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#2F327D] focus:border-[#2F327D]"
                   placeholder="Enter your password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
                 >
                   {showPassword ? <EyeSlashIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
                 </button>
@@ -118,13 +118,13 @@ const Login = () => {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-primary focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-[#2F327D] focus:ring-[#2F327D] border-gray-300 rounded"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
                   Remember me
                 </label>
               </div>
-              <Link to="/forgot-password" className="text-sm text-primary hover:text-primary/80">
+              <Link to="/forgot-password" className="text-sm text-[#2F327D] hover:text-[#2F327D]/80">
                 Forgot password?
               </Link>
             </div>
@@ -132,14 +132,14 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading || loginAttempts >= 5}
-              className="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full bg-[#2F327D] text-white py-2 px-4 rounded-md hover:bg-[#2F327D]/90 focus:outline-none focus:ring-2 focus:ring-[#2F327D] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-muted-foreground">Need access? Contact your IT administrator</p>
+            <p className="text-sm text-gray-600">Need access? Contact your IT administrator</p>
           </div>
         </CardContent>
       </Card>

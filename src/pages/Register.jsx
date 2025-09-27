@@ -183,16 +183,16 @@ const Register = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#2F327D] px-4 py-8">
       <Card className="w-full max-w-2xl bg-white border border-gray-200">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-              <UserPlusIcon className="w-8 h-8 text-primary-foreground" />
+            <div className="w-12 h-12 bg-[#2F327D] rounded-lg flex items-center justify-center">
+              <UserPlusIcon className="w-8 h-8 text-white" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-foreground">Create Account</CardTitle>
-          <p className="text-muted-foreground">Join the Hospital IT System</p>
+          <CardTitle className="text-2xl font-bold text-[#2F327D]">Create Account</CardTitle>
+          <p className="text-gray-600">Join the Hospital IT System</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">

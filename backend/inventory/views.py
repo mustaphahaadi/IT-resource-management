@@ -1,4 +1,4 @@
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
@@ -8,15 +8,32 @@ from .serializers import (
     LocationSerializer, VendorSerializer, EquipmentCategorySerializer,
     MaintenanceScheduleSerializer
 )
+from authentication.permissions import IsStaffOrReadOnly, IsAdminOrStaff, DepartmentBasedPermission
 
 class EquipmentViewSet(viewsets.ModelViewSet):
     queryset = Equipment.objects.all()
     serializer_class = EquipmentSerializer
+    permission_classes = [IsStaffOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['status', 'category', 'location', 'priority']
     search_fields = ['name', 'asset_tag', 'serial_number', 'model', 'manufacturer']
     ordering_fields = ['name', 'created_at', 'warranty_expiry']
     ordering = ['-created_at']
+    
+    def get_queryset(self):
+        """Filter equipment based on user role and department."""
+        queryset = Equipment.objects.all()
+        user = self.request.user
+        
+        # Admin and staff can see all equipment
+        if user.role in ['admin', 'staff'] or user.is_staff:
+            return queryset
+        
+        # Regular users can only see equipment in their department
+        if hasattr(user, 'department') and user.department:
+            return queryset.filter(location__department__name__iexact=user.department)
+        
+        return queryset
 
     @action(detail=False, methods=['get'])
     def dashboard_stats(self, request):
@@ -35,6 +52,7 @@ class EquipmentViewSet(viewsets.ModelViewSet):
 class SoftwareViewSet(viewsets.ModelViewSet):
     queryset = Software.objects.all()
     serializer_class = SoftwareSerializer
+    permission_classes = [IsStaffOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     search_fields = ['name', 'version', 'license_type']
     ordering = ['-created_at']
@@ -42,24 +60,29 @@ class SoftwareViewSet(viewsets.ModelViewSet):
 class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 class LocationViewSet(viewsets.ModelViewSet):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
+    permission_classes = [IsStaffOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['department']
 
 class VendorViewSet(viewsets.ModelViewSet):
     queryset = Vendor.objects.all()
     serializer_class = VendorSerializer
+    permission_classes = [IsAdminOrStaff]
 
 class EquipmentCategoryViewSet(viewsets.ModelViewSet):
     queryset = EquipmentCategory.objects.all()
     serializer_class = EquipmentCategorySerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 class MaintenanceScheduleViewSet(viewsets.ModelViewSet):
     queryset = MaintenanceSchedule.objects.all()
     serializer_class = MaintenanceScheduleSerializer
+    permission_classes = [IsStaffOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['equipment', 'frequency']
     ordering = ['next_maintenance']
