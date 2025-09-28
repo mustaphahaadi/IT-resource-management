@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
+import { usePermissions, PermissionGate } from "../contexts/PermissionsContext"
 import {
   ComputerDesktopIcon,
   PlusIcon,
@@ -34,6 +35,7 @@ const Inventory = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { equipmentId } = useParams()
+  const { hasPermission, canViewScope, canEditScope, userRole } = usePermissions()
 
   const getBasePath = () => (location.pathname.startsWith("/app/") ? "/app/inventory" : "/inventory")
 
@@ -173,10 +175,12 @@ const Inventory = () => {
           <h1 className="text-3xl font-bold text-gray-900">IT Inventory</h1>
           <p className="text-gray-600 mt-1">Manage hospital IT equipment and assets</p>
         </div>
-        <Button onClick={handleAddEquipment} className="flex items-center space-x-2">
-          <PlusIcon className="w-4 h-4" />
-          <span>Add Equipment</span>
-        </Button>
+        <PermissionGate permissions="ui.create_equipment">
+          <Button onClick={handleAddEquipment} className="flex items-center space-x-2">
+            <PlusIcon className="w-4 h-4" />
+            <span>Add Equipment</span>
+          </Button>
+        </PermissionGate>
       </div>
 
       {/* Search and Filters */}
@@ -278,20 +282,24 @@ const Inventory = () => {
                           >
                             <EyeIcon className="w-4 h-4" />
                           </button>
-                          <button
-                            onClick={() => handleEditEquipment(item)}
-                            className="p-1 text-gray-400 hover:text-green-600 transition-colors"
-                            title="Edit"
-                          >
-                            <PencilIcon className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteEquipment(item.id)}
-                            className="p-1 text-gray-400 hover:text-red-600 transition-colors"
-                            title="Delete"
-                          >
-                            <TrashIcon className="w-4 h-4" />
-                          </button>
+                          <PermissionGate permissions="ui.edit_equipment">
+                            <button
+                              onClick={() => handleEditEquipment(item)}
+                              className="p-1 text-gray-400 hover:text-green-600 transition-colors"
+                              title="Edit"
+                            >
+                              <PencilIcon className="w-4 h-4" />
+                            </button>
+                          </PermissionGate>
+                          <PermissionGate permissions="ui.delete_equipment">
+                            <button
+                              onClick={() => handleDeleteEquipment(item.id)}
+                              className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                              title="Delete"
+                            >
+                              <TrashIcon className="w-4 h-4" />
+                            </button>
+                          </PermissionGate>
                         </div>
                       </td>
                     </tr>

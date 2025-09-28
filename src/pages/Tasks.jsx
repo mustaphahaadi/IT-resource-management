@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
 import { NativeSelect } from "../components/ui/native-select"
+import { usePermissions, PermissionGate } from "../contexts/PermissionsContext"
 import {
   ClipboardDocumentListIcon,
   PlusIcon,
@@ -12,12 +13,15 @@ import {
   CalendarIcon,
   ClockIcon,
   CheckCircleIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  Cog6ToothIcon
 } from "@heroicons/react/24/outline"
 import { apiService } from "../services/api"
 import TaskForm from "../components/Tasks/TaskForm"
 import PersonnelPanel from "../components/Tasks/PersonnelPanel"
 import TaskDetails from "../components/Tasks/TaskDetails"
+import TechnicianDashboard from "../components/Tasks/TechnicianDashboard"
+import TaskAssignment from "../components/Tasks/TaskAssignment"
 
 const Tasks = () => {
   const [tasks, setTasks] = useState([])
@@ -26,6 +30,7 @@ const Tasks = () => {
   const [showTaskForm, setShowTaskForm] = useState(false)
   const [selectedTask, setSelectedTask] = useState(null)
   const [showPersonnelPanel, setShowPersonnelPanel] = useState(false)
+  const [activeView, setActiveView] = useState('list') // list, technician, assignment
   const [filters, setFilters] = useState({
     status: "",
     priority: "",
@@ -35,13 +40,21 @@ const Tasks = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { taskId } = useParams()
+  const { userRole, hasPermission } = usePermissions()
 
   const getBasePath = () => (location.pathname.startsWith("/app/") ? "/app/tasks" : "/tasks")
 
   useEffect(() => {
+    // Set default view based on user role
+    if (userRole === 'technician') {
+      setActiveView('technician')
+    } else if (userRole === 'staff' || userRole === 'admin') {
+      setActiveView('assignment')
+    }
+    
     fetchTasks()
     fetchPersonnel()
-  }, [filters])
+  }, [filters, userRole])
 
   useEffect(() => {
     const openNew = location.pathname.endsWith("/new")

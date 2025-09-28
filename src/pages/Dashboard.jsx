@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
+import { usePermissions, PermissionGate, RoleGate } from "../contexts/PermissionsContext"
 import {
   ComputerDesktopIcon,
   ExclamationTriangleIcon,
@@ -19,6 +20,7 @@ import { formatDistanceToNow } from "date-fns"
 
 const Dashboard = () => {
   const navigate = useNavigate()
+  const { hasPermission, userRole, user, canViewScope } = usePermissions()
   const [stats, setStats] = useState({
     equipment: { total: 0, active: 0, maintenance: 0, critical: 0 },
     requests: { total: 0, open: 0, critical: 0, overdue: 0 },
@@ -41,103 +43,96 @@ const Dashboard = () => {
   const handleQuickAction = (action) => {
     switch(action) {
       case 'newRequest':
-        navigate('/requests/new')
+        navigate('/app/requests/new')
         break
       case 'newTask':
-        navigate('/tasks/new')
+        navigate('/app/tasks/new')
         break
       case 'reportIssue':
-        navigate('/reports/issue')
-        break
-      case 'viewAnalytics':
-        navigate('/analytics')
+        navigate('/app/requests/new?type=issue')
         break
       default:
         break
     }
   }
-  
-  // Format activity timestamp
-  const formatActivityTime = (timestamp) => {
-    if (!timestamp) return ''
+
+  const fetchDashboardData = async () => {
     try {
-      return formatDistanceToNow(new Date(timestamp), { addSuffix: true })
-    } catch (e) {
-      return ''
+      setLoading(true)
+      setError("")
+
+      // Fetch analytics data
+      const analyticsResponse = await apiService.getDashboardAnalytics()
+      if (analyticsResponse?.data) {
+        setAnalytics(analyticsResponse.data)
+        
+        // Map analytics to stats format
+        const analyticsData = analyticsResponse.data
+        setStats({
+          equipment: {
+            total: analyticsData.total_equipment || 0,
+            active: analyticsData.active_equipment || 0,
+            maintenance: analyticsData.maintenance_equipment || 0,
+            critical: analyticsData.critical_equipment || 0
+          },
+          requests: {
+            total: analyticsData.total_requests || 0,
+            open: analyticsData.open_requests || 0,
+            critical: analyticsData.critical_requests || 0,
+            overdue: analyticsData.overdue_requests || 0
+          },
+          tasks: {
+            total: analyticsData.total_tasks || 0,
+            pending: analyticsData.pending_tasks || 0,
+            in_progress: analyticsData.in_progress_tasks || 0,
+            overdue: analyticsData.overdue_tasks || 0
+          }
+        })
+      }
+
+      // Fetch recent activity
+      try {
+        const activityResponse = await apiService.getRecentActivity({ limit: 10 })
+        if (activityResponse?.data?.results) {
+          setRecentActivity(activityResponse.data.results)
+        } else if (Array.isArray(activityResponse?.data)) {
+          setRecentActivity(activityResponse.data)
+        }
+      } catch (activityError) {
+        console.warn('Failed to fetch recent activity:', activityError)
+      }
+
+      // Fetch alerts
+      try {
+        const alertsResponse = await apiService.getAlerts({ limit: 5 })
+        if (alertsResponse?.data?.results) {
+          setAlerts(alertsResponse.data.results)
+        } else if (Array.isArray(alertsResponse?.data)) {
+          setAlerts(alertsResponse.data)
+        }
+      } catch (alertsError) {
+        console.warn('Failed to fetch alerts:', alertsError)
+      }
+
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error)
+      setError('Failed to load dashboard data. Please try again.')
+    } finally {
+      setLoading(false)
     }
   }
 
   useEffect(() => {
     fetchDashboardData()
+    
+    // Set up auto-refresh every 30 seconds
     const interval = setInterval(fetchDashboardData, 30000)
     setRefreshInterval(interval)
-
+    
     return () => {
-      if (refreshInterval) clearInterval(refreshInterval)
+      if (interval) clearInterval(interval)
     }
   }, [])
-
-  const fetchDashboardData = async () => {
-    setLoading(true)
-    setError("")
-    try {
-      // Check if user is authenticated
-      const token = localStorage.getItem("authToken")
-      if (!token) {
-        console.error('No auth token found, redirecting to login')
-        navigate('/login')
-        return
-      }
-
-      // Fetch real analytics data from backend
-      const [analyticsResponse, activityResponse] = await Promise.allSettled([
-        apiService.getDashboardAnalytics(),
-        apiService.getRecentActivity({ limit: 10 })
-      ])
-
-      // Handle analytics response
-      if (analyticsResponse.status === 'fulfilled') {
-        const data = analyticsResponse.value?.data || {}
-        
-        // Update analytics state
-        setAnalytics({
-          equipmentTrends: data.equipment_trends || [],
-          requestTrends: data.request_trends || [],
-          taskTrends: data.task_trends || [],
-          performanceMetrics: data.performance_metrics || {},
-          departmentStats: data.department_stats || [],
-        })
-        
-        // Update stats state with the same data
-        setStats({
-          equipment: data.equipment || { total: 0, active: 0, maintenance: 0, critical: 0 },
-          requests: data.requests || { total: 0, open: 0, critical: 0, overdue: 0 },
-          tasks: data.tasks || { total: 0, pending: 0, in_progress: 0, overdue: 0 },
-        })
-      } else {
-        console.error('Failed to fetch analytics:', analyticsResponse.reason)
-        if (analyticsResponse.reason?.response?.status === 403) {
-          setError('You do not have permission to view this data')
-        } else {
-          setError('Failed to load analytics data. Please try again later.')
-        }
-      }
-
-      // Handle activity response
-      if (activityResponse.status === 'fulfilled') {
-        // Recent activity endpoint returns { activities: [...] }
-        setRecentActivity(activityResponse.value?.data?.activities || [])
-      } else {
-        console.error('Failed to fetch recent activity:', activityResponse.reason)
-        // Don't show error for activity feed as it's not critical
-      }
-    } catch (err) {
-      setError("Failed to load dashboard data.")
-      console.error('Dashboard data fetch error:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const StatCard = ({ title, value, subtitle, icon: Icon, color = "blue", trend }) => (
     <Card className="bg-white shadow-sm border border-gray-200">
@@ -166,51 +161,64 @@ const Dashboard = () => {
     </Card>
   )
 
-  const calculateUptime = () => {
-    // Prefer backend metric if available, else compute from equipment stats
-    if (analytics.performanceMetrics?.system_uptime !== undefined) {
-      return analytics.performanceMetrics.system_uptime
+  const formatActivityTime = (timestamp) => {
+    try {
+      return formatDistanceToNow(new Date(timestamp), { addSuffix: true })
+    } catch {
+      return 'Recently'
     }
-    const totalEquipment = stats.equipment.total
-    const activeEquipment = stats.equipment.active
-    return totalEquipment > 0 ? ((activeEquipment / totalEquipment) * 100).toFixed(1) : 0
   }
 
-  const calculateResponseTime = () => {
-    // Backend provides avg_resolution_time (hours)
-    return analytics.performanceMetrics?.avg_resolution_time || 0
+  const handleActivityClick = (activity) => {
+    if (activity.type === 'request' && activity.id) {
+      navigate(`/app/requests/${activity.id}`)
+    } else if (activity.type === 'task' && activity.id) {
+      navigate(`/app/tasks/${activity.id}`)
+    }
   }
 
-  const calculateResolutionRate = () => {
-    const totalRequests = stats.requests.total
-    const resolvedRequests = totalRequests - stats.requests.open
-    return totalRequests > 0 ? ((resolvedRequests / totalRequests) * 100).toFixed(1) : 0
+  const handleAlertClick = (alert) => {
+    if (alert.id) {
+      navigate(`/app/alerts/${alert.id}`)
+    }
   }
 
   return (
     <div className="space-y-8">
+      {/* Header with Quick Actions */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-sm text-gray-500">Overview of your hospital's IT resources and activities</p>
+          <p className="text-sm text-gray-500">
+            Overview of your hospital's IT resources and activities
+            {user?.department && (
+              <span className="ml-2 text-blue-600">
+                • {user.department.charAt(0).toUpperCase() + user.department.slice(1)} Department
+              </span>
+            )}
+          </p>
         </div>
-        <div className="flex flex-wrap gap-2 w-full md:w-auto">
-          <Button 
-            variant="outline" 
-            onClick={() => handleQuickAction('newRequest')}
-            className="flex items-center gap-1"
-          >
-            <PlusIcon className="h-4 w-4" />
-            <span>New Request</span>
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => handleQuickAction('newTask')}
-            className="flex items-center gap-1"
-          >
-            <PlusIcon className="h-4 w-4" />
-            <span>New Task</span>
-          </Button>
+        <div className="flex flex-wrap gap-3">
+          <PermissionGate permissions="requests.create">
+            <Button 
+              variant="outline" 
+              onClick={() => handleQuickAction('newRequest')}
+              className="flex items-center gap-1"
+            >
+              <PlusIcon className="h-4 w-4" />
+              <span>New Request</span>
+            </Button>
+          </PermissionGate>
+          <PermissionGate permissions="tasks.create">
+            <Button 
+              variant="outline" 
+              onClick={() => handleQuickAction('newTask')}
+              className="flex items-center gap-1"
+            >
+              <PlusIcon className="h-4 w-4" />
+              <span>New Task</span>
+            </Button>
+          </PermissionGate>
           <Button 
             variant="outline" 
             onClick={() => handleQuickAction('reportIssue')}
@@ -230,165 +238,170 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">System Performance</h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title="System Uptime"
-            value={`${calculateUptime()}%`}
-            subtitle="Equipment availability"
-            icon={ChartBarIcon}
-            color="green"
-            trend={{ direction: "up", percentage: 2.3 }}
-          />
-          <StatCard
-            title="Avg Response Time"
-            value={`${calculateResponseTime()}h`}
-            subtitle="Support request response"
-            icon={ClockIcon}
-            color="blue"
-            trend={{ direction: "down", percentage: 15.2 }}
-          />
-          <StatCard
-            title="Resolution Rate"
-            value={`${calculateResolutionRate()}%`}
-            subtitle="Successful resolutions"
-            icon={ChartBarIcon}
-            color="purple"
-            trend={{ direction: "up", percentage: 8.7 }}
-          />
-          <StatCard
-            title="Active Personnel"
-            value={analytics.performanceMetrics?.total_users || 0}
-            subtitle="IT staff on duty"
-            icon={UserGroupIcon}
-            color="indigo"
-          />
-        </div>
-      </div>
+      {/* Role-based welcome message */}
+      <RoleGate roles={['user']} fallback={null}>
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="p-4">
+            <p className="text-blue-800">
+              Welcome! You can submit support requests and track your tickets here. 
+              Need help? Use the "Report Issue" button above.
+            </p>
+          </CardContent>
+        </Card>
+      </RoleGate>
 
-      {/* Equipment Stats */}
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Equipment Overview</h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard 
-            title="Total Equipment" 
-            value={stats.equipment.total} 
-            icon={ComputerDesktopIcon}
-            color="blue"
-            subtitle="All registered devices"
-          />
-          <StatCard
-            title="Active Equipment"
-            value={stats.equipment.active}
-            subtitle="Operational status"
-            icon={ComputerDesktopIcon}
-            color="green"
-          />
-          <StatCard
-            title="Under Maintenance"
-            value={stats.equipment.maintenance}
-            subtitle="Scheduled maintenance"
-            icon={WrenchScrewdriverIcon}
-            color="yellow"
-          />
-          <StatCard
-            title="Critical Priority"
-            value={stats.equipment.critical}
-            subtitle="Requires attention"
-            icon={ExclamationTriangleIcon}
-            color="red"
-          />
+      {/* Equipment Stats - Visible to all but scoped by role */}
+      <PermissionGate permissions="nav.equipment">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            Equipment Overview
+            {!canViewScope('all') && (
+              <span className="text-sm font-normal text-gray-500 ml-2">
+                (Your Department)
+              </span>
+            )}
+          </h2>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <StatCard 
+              title="Total Equipment" 
+              value={stats.equipment.total} 
+              icon={ComputerDesktopIcon}
+              color="blue"
+              subtitle="All registered devices"
+            />
+            <StatCard
+              title="Active Equipment"
+              value={stats.equipment.active}
+              subtitle="Operational status"
+              icon={ComputerDesktopIcon}
+              color="green"
+            />
+            <StatCard
+              title="Under Maintenance"
+              value={stats.equipment.maintenance}
+              subtitle="Scheduled maintenance"
+              icon={WrenchScrewdriverIcon}
+              color="yellow"
+            />
+            <StatCard
+              title="Critical Priority"
+              value={stats.equipment.critical}
+              subtitle="Requires attention"
+              icon={ExclamationTriangleIcon}
+              color="red"
+            />
+          </div>
         </div>
-      </div>
+      </PermissionGate>
 
-      {/* Support Requests Stats */}
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Support Requests</h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard 
-            title="Total Requests" 
-            value={stats.requests.total} 
-            icon={ExclamationTriangleIcon}
-            color="blue"
-            subtitle="All support tickets"
-          />
-          <StatCard
-            title="Open Requests"
-            value={stats.requests.open}
-            subtitle="Awaiting resolution"
-            icon={ExclamationTriangleIcon}
-            color="orange"
-          />
-          <StatCard
-            title="Critical Requests"
-            value={stats.requests.critical}
-            subtitle="Patient care impact"
-            icon={ExclamationTriangleIcon}
-            color="red"
-          />
-          <StatCard
-            title="Overdue Requests"
-            value={stats.requests.overdue}
-            subtitle="Past SLA deadline"
-            icon={ExclamationTriangleIcon}
-            color="red"
-          />
+      {/* Support Requests */}
+      <PermissionGate permissions="nav.requests">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            Support Requests
+            {!canViewScope('all') && (
+              <span className="text-sm font-normal text-gray-500 ml-2">
+                (Your Requests)
+              </span>
+            )}
+          </h2>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <StatCard 
+              title="Total Requests" 
+              value={stats.requests.total} 
+              icon={ExclamationTriangleIcon}
+              color="blue"
+              subtitle="All support tickets"
+            />
+            <StatCard
+              title="Open Requests"
+              value={stats.requests.open}
+              subtitle="Awaiting resolution"
+              icon={ExclamationTriangleIcon}
+              color="orange"
+            />
+            <StatCard
+              title="Critical Requests"
+              value={stats.requests.critical}
+              subtitle="High priority"
+              icon={ExclamationTriangleIcon}
+              color="red"
+            />
+            <StatCard
+              title="Overdue Requests"
+              value={stats.requests.overdue}
+              subtitle="Past SLA deadline"
+              icon={ClockIcon}
+              color="red"
+            />
+          </div>
         </div>
-      </div>
+      </PermissionGate>
 
-      {/* Tasks Stats */}
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Task Management</h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard 
-            title="Total Tasks" 
-            value={stats.tasks.total} 
-            icon={ClipboardDocumentListIcon}
-            color="blue"
-            subtitle="All assigned tasks"
-          />
-          <StatCard
-            title="Pending Assignment"
-            value={stats.tasks.pending}
-            subtitle="Awaiting assignment"
-            icon={ClipboardDocumentListIcon}
-            color="gray"
-          />
-          <StatCard
-            title="In Progress"
-            value={stats.tasks.in_progress}
-            subtitle="Currently active"
-            icon={ClipboardDocumentListIcon}
-            color="blue"
-          />
-          <StatCard
-            title="Overdue Tasks"
-            value={stats.tasks.overdue}
-            subtitle="Past due date"
-            icon={ClipboardDocumentListIcon}
-            color="red"
-          />
+      {/* Tasks - Only for staff and technicians */}
+      <PermissionGate permissions="nav.tasks">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            Task Management
+            {!canViewScope('all') && (
+              <span className="text-sm font-normal text-gray-500 ml-2">
+                (Assigned to You)
+              </span>
+            )}
+          </h2>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <StatCard 
+              title="Total Tasks" 
+              value={stats.tasks.total} 
+              icon={ClipboardDocumentListIcon}
+              color="blue"
+              subtitle="All assigned tasks"
+            />
+            <StatCard
+              title="Pending Assignment"
+              value={stats.tasks.pending}
+              subtitle="Awaiting assignment"
+              icon={ClipboardDocumentListIcon}
+              color="gray"
+            />
+            <StatCard
+              title="In Progress"
+              value={stats.tasks.in_progress}
+              subtitle="Currently active"
+              icon={ClipboardDocumentListIcon}
+              color="blue"
+            />
+            <StatCard
+              title="Overdue Tasks"
+              value={stats.tasks.overdue}
+              subtitle="Past due date"
+              icon={ClockIcon}
+              color="red"
+            />
+          </div>
         </div>
-      </div>
+      </PermissionGate>
 
-      {/* Recent Activity and Quick Actions */}
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* Recent Activity and Alerts */}
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Recent Activity */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg">Recent Activity</CardTitle>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => navigate('/activity')}
-              className="text-sm text-blue-600 hover:text-blue-800"
-            >
-              View All
-            </Button>
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">Recent Activity</CardTitle>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigate('/app/activity-log')}
+                className="text-sm text-blue-600 hover:text-blue-800"
+              >
+                View All
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="p-0">
             {loading ? (
-              <div className="space-y-4 p-6">
+              <div className="space-y-3 p-6">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="animate-pulse">
                     <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -401,9 +414,9 @@ const Dashboard = () => {
             ) : (
               <div className="divide-y divide-gray-100">
                 {recentActivity.length > 0 ? (
-                  recentActivity.slice(0, 5).map((activity) => (
+                  recentActivity.slice(0, 5).map((activity, index) => (
                     <div 
-                      key={activity.id} 
+                      key={activity.id || index} 
                       className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
                       onClick={() => handleActivityClick(activity)}
                     >
@@ -422,49 +435,30 @@ const Dashboard = () => {
                           {formatActivityTime(activity.timestamp || activity.created_at)}
                         </span>
                       </div>
-                      {activity.type && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium mt-2"
-                          style={{
-                            backgroundColor: getActivityTypeColor(activity.type).bg,
-                            color: getActivityTypeColor(activity.type).text
-                          }}>
-                          {getActivityTypeLabel(activity.type)}
-                        </span>
-                      )}
                     </div>
                   ))
                 ) : (
                   <div className="p-6 text-center text-gray-500">
                     <p>No recent activity found</p>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="mt-2 text-blue-600"
-                      onClick={() => window.location.reload()}
-                    >
-                      Refresh
-                    </Button>
                   </div>
                 )}
               </div>
             )}
           </CardContent>
         </Card>
-      </div>
 
-      {/* Alerts */}
-      <div className="grid gap-4 md:grid-cols-2">
+        {/* Alerts */}
         <Card className="border-l-4 border-red-500">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <ExclamationTriangleIcon className="h-5 w-5 text-red-500 mr-2" />
-                <CardTitle className="text-lg">Alerts</CardTitle>
+                <CardTitle className="text-lg">System Alerts</CardTitle>
               </div>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => navigate('/alerts')}
+                onClick={() => navigate('/app/notifications')}
                 className="text-sm text-red-600 hover:text-red-800"
               >
                 View All
@@ -483,9 +477,9 @@ const Dashboard = () => {
               </div>
             ) : alerts.length > 0 ? (
               <div className="divide-y divide-red-100">
-                {alerts.slice(0, 3).map((alert) => (
+                {alerts.slice(0, 3).map((alert, index) => (
                   <div 
-                    key={alert.id} 
+                    key={alert.id || index} 
                     className="p-4 hover:bg-red-50 cursor-pointer transition-colors"
                     onClick={() => handleAlertClick(alert)}
                   >
@@ -496,41 +490,16 @@ const Dashboard = () => {
                           {alert.message || 'No details available'}
                         </p>
                       </div>
-                      <span className="text-xs text-red-400 whitespace-nowrap ml-2">
-                        {formatActivityTime(alert.timestamp || alert.created_at)}
+                      <span className="text-xs text-red-500 whitespace-nowrap ml-2">
+                        {formatActivityTime(alert.created_at)}
                       </span>
                     </div>
-                    {alert.severity && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium mt-2 bg-red-100 text-red-800">
-                        {alert.severity.charAt(0).toUpperCase() + alert.severity.slice(1)}
-                      </span>
-                    )}
                   </div>
                 ))}
-                {alerts.length > 3 && (
-                  <div className="p-4 text-center border-t border-red-100">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => navigate('/alerts')}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      View all {alerts.length} alerts
-                    </Button>
-                  </div>
-                )}
               </div>
             ) : (
               <div className="p-6 text-center">
                 <p className="text-gray-500">No active alerts</p>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="mt-2 text-blue-600"
-                  onClick={fetchDashboardData}
-                >
-                  Refresh
-                </Button>
               </div>
             )}
           </CardContent>
@@ -538,30 +507,6 @@ const Dashboard = () => {
       </div>
     </div>
   )
-}
-
-// Helper function to get activity type styling
-const getActivityTypeColor = (type) => {
-  const types = {
-    request: { bg: '#DBEAFE', text: '#1E40AF' },
-    task: { bg: '#D1FAE5', text: '#065F46' },
-    alert: { bg: '#FEE2E2', text: '#B91C1C' },
-    system: { bg: '#E0E7FF', text: '#3730A3' },
-    default: { bg: '#F3F4F6', text: '#4B5563' }
-  }
-  return types[type] || types.default
-}
-
-// Helper function to get activity type label
-const getActivityTypeLabel = (type) => {
-  const labels = {
-    request: 'Request',
-    task: 'Task',
-    alert: 'Alert',
-    system: 'System',
-    default: 'Activity'
-  }
-  return labels[type] || labels.default
 }
 
 export default Dashboard

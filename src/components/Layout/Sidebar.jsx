@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom"
 import { useAuth } from "../../contexts/AuthContext"
+import { usePermissions, PermissionGate } from "../../contexts/PermissionsContext"
 import {
   HomeIcon,
   ComputerDesktopIcon,
@@ -22,22 +23,78 @@ import {
 const Sidebar = ({ isOpen, onToggle }) => {
   const location = useLocation()
   const { user, logout } = useAuth()
+  const { hasPermission, userRole, isApproved } = usePermissions()
 
   const navigation = [
-    { name: "Dashboard", href: "/app/dashboard", icon: HomeIcon },
-    { name: "Inventory", href: "/app/inventory", icon: ComputerDesktopIcon },
-    { name: "Requests", href: "/app/requests", icon: ExclamationTriangleIcon },
-    { name: "Tasks", href: "/app/tasks", icon: ClipboardDocumentListIcon },
-    { name: "Reports", href: "/app/reports", icon: ChartBarIcon },
-    { name: "Analytics", href: "/analytics", icon: ChartBarIcon },
+    { 
+      name: "Dashboard", 
+      href: "/app/dashboard", 
+      icon: HomeIcon,
+      permission: "nav.dashboard"
+    },
+    { 
+      name: "Inventory", 
+      href: "/app/inventory", 
+      icon: ComputerDesktopIcon,
+      permission: "nav.equipment"
+    },
+    { 
+      name: "Requests", 
+      href: "/app/requests", 
+      icon: ExclamationTriangleIcon,
+      permission: "nav.requests"
+    },
+    { 
+      name: "Tasks", 
+      href: "/app/tasks", 
+      icon: ClipboardDocumentListIcon,
+      permission: "nav.tasks"
+    },
+    { 
+      name: "Reports", 
+      href: "/app/reports", 
+      icon: ChartBarIcon,
+      permission: "nav.reports"
+    },
+    { 
+      name: "Analytics", 
+      href: "/analytics", 
+      icon: ChartBarIcon,
+      permission: "nav.analytics"
+    },
   ]
 
   const adminNavigation = [
-    { name: "Admin Panel", href: "/app/admin", icon: UsersIcon },
-    { name: "Activity Log", href: "/app/activity-log", icon: ClipboardDocumentCheckIcon },
-    { name: "Backup & Export", href: "/app/backup", icon: CloudArrowDownIcon },
-    { name: "System Status", href: "/app/status", icon: ServerIcon },
-    { name: "API Docs", href: "/app/api-docs", icon: DocumentTextIcon },
+    { 
+      name: "Admin Panel", 
+      href: "/app/admin", 
+      icon: UsersIcon,
+      permission: "nav.admin"
+    },
+    { 
+      name: "Activity Log", 
+      href: "/app/activity-log", 
+      icon: ClipboardDocumentCheckIcon,
+      permission: "nav.admin"
+    },
+    { 
+      name: "Backup & Export", 
+      href: "/app/backup", 
+      icon: CloudArrowDownIcon,
+      permission: "nav.admin"
+    },
+    { 
+      name: "System Status", 
+      href: "/app/status", 
+      icon: ServerIcon,
+      permission: "nav.admin"
+    },
+    { 
+      name: "API Docs", 
+      href: "/app/api-docs", 
+      icon: DocumentTextIcon,
+      permission: "nav.admin"
+    },
   ]
 
   const userNavigation = [
@@ -79,7 +136,17 @@ const Sidebar = ({ isOpen, onToggle }) => {
                 <p className="text-sm font-medium text-gray-900">
                   {user.first_name} {user.last_name}
                 </p>
-                <p className="text-xs text-blue-600 capitalize font-medium">{user.role}</p>
+                <div className="flex items-center space-x-2">
+                  <p className="text-xs text-blue-600 capitalize font-medium">{user.role}</p>
+                  {!isApproved && userRole !== 'admin' && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                      Pending Approval
+                    </span>
+                  )}
+                </div>
+                {user.department && (
+                  <p className="text-xs text-gray-500 capitalize">{user.department}</p>
+                )}
               </div>
             </div>
           </div>
@@ -90,6 +157,11 @@ const Sidebar = ({ isOpen, onToggle }) => {
           {/* Main Navigation */}
           {navigation.map((item) => {
             const isActive = location.pathname === item.href
+            
+            if (item.permission && !hasPermission(item.permission)) {
+              return null
+            }
+            
             return (
               <Link
                 key={item.name}
@@ -107,28 +179,31 @@ const Sidebar = ({ isOpen, onToggle }) => {
           })}
 
           {/* Admin Navigation */}
-          {user && (user.role === 'admin' || user.is_superuser) && (
-            <>
-              {isOpen && <div className="px-2 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Admin</div>}
-              {adminNavigation.map((item) => {
-                const isActive = location.pathname === item.href
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${
-                      isActive
-                        ? "bg-red-100 text-red-700 border-r-4 border-red-600"
-                        : "text-gray-700 hover:bg-red-50 hover:text-red-700"
-                    }`}
-                  >
-                    <item.icon className="w-5 h-5 flex-shrink-0" />
-                    {isOpen && <span className="ml-3">{item.name}</span>}
-                  </Link>
-                )
-              })}
-            </>
-          )}
+          <PermissionGate permissions={"nav.admin"}>
+            {isOpen && <div className="px-2 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Admin</div>}
+            {adminNavigation.map((item) => {
+              const isActive = location.pathname === item.href
+              
+              if (item.permission && !hasPermission(item.permission)) {
+                return null
+              }
+              
+              return (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${
+                    isActive
+                      ? "bg-red-100 text-red-700 border-r-4 border-red-600"
+                      : "text-gray-700 hover:bg-red-50 hover:text-red-700"
+                  }`}
+                >
+                  <item.icon className="w-5 h-5 flex-shrink-0" />
+                  {isOpen && <span className="ml-3">{item.name}</span>}
+                </Link>
+              )
+            })}
+          </PermissionGate>
 
           {/* User Navigation */}
           {isOpen && <div className="px-2 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Account</div>}

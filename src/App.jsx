@@ -27,6 +27,7 @@ import Notifications from "./pages/Notifications"
 import ApiDocs from "./pages/ApiDocs"
 import ActivityLog from "./pages/ActivityLog"
 import { AuthProvider } from "./contexts/AuthContext"
+import { PermissionsProvider } from "./contexts/PermissionsContext"
 import ProtectedRoute from "./components/Auth/ProtectedRoute"
 import ErrorBoundary from "./components/common/ErrorBoundary"
 
@@ -34,7 +35,8 @@ function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <PermissionsProvider>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <div className="min-h-screen bg-background">
             <Routes>
             {/* Public routes */}
@@ -159,7 +161,8 @@ function App() {
           </Routes>
         </div>
       </BrowserRouter>
-    </AuthProvider>
+        </PermissionsProvider>
+      </AuthProvider>
     </ErrorBoundary>
   )
 }

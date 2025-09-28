@@ -284,13 +284,44 @@ class ApiService {
   async createTask(data) {
     return this.post("/tasks/tasks/", data)
   }
-
   async updateTask(id, data) {
     return this.patch(`/tasks/tasks/${id}/`, data)
   }
 
   async assignTask(id, personnelId) {
     return this.post(`/tasks/tasks/${id}/assign/`, { personnel_id: personnelId })
+  }
+
+  async reassignTask(id, personnelId, reason = '') {
+    return this.post(`/tasks/tasks/${id}/reassign/`, { 
+      personnel_id: personnelId,
+      reason: reason
+    })
+  }
+
+  async createTaskFromRequest(requestId, taskData = {}) {
+    return this.post('/tasks/tasks/create_from_request/', {
+      request_id: requestId,
+      ...taskData
+    })
+  }
+
+  async getMyTasks(statusFilter = null) {
+    const params = statusFilter ? { status: statusFilter } : {}
+    return this.get('/tasks/tasks/my_tasks/', { params })
+  }
+
+  async getTechnicianDashboard() {
+    return this.get('/tasks/tasks/my_dashboard/')
+  }
+
+  async getAssignmentSuggestions(taskId = null, department = null, skill = null) {
+    const params = {}
+    if (taskId) params.task_id = taskId
+    if (department) params.department = department
+    if (skill) params.skill = skill
+    
+    return this.get('/tasks/tasks/assignment_suggestions/', { params })
   }
 
   async startTask(id) {
@@ -321,8 +352,12 @@ class ApiService {
     return this.get("/tasks/personnel/", { params })
   }
 
-  async getAvailablePersonnel() {
-    return this.get("/tasks/personnel/available/")
+  async getAvailablePersonnel(department = null, skill = null) {
+    const params = {}
+    if (department) params.department = department
+    if (skill) params.skill = skill
+    
+    return this.get("/tasks/personnel/available/", { params })
   }
 
   async createPersonnel(data) {

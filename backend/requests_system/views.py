@@ -5,12 +5,14 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.utils import timezone
 from .models import SupportRequest, RequestCategory, RequestComment, Alert
 from .serializers import SupportRequestSerializer, RequestCategorySerializer, RequestCommentSerializer, AlertSerializer
-from authentication.permissions import IsOwnerOrStaff, IsStaffOrReadOnly
+from authentication.permissions import IsOwnerOrStaff, IsStaffOrReadOnly, RoleBasedPermission
+from core.workflow_engine import WorkflowEngine
+from core.notification_service import WorkflowNotifications
 
 class SupportRequestViewSet(viewsets.ModelViewSet):
     queryset = SupportRequest.objects.all()
     serializer_class = SupportRequestSerializer
-    permission_classes = [IsOwnerOrStaff]
+    permission_classes = [RoleBasedPermission]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['status', 'priority', 'category', 'assigned_to', 'requester_department']
     search_fields = ['ticket_number', 'title', 'description', 'requester__first_name', 'requester__last_name']
@@ -22,16 +24,45 @@ class SupportRequestViewSet(viewsets.ModelViewSet):
         queryset = SupportRequest.objects.all()
         user = self.request.user
         
+        if not user or not user.is_authenticated:
+            return SupportRequest.objects.none()
+        
         # Staff and admin can see all requests
         if user.role in ['admin', 'staff'] or user.is_staff:
             return queryset
+        
+        # Technicians can see requests from their department and IT department
+        if user.role == 'technician':
+            from django.db import models
+            return queryset.filter(
+                models.Q(requester=user) |
+                models.Q(assigned_to=user) |
+                models.Q(requester__department__iexact=user.department) |
+                models.Q(requester__department__iexact='it')
+            )
+        
+        # Managers can see requests from their department
+        if user.role == 'manager':
+            from django.db import models
+            return queryset.filter(
+                models.Q(requester=user) |
+                models.Q(requester__department__iexact=user.department)
+            )
         
         # Regular users can only see their own requests
         return queryset.filter(requester=user)
     
     def perform_create(self, serializer):
         """Set the requester to the current user when creating a request."""
-        serializer.save(requester=self.request.user)
+        request = serializer.save(requester=self.request.user)
+        
+        # Process through workflow engine
+        WorkflowEngine.process_new_request(request)
+        
+        # Send workflow notifications
+        WorkflowNotifications.request_created(request)
+        
+        return request
 
     @action(detail=False, methods=['get'])
     def dashboard_stats(self, request):
@@ -65,6 +96,21 @@ class SupportRequestViewSet(viewsets.ModelViewSet):
                 support_request.assigned_at = timezone.now()
                 support_request.save()
                 
+                # Create task if needed
+                if WorkflowEngine._should_create_task(support_request):
+                    task = WorkflowEngine._create_task_from_request(support_request)
+                    if task:
+                        # Try to assign task to same user
+                        try:
+                            from tasks.models import ITPersonnel
+                            from tasks.services import TaskAssignmentService
+                            technician = ITPersonnel.objects.get(user=user)
+                            TaskAssignmentService.assign_task_to_technician(
+                                task, technician, assigned_by=request.user
+                            )
+                        except ITPersonnel.DoesNotExist:
+                            pass
+                
                 return Response({'message': 'Request assigned successfully'})
             except UserModel.DoesNotExist:
                 return Response({'error': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
@@ -97,10 +143,33 @@ class RequestCategoryViewSet(viewsets.ModelViewSet):
 class AlertViewSet(viewsets.ModelViewSet):
     queryset = Alert.objects.all()
     serializer_class = AlertSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [RoleBasedPermission]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['alert_type', 'is_acknowledged']
     ordering = ['-created_at']
+    
+    def get_queryset(self):
+        """Filter alerts based on user role."""
+        queryset = Alert.objects.all()
+        user = self.request.user
+        
+        if not user or not user.is_authenticated:
+            return Alert.objects.none()
+        
+        # Admin and staff can see all alerts
+        if user.role in ['admin', 'staff'] or user.is_staff:
+            return queryset
+        
+        # Technicians and managers can see alerts related to their work
+        if user.role in ['technician', 'manager']:
+            from django.db import models
+            return queryset.filter(
+                models.Q(alert_type__in=['equipment_failure', 'maintenance_due', 'system_alert']) |
+                models.Q(created_by=user)
+            )
+        
+        # Regular users see only their own alerts
+        return queryset.filter(created_by=user)
 
     @action(detail=True, methods=['post'])
     def acknowledge(self, request, pk=None):
