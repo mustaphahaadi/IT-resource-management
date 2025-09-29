@@ -43,55 +43,8 @@ class ApiService {
     )
   }
 
-  // Analytics API methods
-  async getRequestAnalytics(params = {}) {
-    return this.get("/analytics/requests/", { params })
-  }
-
-  async getDashboardAnalytics() {
-    return this.get("/analytics/dashboard/")
-  }
-  
-  async getRecentActivity(params = {}) {
-    return this.get("/analytics/recent-activity/", { params })
-  }
-  
-  async getAlerts(params = {}) {
-    return this.get("/alerts/", { params })
-  }
-  
-  // Quick action endpoints
-  async createSupportRequest(data) {
-    return this.post("/requests/", data)
-  }
-  
-  async createTask(data) {
-    return this.post("/tasks/", data)
-  }
-  
-  async reportIssue(data) {
-    return this.post("/reports/issues/", data)
-  }
-
-  // Reports API methods
-  async generateReport(reportType, params = {}) {
-    return this.post("/reports/generate/", { report_type: reportType, ...params })
-  }
-
-  async getReportHistory(params = {}) {
-    return this.get("/reports/history/", { params })
-  }
-
-  async downloadReport(reportId, format = 'pdf') {
-    return this.get(`/reports/${reportId}/download/`, { 
-      responseType: 'blob', 
-      params: { format } 
-    })
-  }
-
-  async scheduleReport(reportConfig) {
-    return this.post("/reports/schedule/", reportConfig)
-  }
+  // Duplicate endpoints removed: analytics, alerts, quick-actions, and reports
+  // Consolidated canonical implementations are defined in dedicated sections below.
 
   // Generic HTTP methods
   async get(url, config = {}) {

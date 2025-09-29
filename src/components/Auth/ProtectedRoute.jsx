@@ -1,5 +1,6 @@
 import { Navigate } from "react-router-dom"
 import { useAuth } from "../../contexts/AuthContext"
+import { usePermissions } from "../../contexts/PermissionsContext"
 
 const ProtectedRoute = ({
   children,
@@ -8,7 +9,8 @@ const ProtectedRoute = ({
   requiredAnyRole,
   fallbackPath = "/unauthorized",
 }) => {
-  const { user, loading, hasRole, hasPermission, hasAnyRole } = useAuth()
+  const { user, loading } = useAuth()
+  const { userRole, hasPermission, hasRoleOrHigher } = usePermissions()
 
   if (loading) {
     return (
@@ -25,9 +27,16 @@ const ProtectedRoute = ({
     return <Navigate to="/login" replace />
   }
 
-  // Check role-based access
-  if (requiredRole && !hasRole(requiredRole)) {
-    return <Navigate to={fallbackPath} replace />
+  // Check role-based access (exact or hierarchy if prefixed with 'min:')
+  if (requiredRole) {
+    if (requiredRole.startsWith('min:')) {
+      const minRole = requiredRole.replace('min:', '')
+      if (!hasRoleOrHigher(minRole)) {
+        return <Navigate to={fallbackPath} replace />
+      }
+    } else if (userRole !== requiredRole) {
+      return <Navigate to={fallbackPath} replace />
+    }
   }
 
   // Check permission-based access
@@ -36,8 +45,10 @@ const ProtectedRoute = ({
   }
 
   // Check if user has any of the required roles
-  if (requiredAnyRole && !hasAnyRole(requiredAnyRole)) {
-    return <Navigate to={fallbackPath} replace />
+  // For simplicity, if requiredAnyRole is provided, allow if user's role matches any
+  if (requiredAnyRole && Array.isArray(requiredAnyRole)) {
+    const allowed = requiredAnyRole.includes(userRole)
+    if (!allowed) return <Navigate to={fallbackPath} replace />
   }
 
   return children

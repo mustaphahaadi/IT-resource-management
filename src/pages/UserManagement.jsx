@@ -23,7 +23,7 @@ const UserManagement = () => {
   })
 
   useEffect(() => {
-    if (hasPermission("manage_users")) {
+    if (hasPermission("users.view_all")) {
       fetchUsers()
       fetchRoles()
     }
@@ -32,7 +32,12 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true)
-      const response = await apiService.get("/auth/users/", { params: filters })
+      const params = {}
+      if (filters.search) params.search = filters.search
+      if (filters.role) params.role = filters.role
+      if (filters.status === 'active') params.is_active = true
+      if (filters.status === 'inactive') params.is_active = false
+      const response = await apiService.getUsers(params)
       setUsers(response.data.results || response.data)
     } catch (error) {
       console.error("Error fetching users:", error)
@@ -44,7 +49,8 @@ const UserManagement = () => {
   const fetchRoles = async () => {
     try {
       const response = await apiService.get("/auth/roles/")
-      setRoles(response.data.results || response.data)
+      const list = response.data?.roles || response.data || []
+      setRoles(list)
     } catch (error) {
       console.error("Error fetching roles:", error)
     }
@@ -53,9 +59,10 @@ const UserManagement = () => {
   const handleUserSubmit = async (userData) => {
     try {
       if (selectedUser) {
-        await apiService.put(`/auth/users/${selectedUser.id}/`, userData)
+        await apiService.updateUser(selectedUser.id, userData)
       } else {
-        await apiService.post("/auth/users/", userData)
+        // Fallback to registration endpoint for creating users
+        await apiService.register(userData)
       }
       fetchUsers()
       setShowUserForm(false)
@@ -68,7 +75,7 @@ const UserManagement = () => {
   const handleDeleteUser = async (userId) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
-        await apiService.delete(`/auth/users/${userId}/`)
+        await apiService.deleteUser(userId)
         fetchUsers()
       } catch (error) {
         console.error("Error deleting user:", error)
@@ -78,9 +85,11 @@ const UserManagement = () => {
 
   const handleToggleUserStatus = async (userId, currentStatus) => {
     try {
-      await apiService.patch(`/auth/users/${userId}/`, {
-        is_active: !currentStatus,
-      })
+      if (currentStatus) {
+        await apiService.deactivateUser(userId)
+      } else {
+        await apiService.activateUser(userId)
+      }
       fetchUsers()
     } catch (error) {
       console.error("Error updating user status:", error)

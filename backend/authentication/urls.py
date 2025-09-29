@@ -40,4 +40,5 @@ urlpatterns = [
     path('admin/users/<int:user_id>/delete/', admin_views.delete_user, name='admin_delete_user'),
     path('admin/statistics/', admin_views.get_admin_statistics, name='admin_statistics'),
     path('admin/login-attempts/', admin_views.get_recent_login_attempts, name='admin_login_attempts'),
+    path('roles/', admin_views.get_roles, name='roles'),
 ]

@@ -204,7 +204,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
         <nav className="flex-1 px-2 py-4 space-y-1">
           {/* Main Navigation */}
           {navigation.map((item) => {
-            const isActive = location.pathname === item.href
+            const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + "/")
             
             if (item.permission && !hasPermission(item.permission)) {
               return null
@@ -230,7 +230,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
           <PermissionGate permissions={"ui.assign_tickets"}>
             {isOpen && <div className="px-2 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Management</div>}
             {managementNavigation.map((item) => {
-              const isActive = location.pathname === item.href
+              const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + "/")
               
               if (item.permission && !hasPermission(item.permission)) {
                 return null
@@ -257,7 +257,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
           <PermissionGate permissions={"system.settings"}>
             {isOpen && <div className="px-2 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Administration</div>}
             {adminNavigation.map((item) => {
-              const isActive = location.pathname === item.href
+              const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + "/")
               
               if (item.permission && !hasPermission(item.permission)) {
                 return null
@@ -283,7 +283,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
           {/* User Navigation */}
           {isOpen && <div className="px-2 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Personal</div>}
           {userNavigation.map((item) => {
-            const isActive = location.pathname === item.href
+            const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + "/")
             return (
               <Link
                 key={item.name}

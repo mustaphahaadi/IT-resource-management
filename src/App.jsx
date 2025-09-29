@@ -26,6 +26,9 @@ import Maintenance from "./pages/Maintenance"
 import Notifications from "./pages/Notifications"
 import ApiDocs from "./pages/ApiDocs"
 import ActivityLog from "./pages/ActivityLog"
+import UserManagement from "./pages/UserManagement"
+import AdminSettings from "./pages/AdminSettings"
+import Assignment from "./pages/Assignment"
 import { AuthProvider } from "./contexts/AuthContext"
 import { PermissionsProvider } from "./contexts/PermissionsContext"
 import ProtectedRoute from "./components/Auth/ProtectedRoute"
@@ -85,14 +88,71 @@ function App() {
               <Route path="settings" element={<Settings />} />
               <Route path="profile" element={<Profile />} />
               <Route
+                path="team"
+                element={
+                  <ProtectedRoute requiredRole="system_admin">
+                    <UserManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="users"
+                element={
+                  <ProtectedRoute requiredRole="system_admin">
+                    <UserManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="assignment"
+                element={
+                  <ProtectedRoute requiredPermission="ui.assign_tickets">
+                    <Assignment />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="backup"
                 element={
-                  <ProtectedRoute requiredRole="admin">
+                  <ProtectedRoute requiredPermission="system.backup">
                     <BackupExport />
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="admin/backup"
+                element={
+                  <ProtectedRoute requiredPermission="system.backup">
+                    <BackupExport />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="admin/settings"
+                element={
+                  <ProtectedRoute requiredPermission="system.settings">
+                    <AdminSettings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="admin/security"
+                element={
+                  <ProtectedRoute requiredPermission="system.monitoring">
+                    <ActivityLog />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="admin/health"
+                element={
+                  <ProtectedRoute requiredPermission="system.monitoring">
+                    <SystemStatus />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="help" element={<Help />} />
+              <Route path="knowledge" element={<Help />} />
               <Route
                 path="status"
                 element={

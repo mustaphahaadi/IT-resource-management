@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 import { apiService } from "../../services/api"
 
-const RolePermissions = ({ roles, onClose, onUpdate }) => {
+const RolePermissions = ({ roles = [], onClose, onUpdate }) => {
   const [permissions, setPermissions] = useState([])
   const [rolePermissions, setRolePermissions] = useState({})
   const [loading, setLoading] = useState(true)
@@ -15,9 +15,11 @@ const RolePermissions = ({ roles, onClose, onUpdate }) => {
   const fetchPermissions = async () => {
     try {
       const response = await apiService.get("/auth/permissions/")
-      setPermissions(response.data.results || response.data)
+      const list = response.data?.results || response.data || []
+      setPermissions(Array.isArray(list) ? list : [])
     } catch (error) {
-      console.error("Error fetching permissions:", error)
+      console.warn("Permissions API not available:", error?.response?.status || error?.message)
+      setPermissions([])
     }
   }
 
@@ -25,28 +27,33 @@ const RolePermissions = ({ roles, onClose, onUpdate }) => {
     try {
       const response = await apiService.get("/auth/role-permissions/")
       const rolePermsMap = {}
-      response.data.forEach((rp) => {
-        if (!rolePermsMap[rp.role]) rolePermsMap[rp.role] = []
-        rolePermsMap[rp.role].push(rp.permission)
+      const items = response.data?.results || response.data || []
+      items.forEach((rp) => {
+        const key = rp.role
+        if (!rolePermsMap[key]) rolePermsMap[key] = []
+        rolePermsMap[key].push(rp.permission)
       })
       setRolePermissions(rolePermsMap)
     } catch (error) {
-      console.error("Error fetching role permissions:", error)
+      console.warn("Role-permissions API not available:", error?.response?.status || error?.message)
+      setRolePermissions({})
     } finally {
       setLoading(false)
     }
   }
 
-  const handlePermissionToggle = async (roleId, permissionId, hasPermission) => {
+  const handlePermissionToggle = async (roleKey, permissionId, hasPerm) => {
     try {
-      if (hasPermission) {
-        await apiService.delete(`/auth/role-permissions/${roleId}/${permissionId}/`)
+      if (hasPerm) {
+        await apiService.delete(`/auth/role-permissions/${roleKey}/${permissionId}/`)
       } else {
         await apiService.post("/auth/role-permissions/", {
-          role,
-          permission,
-        )
+          role: roleKey,
+          permission: permissionId,
+        })
+      }
       fetchRolePermissions()
+      onUpdate && onUpdate()
     } catch (error) {
       console.error("Error updating role permission:", error)
     }
@@ -64,13 +71,15 @@ const RolePermissions = ({ roles, onClose, onUpdate }) => {
       <div className="bg-card border border-border rounded-lg p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Role Permissions Management</h2>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
-            ✕
-          </button>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">✕</button>
         </div>
 
         {loading ? (
           <div className="text-center py-8">Loading permissions...</div>
+        ) : permissions.length === 0 ? (
+          <div className="text-sm text-muted-foreground">
+            Permissions API not available. Implement /api/auth/permissions/ and /api/auth/role-permissions/ to enable this screen.
+          </div>
         ) : (
           <div className="space-y-6">
             {Object.entries(groupedPermissions).map(([category, categoryPermissions]) => (
@@ -84,9 +93,11 @@ const RolePermissions = ({ roles, onClose, onUpdate }) => {
                       <thead>
                         <tr className="border-b border-border">
                           <th className="text-left py-2 px-4 font-medium">Permission</th>
-                          {roles.map((role) => (
-                            <th key={role.id} className="text-center py-2 px-4 font-medium">
-                              {role.display_name}) )}
+                          {(roles || []).map((role) => (
+                            <th key={role?.name || role?.id} className="text-center py-2 px-4 font-medium">
+                              {role?.display_name || role?.name}
+                            </th>
+                          ))}
                         </tr>
                       </thead>
                       <tbody>
@@ -98,25 +109,32 @@ const RolePermissions = ({ roles, onClose, onUpdate }) => {
                                 <div className="text-sm text-muted-foreground">{permission.description}</div>
                               </div>
                             </td>
-                            {roles.map((role) => {
-                              const hasPermission = rolePermissions[role.id]?.includes(permission.id)
+                            {(roles || []).map((role) => {
+                              const roleKey = role?.name || role?.id
+                              const hasPerm = (rolePermissions[roleKey] || []).includes(permission.id)
                               return (
-                                <td key={role.id} className="py-2 px-4 text-center">
+                                <td key={roleKey} className="py-2 px-4 text-center">
                                   <input
                                     type="checkbox"
-                                    checked={hasPermission || false}
-                                    onChange={() => handlePermissionToggle(role.id, permission.id, hasPermission)}
+                                    checked={!!hasPerm}
+                                    onChange={() => handlePermissionToggle(roleKey, permission.id, hasPerm)}
                                     className="h-4 w-4 text-primary focus:ring-primary border-border rounded"
+                                    disabled
                                   />
                                 </td>
                               )
-                            })}) )}
+                            })}
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
                 </CardContent>
               </Card>
-            )))
+            ))}
+          </div>
+        )}
+
         <div className="flex justify-end pt-6">
           <button
             onClick={onClose}
@@ -130,7 +148,4 @@ const RolePermissions = ({ roles, onClose, onUpdate }) => {
   )
 }
 
-    </div>
-  )
-}
 export default RolePermissions

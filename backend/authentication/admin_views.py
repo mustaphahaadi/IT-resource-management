@@ -407,3 +407,23 @@ def get_recent_login_attempts(request):
         return Response({
             'error': 'Failed to fetch login attempts'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def get_roles(request):
+    """Return available user roles from CustomUser.ROLE_CHOICES"""
+    try:
+        from .models import CustomUser
+        role_choices = getattr(CustomUser, 'ROLE_CHOICES', [])
+        roles = [
+            {
+                'name': name,
+                'display_name': display
+            }
+            for name, display in role_choices
+        ]
+        return Response({'roles': roles})
+    except Exception as e:
+        logger.error(f"Error fetching roles: {e}")
+        return Response({'roles': []})
