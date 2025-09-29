@@ -23,6 +23,11 @@ urlpatterns = [
     path('verify-email/', views.verify_email, name='verify_email'),
     path('resend-verification/', views.resend_verification_email, name='resend_verification'),
     
+    # User approval endpoints
+    path('users/pending-approval/', views.pending_approval_users, name='pending_approval_users'),
+    path('users/<int:user_id>/approve/', views.approve_user, name='approve_user'),
+    path('users/<int:user_id>/reject/', views.reject_user, name='reject_user'),
+    
     # Admin endpoints
     path('admin/users/', admin_views.get_users, name='admin_get_users'),
     path('admin/users/<int:user_id>/', admin_views.get_user_details, name='admin_get_user_details'),

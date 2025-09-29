@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { useAuth } from "../contexts/AuthContext"
+import { usePermissions, getRoleDisplayName, getRoleColor } from "../contexts/PermissionsContext"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { apiService } from "../services/api"
 import UserForm from "../components/Auth/UserForm"
@@ -7,7 +8,8 @@ import RolePermissions from "../components/Auth/RolePermissions"
 import { UserGroupIcon, PlusIcon, PencilIcon, TrashIcon, ShieldCheckIcon } from "@heroicons/react/24/outline"
 
 const UserManagement = () => {
-  const { hasPermission } = useAuth()
+  const { user } = useAuth()
+  const { hasPermission } = usePermissions()
   const [users, setUsers] = useState([])
   const [roles, setRoles] = useState([])
   const [loading, setLoading] = useState(true)
@@ -85,24 +87,18 @@ const UserManagement = () => {
     }
   }
 
-  const getRoleColor = (role) => {
-    const colors = {
-      admin: "bg-red-100 text-red-800",
-      it_manager: "bg-blue-100 text-blue-800",
-      technician: "bg-green-100 text-green-800",
-      help_desk: "bg-yellow-100 text-yellow-800",
-      viewer: "bg-gray-100 text-gray-800",
-    }
-    return colors[role] || "bg-gray-100 text-gray-800"
+  const getBadgeColor = (role) => {
+    const color = getRoleColor(role)
+    return `bg-${color}-100 text-${color}-800`
   }
 
-  if (!hasPermission("manage_users")) {
+  if (!hasPermission("users.view_all")) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <ShieldCheckIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-foreground mb-2">Access Denied</h2>
-          <p className="text-muted-foreground">You don't have permission to manage users.</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Access Denied</h2>
+          <p className="text-gray-600">You don't have permission to manage users. Contact your system administrator.</p>
         </div>
       </div>
     )
@@ -112,8 +108,8 @@ const UserManagement = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">User Management</h1>
-          <p className="text-muted-foreground">Manage system users and their access permissions</p>
+          <h1 className="text-3xl font-bold text-gray-900">IT Support User Management</h1>
+          <p className="text-gray-600">Manage user accounts, roles, and permissions for the IT helpdesk system</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -156,7 +152,9 @@ const UserManagement = () => {
                 <option value="">All Roles</option>
                 {roles.map((role) => (
                   <option key={role.id} value={role.name}>
-                    {role.display_name}) )}
+                    {role.display_name}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
@@ -214,8 +212,8 @@ const UserManagement = () => {
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
-                          {user.role_display_name}
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getBadgeColor(user.role)}`}>
+                          {getRoleDisplayName(user.role)}
                         </span>
                       </td>
                       <td className="py-3 px-4 text-sm">{user.department || "N/A"}</td>
@@ -276,7 +274,7 @@ const UserManagement = () => {
 
       {showRoleManager && (
         <RolePermissions roles={roles} onClose={() => setShowRoleManager(false)} onUpdate={fetchRoles} />
-      ))
+      )}
     </div>
   )
 }

@@ -8,6 +8,7 @@ from django.utils import timezone
 from datetime import timedelta
 from .models import CustomUser, LoginAttempt, UserSession
 from .serializers import UserProfileSerializer
+from .permissions import IsAdminOrStaff
 import logging
 
 logger = logging.getLogger(__name__)

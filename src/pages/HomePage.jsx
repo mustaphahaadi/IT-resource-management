@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
 import { useAuth } from "../contexts/AuthContext"
 import { 
-  HeartIcon,
+  WrenchScrewdriverIcon,
   ShieldCheckIcon,
   UsersIcon,
   ComputerDesktopIcon,
@@ -12,7 +12,9 @@ import {
   ArrowRightIcon,
   CheckCircleIcon,
   Bars3Icon,
-  XMarkIcon
+  XMarkIcon,
+  ExclamationTriangleIcon,
+  ClipboardDocumentListIcon
 } from "@heroicons/react/24/outline"
 import { useState } from "react"
 
@@ -28,6 +30,45 @@ const HomePage = () => {
   ]
 
   const features = [
+    {
+      name: 'IT Support Requests',
+      description: 'Submit and track IT support tickets for hardware, software, and network issues.',
+      icon: ExclamationTriangleIcon,
+      color: 'text-blue-600'
+    },
+    {
+      name: 'Equipment Management',
+      description: 'Manage IT assets, track maintenance schedules, and monitor equipment status.',
+      icon: ComputerDesktopIcon,
+      color: 'text-green-600'
+    },
+    {
+      name: 'Task Assignment',
+      description: 'Intelligent task routing and workload management for IT technicians.',
+      icon: ClipboardDocumentListIcon,
+      color: 'text-purple-600'
+    },
+    {
+      name: 'User Management',
+      description: 'Role-based access control with approval workflows for system security.',
+      icon: UsersIcon,
+      color: 'text-orange-600'
+    },
+    {
+      name: 'Analytics & Reporting',
+      description: 'Comprehensive reporting on SLA compliance, performance metrics, and trends.',
+      icon: ChartBarIcon,
+      color: 'text-indigo-600'
+    },
+    {
+      name: 'System Administration',
+      description: 'Complete system configuration, monitoring, and security management.',
+      icon: ShieldCheckIcon,
+      color: 'text-red-600'
+    }
+  ]
+
+  const oldFeatures = [
     {
       icon: ComputerDesktopIcon,
       title: "IT Asset Management",
@@ -71,10 +112,10 @@ const HomePage = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-[#2F327D] rounded-lg flex items-center justify-center">
-                <HeartIcon className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <WrenchScrewdriverIcon className="w-5 h-5 text-white" />
               </div>
-              <span className="font-bold text-lg text-[#2F327D]">Hospital IT</span>
+              <span className="font-bold text-lg text-blue-900">IT Support Portal</span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -167,25 +208,25 @@ const HomePage = () => {
       </nav>
 
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-[#2F327D]">
+      <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800">
         <div className="relative container mx-auto px-4 py-16">
           <div className="text-center max-w-4xl mx-auto">
             <div className="flex justify-center mb-6">
               <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                <HeartIcon className="w-10 h-10 text-[#2F327D]" />
+                <WrenchScrewdriverIcon className="w-10 h-10 text-blue-600" />
               </div>
             </div>
             
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-              Hospital IT
+              IT Support
               <span className="text-white">
-                {" "}Management System
+                {" "}Management Portal
               </span>
             </h1>
             
             <p className="text-xl text-white/90 mb-8 leading-relaxed">
-              Comprehensive IT resource management solution designed specifically for healthcare environments. 
-              Streamline operations, enhance security, and improve patient care through intelligent technology management.
+              Comprehensive IT helpdesk solution with intelligent ticket routing, asset management, and role-based workflows. 
+              Streamline IT operations, enhance security, and deliver exceptional support experiences.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -226,7 +267,7 @@ const HomePage = () => {
             Our comprehensive platform provides everything you need to manage IT resources efficiently in a hospital environment.
           </p>
         </div>
-
+  
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((feature, index) => (
             <Card key={index} className="border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-300 hover:border-[#2F327D]">
@@ -234,7 +275,7 @@ const HomePage = () => {
                 <div className="w-12 h-12 rounded-lg bg-[#2F327D] text-white flex items-center justify-center mx-auto mb-4">
                   <feature.icon className="w-6 h-6" />
                 </div>
-                <CardTitle className="text-lg text-[#2F327D]">{feature.title}</CardTitle>
+                <CardTitle className="text-lg text-[#2F327D]">{feature.name}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 text-center text-sm leading-relaxed">
@@ -312,8 +353,8 @@ const HomePage = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <HeartIcon className="w-6 h-6 text-white" />
-                <span className="font-semibold text-lg">Hospital IT System</span>
+                <WrenchScrewdriverIcon className="w-6 h-6 text-white" />
+                <span className="font-semibold text-lg">IT Support Portal</span>
               </div>
               <p className="text-gray-400 text-sm">
                 Comprehensive IT management solution for healthcare environments.
@@ -370,3 +411,4 @@ const HomePage = () => {
 }
 
 export default HomePage
+

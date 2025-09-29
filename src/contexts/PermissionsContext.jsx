@@ -5,73 +5,88 @@ const PermissionsContext = createContext()
 
 // Role hierarchy (higher number = more permissions)
 const ROLE_HIERARCHY = {
-  user: 1,
+  end_user: 1,
   technician: 2,
-  manager: 3,
-  staff: 4,
-  admin: 5
+  senior_technician: 3,
+  it_manager: 4,
+  system_admin: 5
 }
 
-// Permission definitions
+// Permission definitions based on IT helpdesk roles
 const PERMISSIONS = {
   // Equipment permissions
-  'equipment.view_all': ['admin', 'staff'],
-  'equipment.view_department': ['admin', 'staff', 'technician', 'manager'],
-  'equipment.view_own': ['admin', 'staff', 'technician', 'manager', 'user'],
-  'equipment.create': ['admin', 'staff', 'technician'],
-  'equipment.update': ['admin', 'staff', 'technician'],
-  'equipment.delete': ['admin', 'staff'],
+  'equipment.view_all': ['system_admin', 'it_manager'],
+  'equipment.view_department': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
+  'equipment.view_basic': ['system_admin', 'it_manager', 'senior_technician', 'technician', 'end_user'],
+  'equipment.create': ['system_admin', 'it_manager', 'senior_technician'],
+  'equipment.update': ['system_admin', 'it_manager', 'senior_technician'],
+  'equipment.delete': ['system_admin', 'it_manager'],
+  'equipment.manage': ['system_admin', 'it_manager', 'senior_technician'],
   
   // Request permissions
-  'requests.view_all': ['admin', 'staff'],
-  'requests.view_department': ['admin', 'staff', 'technician', 'manager'],
-  'requests.view_own': ['admin', 'staff', 'technician', 'manager', 'user'],
-  'requests.create': ['admin', 'staff', 'technician', 'manager', 'user'],
-  'requests.update': ['admin', 'staff', 'technician'],
-  'requests.assign': ['admin', 'staff', 'technician'],
-  'requests.delete': ['admin', 'staff'],
+  'requests.view_all': ['system_admin', 'it_manager'],
+  'requests.view_department': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
+  'requests.view_own': ['system_admin', 'it_manager', 'senior_technician', 'technician', 'end_user'],
+  'requests.create': ['system_admin', 'it_manager', 'senior_technician', 'technician', 'end_user'],
+  'requests.update': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
+  'requests.assign': ['system_admin', 'it_manager', 'senior_technician'],
+  'requests.escalate': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
+  'requests.close': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
+  'requests.delete': ['system_admin', 'it_manager'],
   
   // Task permissions
-  'tasks.view_all': ['admin', 'staff'],
-  'tasks.view_department': ['admin', 'staff', 'technician', 'manager'],
-  'tasks.view_assigned': ['admin', 'staff', 'technician', 'manager', 'user'],
-  'tasks.create': ['admin', 'staff', 'technician'],
-  'tasks.update': ['admin', 'staff', 'technician'],
-  'tasks.assign': ['admin', 'staff', 'technician'],
-  'tasks.delete': ['admin', 'staff'],
+  'tasks.view_all': ['system_admin', 'it_manager'],
+  'tasks.view_department': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
+  'tasks.view_assigned': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
+  'tasks.create': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
+  'tasks.update': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
+  'tasks.assign': ['system_admin', 'it_manager', 'senior_technician'],
+  'tasks.delete': ['system_admin', 'it_manager'],
   
-  // Personnel permissions
-  'personnel.view_all': ['admin', 'staff'],
-  'personnel.view_department': ['admin', 'staff', 'technician', 'manager'],
-  'personnel.create': ['admin', 'staff'],
-  'personnel.update': ['admin', 'staff'],
-  'personnel.delete': ['admin', 'staff'],
+  // Knowledge base permissions
+  'knowledge.view': ['system_admin', 'it_manager', 'senior_technician', 'technician', 'end_user'],
+  'knowledge.create': ['system_admin', 'it_manager', 'senior_technician'],
+  'knowledge.update': ['system_admin', 'it_manager', 'senior_technician'],
+  'knowledge.delete': ['system_admin', 'it_manager'],
   
-  // Admin permissions
-  'admin.users': ['admin'],
-  'admin.settings': ['admin'],
-  'admin.reports': ['admin', 'staff'],
-  'admin.analytics': ['admin', 'staff', 'manager'],
+  // User management permissions
+  'users.view_all': ['system_admin'],
+  'users.create': ['system_admin'],
+  'users.update': ['system_admin'],
+  'users.delete': ['system_admin'],
+  'users.approve': ['system_admin', 'it_manager'],
+  
+  // Reporting permissions
+  'reports.basic': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
+  'reports.advanced': ['system_admin', 'it_manager'],
+  'reports.analytics': ['system_admin', 'it_manager'],
+  'reports.export': ['system_admin', 'it_manager'],
+  
+  // System administration
+  'system.settings': ['system_admin'],
+  'system.config': ['system_admin'],
+  'system.backup': ['system_admin'],
+  'system.monitoring': ['system_admin', 'it_manager'],
   
   // Navigation permissions
-  'nav.dashboard': ['admin', 'staff', 'technician', 'manager', 'user'],
-  'nav.equipment': ['admin', 'staff', 'technician', 'manager', 'user'],
-  'nav.requests': ['admin', 'staff', 'technician', 'manager', 'user'],
-  'nav.tasks': ['admin', 'staff', 'technician', 'manager', 'user'],
-  'nav.analytics': ['admin', 'staff', 'manager'],
-  'nav.reports': ['admin', 'staff', 'manager'],
-  'nav.admin': ['admin'],
+  'nav.dashboard': ['system_admin', 'it_manager', 'senior_technician', 'technician', 'end_user'],
+  'nav.requests': ['system_admin', 'it_manager', 'senior_technician', 'technician', 'end_user'],
+  'nav.equipment': ['system_admin', 'it_manager', 'senior_technician', 'technician', 'end_user'],
+  'nav.tasks': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
+  'nav.knowledge': ['system_admin', 'it_manager', 'senior_technician', 'technician', 'end_user'],
+  'nav.reports': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
+  'nav.admin': ['system_admin'],
+  'nav.users': ['system_admin'],
   
   // UI Features
-  'ui.create_equipment': ['admin', 'staff', 'technician'],
-  'ui.edit_equipment': ['admin', 'staff', 'technician'],
-  'ui.delete_equipment': ['admin', 'staff'],
-  'ui.assign_requests': ['admin', 'staff', 'technician'],
-  'ui.assign_tasks': ['admin', 'staff', 'technician'],
-  'ui.view_all_data': ['admin', 'staff'],
-  'ui.manage_users': ['admin'],
-  'ui.system_settings': ['admin'],
-  'ui.advanced_reports': ['admin', 'staff'],
+  'ui.create_request': ['system_admin', 'it_manager', 'senior_technician', 'technician', 'end_user'],
+  'ui.assign_tickets': ['system_admin', 'it_manager', 'senior_technician'],
+  'ui.escalate_tickets': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
+  'ui.close_tickets': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
+  'ui.manage_equipment': ['system_admin', 'it_manager', 'senior_technician'],
+  'ui.view_all_data': ['system_admin', 'it_manager'],
+  'ui.bulk_operations': ['system_admin', 'it_manager'],
+  'ui.system_settings': ['system_admin'],
 }
 
 export function PermissionsProvider({ children }) {
@@ -80,14 +95,14 @@ export function PermissionsProvider({ children }) {
   const permissions = useMemo(() => {
     if (!user) return {}
 
-    const userRole = user.role || 'user'
+    const userRole = user.role || 'end_user'
     const userDepartment = user.department || ''
-    const isApproved = user.is_approved || user.role === 'admin'
+    const isApproved = user.is_approved || user.role === 'system_admin'
 
     return {
       // Check if user has a specific permission
       hasPermission: (permission) => {
-        if (!isApproved && userRole !== 'admin') return false
+        if (!isApproved && userRole !== 'system_admin') return false
         const allowedRoles = PERMISSIONS[permission] || []
         return allowedRoles.includes(userRole)
       },
@@ -115,13 +130,13 @@ export function PermissionsProvider({ children }) {
 
       // Check if user can view data scope
       canViewScope: (scope) => {
-        if (!isApproved && userRole !== 'admin') return false
+        if (!isApproved && userRole !== 'system_admin') return false
         
         switch (scope) {
           case 'all':
-            return ['admin', 'staff'].includes(userRole)
+            return ['system_admin', 'it_manager'].includes(userRole)
           case 'department':
-            return ['admin', 'staff', 'technician', 'manager'].includes(userRole)
+            return ['system_admin', 'it_manager', 'senior_technician', 'technician'].includes(userRole)
           case 'own':
             return true
           default:
@@ -131,15 +146,15 @@ export function PermissionsProvider({ children }) {
 
       // Check if user can edit data scope
       canEditScope: (scope) => {
-        if (!isApproved && userRole !== 'admin') return false
+        if (!isApproved && userRole !== 'system_admin') return false
         
         switch (scope) {
           case 'all':
-            return ['admin', 'staff'].includes(userRole)
+            return ['system_admin', 'it_manager'].includes(userRole)
           case 'department':
-            return ['admin', 'staff', 'technician'].includes(userRole)
+            return ['system_admin', 'it_manager', 'senior_technician'].includes(userRole)
           case 'own':
-            return ['admin', 'staff', 'technician', 'manager', 'user'].includes(userRole)
+            return ['system_admin', 'it_manager', 'senior_technician', 'technician', 'end_user'].includes(userRole)
           default:
             return false
         }
@@ -147,9 +162,9 @@ export function PermissionsProvider({ children }) {
 
       // Department-based checks
       canAccessDepartment: (targetDepartment) => {
-        if (!isApproved && userRole !== 'admin') return false
-        if (['admin', 'staff'].includes(userRole)) return true
-        if (userRole === 'technician') {
+        if (!isApproved && userRole !== 'system_admin') return false
+        if (['system_admin', 'it_manager'].includes(userRole)) return true
+        if (['senior_technician', 'technician'].includes(userRole)) {
           return targetDepartment?.toLowerCase() === userDepartment?.toLowerCase() || 
                  targetDepartment?.toLowerCase() === 'it'
         }
@@ -161,11 +176,13 @@ export function PermissionsProvider({ children }) {
       userRole,
       userDepartment,
       isApproved,
-      isAdmin: userRole === 'admin',
-      isStaff: ['admin', 'staff'].includes(userRole),
+      isSystemAdmin: userRole === 'system_admin',
+      isITManager: userRole === 'it_manager',
+      isSeniorTechnician: userRole === 'senior_technician',
       isTechnician: userRole === 'technician',
-      isManager: userRole === 'manager',
-      isUser: userRole === 'user',
+      isEndUser: userRole === 'end_user',
+      isStaff: ['system_admin', 'it_manager'].includes(userRole),
+      isTechnicalStaff: ['system_admin', 'it_manager', 'senior_technician', 'technician'].includes(userRole),
     }
   }, [user])
 
@@ -182,6 +199,30 @@ export function usePermissions() {
     throw new Error('usePermissions must be used within a PermissionsProvider')
   }
   return context
+}
+
+// Helper function to get user role display name
+export function getRoleDisplayName(role) {
+  const roleNames = {
+    'end_user': 'End User',
+    'technician': 'Technician',
+    'senior_technician': 'Senior Technician',
+    'it_manager': 'IT Manager',
+    'system_admin': 'System Administrator'
+  }
+  return roleNames[role] || 'Unknown Role'
+}
+
+// Helper function to get role color for UI
+export function getRoleColor(role) {
+  const roleColors = {
+    'end_user': 'gray',
+    'technician': 'blue',
+    'senior_technician': 'indigo',
+    'it_manager': 'purple',
+    'system_admin': 'red'
+  }
+  return roleColors[role] || 'gray'
 }
 
 // Higher-order component for permission-based rendering

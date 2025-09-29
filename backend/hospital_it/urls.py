@@ -132,6 +132,7 @@ urlpatterns = [
     path('api/auth/user/', user_profile, name='api_user_profile'),
     path('api/notifications/', include('notifications.urls')),
     path('api/analytics/', include('analytics.urls')),
+    path('api/core/', include('core.urls')),
     # Reports stubs
     path('api/reports/generate/', lambda request: report_generate(request), name='reports_generate'),
     path('api/reports/history/', lambda request: report_history(request), name='reports_history'),

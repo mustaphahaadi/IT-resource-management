@@ -1,4 +1,5 @@
 from rest_framework import permissions
+from rest_framework.permissions import BasePermission
 
 
 class IsOwnerOrStaff(permissions.BasePermission):
@@ -11,19 +12,19 @@ class IsOwnerOrStaff(permissions.BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
         
-        # Check if user is approved (except for admin)
-        if request.user.role != 'admin' and not request.user.is_approved:
+        # Check if user is approved (except for system_admin)
+        if request.user.role != 'system_admin' and not request.user.is_approved:
             return False
         
         return True
     
     def has_object_permission(self, request, view, obj):
-        # Staff and admin can access all objects
-        if request.user.role in ['admin', 'staff'] or request.user.is_staff:
+        # System admin and IT manager can access all objects
+        if request.user.role in ['system_admin', 'it_manager'] or request.user.is_staff:
             return True
         
-        # Technicians can view/edit objects in their department
-        if request.user.role == 'technician':
+        # Senior technicians can view/edit objects in their department
+        if request.user.role in ['senior_technician', 'technician']:
             if hasattr(obj, 'requester') and hasattr(obj.requester, 'department'):
                 if obj.requester.department.lower() in [request.user.department.lower(), 'it']:
                     return True
@@ -55,8 +56,8 @@ class IsStaffOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         
-        # Write permissions only for staff, admin, or technician roles
-        return request.user.role in ['admin', 'staff', 'technician'] or request.user.is_staff
+        # Write permissions only for technical staff roles
+        return request.user.role in ['system_admin', 'it_manager', 'senior_technician', 'technician'] or request.user.is_staff
 
 
 class IsAdminOrStaff(permissions.BasePermission):
@@ -68,162 +69,141 @@ class IsAdminOrStaff(permissions.BasePermission):
         return (
             request.user
             and request.user.is_authenticated
-            and (request.user.role in ['admin', 'staff'] or request.user.is_staff)
+            and (request.user.role in ['system_admin', 'it_manager'] or request.user.is_staff)
+            and request.user.can_access_admin()
         )
 
 
-class IsAdminUser(permissions.BasePermission):
+class RoleBasedPermission(BasePermission):
     """
-    Custom permission to only allow admin users.
+    Advanced role-based permission system with fine-grained control.
+    
+    Role hierarchy: end_user(1) < technician(2) < senior_technician(3) < it_manager(4) < system_admin(5)
+    
+    Permission matrix:
+    - system_admin: Full system access, user management, all CRUD operations
+    - it_manager: Department oversight, team management, SLA monitoring, reporting
+    - senior_technician: Advanced technical support, ticket assignment, knowledge base management
+    - technician: First-line support, assigned ticket management, basic reporting
+    - end_user: Own requests only, basic equipment viewing, self-service portal
     """
     
-    def has_permission(self, request, view):
-        return (
-            request.user
-            and request.user.is_authenticated
-            and (
-                getattr(request.user, 'is_superuser', False)
-                or request.user.can_access_admin()
-            )
-        )
-
-
-class IsTechnicianOrStaff(permissions.BasePermission):
-    """
-    Custom permission for technicians and staff.
-    """
-    
-    def has_permission(self, request, view):
-        return (
-            request.user
-            and request.user.is_authenticated
-            and request.user.role in ['admin', 'staff', 'technician']
-        )
-
-
-class DepartmentBasedPermission(permissions.BasePermission):
-    """
-    Custom permission to filter objects based on user's department.
-    """
-    
-    def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated
-    
-    def has_object_permission(self, request, view, obj):
-        # Admin and staff can access all objects
-        if request.user.role in ['admin', 'staff'] or request.user.is_staff:
-            return True
-        
-        # Technicians can access objects in their department or IT department
-        if request.user.role == 'technician':
-            user_depts = [request.user.department.lower(), 'it']
-        else:
-            user_depts = [request.user.department.lower()]
-        
-        # Check if object has department-related fields
-        if hasattr(obj, 'department'):
-            return obj.department.lower() in user_depts
-        elif hasattr(obj, 'location') and hasattr(obj.location, 'department'):
-            return obj.location.department.name.lower() in user_depts
-        elif hasattr(obj, 'requester_department'):
-            return obj.requester_department.lower() in user_depts
-        elif hasattr(obj, 'requester') and hasattr(obj.requester, 'department'):
-            return obj.requester.department.lower() in user_depts
-        
-        return False  # Deny access if no department restriction can be determined
-
-
-class IsApprovedUser(permissions.BasePermission):
-    """
-    Custom permission to only allow approved users.
-    """
-    
-    def has_permission(self, request, view):
-        return (
-            request.user
-            and request.user.is_authenticated
-            and (request.user.is_approved or request.user.role == 'admin' or request.user.is_staff)
-        )
-
-
-class RoleBasedPermission(permissions.BasePermission):
-    """
-    Advanced role-based permission with fine-grained control.
-    """
-    
-    # Define role hierarchy (higher number = more permissions)
     ROLE_HIERARCHY = {
-        'user': 1,
+        'end_user': 1,
         'technician': 2,
-        'manager': 3,
-        'staff': 4,
-        'admin': 5
+        'senior_technician': 3,
+        'it_manager': 4,
+        'system_admin': 5
     }
     
-    # Define allowed actions per role
-    ROLE_PERMISSIONS = {
-        'user': ['view_own', 'create_own'],
-        'technician': ['view_own', 'view_department', 'create_own', 'update_own'],
-        'manager': ['view_own', 'view_department', 'create_own', 'update_own', 'approve_department'],
-        'staff': ['view_all', 'create_all', 'update_all', 'delete_own'],
-        'admin': ['view_all', 'create_all', 'update_all', 'delete_all', 'manage_users']
+    PERMISSION_MATRIX = {
+        'system_admin': {
+            'view_own': True, 'view_department': True, 'view_all': True,
+            'create': True, 'update_own': True, 'update_department': True, 'update_all': True,
+            'delete_own': True, 'delete_department': True, 'delete_all': True,
+            'assign': True, 'escalate': True, 'close': True, 'manage_users': True, 
+            'system_config': True, 'manage_equipment': True, 'generate_reports': True
+        },
+        'it_manager': {
+            'view_own': True, 'view_department': True, 'view_all': True,
+            'create': True, 'update_own': True, 'update_department': True, 'update_all': False,
+            'delete_own': True, 'delete_department': True, 'delete_all': False,
+            'assign': True, 'escalate': True, 'close': True, 'manage_users': False, 
+            'system_config': False, 'manage_equipment': True, 'generate_reports': True
+        },
+        'senior_technician': {
+            'view_own': True, 'view_department': True, 'view_all': False,
+            'create': True, 'update_own': True, 'update_department': True, 'update_all': False,
+            'delete_own': True, 'delete_department': False, 'delete_all': False,
+            'assign': True, 'escalate': True, 'close': True, 'manage_users': False, 
+            'system_config': False, 'manage_equipment': True, 'generate_reports': False
+        },
+        'technician': {
+            'view_own': True, 'view_department': True, 'view_all': False,
+            'create': True, 'update_own': True, 'update_department': False, 'update_all': False,
+            'delete_own': False, 'delete_department': False, 'delete_all': False,
+            'assign': False, 'escalate': True, 'close': True, 'manage_users': False, 
+            'system_config': False, 'manage_equipment': False, 'generate_reports': False
+        },
+        'end_user': {
+            'view_own': True, 'view_department': False, 'view_all': False,
+            'create': True, 'update_own': True, 'update_department': False, 'update_all': False,
+            'delete_own': False, 'delete_department': False, 'delete_all': False,
+            'assign': False, 'escalate': False, 'close': False, 'manage_users': False, 
+            'system_config': False, 'manage_equipment': False, 'generate_reports': False
+        }
     }
     
     def has_permission(self, request, view):
+        """Check if user has permission to access the view"""
         if not request.user or not request.user.is_authenticated:
             return False
         
-        # Check if user is approved (except for admin)
-        if request.user.role != 'admin' and not request.user.is_approved:
+        # Check if user is approved (except for system_admin)
+        if request.user.role != 'system_admin' and not request.user.is_approved:
             return False
         
         return True
     
     def has_object_permission(self, request, view, obj):
-        user = request.user
-        user_role = user.role
+        """Check if user has permission to access the specific object"""
+        if not request.user or not request.user.is_authenticated:
+            return False
         
-        # Admin can do anything
-        if user_role == 'admin' or user.is_staff:
-            return True
+        permissions = self.get_user_permissions(request.user)
+        is_owner = self._is_owner(request.user, obj)
+        is_same_department = self._is_same_department(request.user, obj)
         
-        # Get user permissions for their role
-        permissions = self.ROLE_PERMISSIONS.get(user_role, [])
-        
-        # Check ownership
-        is_owner = self._is_owner(user, obj)
-        
-        # Check department access
-        is_same_department = self._is_same_department(user, obj)
-        
-        # Apply permission logic based on HTTP method
+        # Check view permissions
         if request.method in ['GET', 'HEAD', 'OPTIONS']:
-            if 'view_all' in permissions:
+            if permissions.get('view_all'):
                 return True
-            elif 'view_department' in permissions and is_same_department:
+            elif permissions.get('view_department') and is_same_department:
                 return True
-            elif 'view_own' in permissions and is_owner:
+            elif permissions.get('view_own') and is_owner:
                 return True
         
+        # Check create permissions
         elif request.method in ['POST']:
-            if 'create_all' in permissions:
-                return True
-            elif 'create_own' in permissions:
-                return True
+            return permissions.get('create', False)
         
+        # Check update permissions
         elif request.method in ['PUT', 'PATCH']:
-            if 'update_all' in permissions:
+            if permissions.get('update_all'):
                 return True
-            elif 'update_own' in permissions and is_owner:
+            elif permissions.get('update_department') and is_same_department:
+                return True
+            elif permissions.get('update_own') and is_owner:
                 return True
         
+        # Check delete permissions
         elif request.method == 'DELETE':
-            if 'delete_all' in permissions:
+            if permissions.get('delete_all'):
                 return True
-            elif 'delete_own' in permissions and is_owner:
+            elif permissions.get('delete_department') and is_same_department:
+                return True
+            elif permissions.get('delete_own') and is_owner:
                 return True
         
         return False
+    
+    def get_user_permissions(self, user):
+        """Get permissions for a user based on their role"""
+        if not user or not user.is_authenticated:
+            return {}
+        
+        role = getattr(user, 'role', 'end_user')
+        return self.PERMISSION_MATRIX.get(role, self.PERMISSION_MATRIX['end_user'])
+    
+    def has_role_permission(self, user, required_role):
+        """Check if user has at least the required role level"""
+        if not user or not user.is_authenticated:
+            return False
+        
+        user_level = self.ROLE_HIERARCHY.get(getattr(user, 'role', 'end_user'), 0)
+        required_level = self.ROLE_HIERARCHY.get(required_role, 999)
+        
+        return user_level >= required_level
     
     def _is_owner(self, user, obj):
         """Check if user owns the object"""
@@ -257,5 +237,52 @@ class RoleBasedPermission(permissions.BasePermission):
             return obj.requester_department.lower() in allowed_depts
         elif hasattr(obj, 'requester') and hasattr(obj.requester, 'department'):
             return obj.requester.department.lower() in allowed_depts
+        
+        return False
+
+
+class IsApprovedUser(BasePermission):
+    """
+    Permission class that requires user approval.
+    """
+    
+    def has_permission(self, request, view):
+        return (
+            request.user 
+            and request.user.is_authenticated 
+            and (request.user.is_approved or request.user.role == 'system_admin')
+        )
+
+
+class DepartmentBasedPermission(BasePermission):
+    """
+    Permission class for department-based access control.
+    """
+    
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        
+        # System admin and IT manager can access all departments
+        if request.user.role in ['system_admin', 'it_manager']:
+            return True
+        
+        return request.user.is_approved
+    
+    def has_object_permission(self, request, view, obj):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        
+        # System admin and IT manager can access all objects
+        if request.user.role in ['system_admin', 'it_manager']:
+            return True
+        
+        # Check department-based access
+        user_departments = request.user.get_accessible_departments()
+        
+        if hasattr(obj, 'department'):
+            return obj.department.lower() in [dept.lower() for dept in user_departments]
+        elif hasattr(obj, 'requester') and hasattr(obj.requester, 'department'):
+            return obj.requester.department.lower() in [dept.lower() for dept in user_departments]
         
         return False

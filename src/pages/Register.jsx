@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link, Navigate } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
@@ -13,7 +13,9 @@ import {
   EyeIcon, 
   EyeSlashIcon, 
   CheckCircleIcon,
-  ExclamationTriangleIcon 
+  ExclamationTriangleIcon,
+  WrenchScrewdriverIcon,
+  ShieldCheckIcon
 } from "@heroicons/react/24/outline"
 
 const Register = () => {
@@ -40,18 +42,67 @@ const Register = () => {
     return <Navigate to="/" replace />
   }
 
-  const departments = [
-    { value: "it", label: "Information Technology" },
-    { value: "admin", label: "Administration" },
-    { value: "medical", label: "Medical" },
-    { value: "nursing", label: "Nursing" },
-    { value: "pharmacy", label: "Pharmacy" },
-    { value: "laboratory", label: "Laboratory" },
-    { value: "radiology", label: "Radiology" },
-    { value: "maintenance", label: "Maintenance" },
-    { value: "security", label: "Security" },
-    { value: "other", label: "Other" }
-  ]
+  const [departments, setDepartments] = useState([])
+  const [loadingDepartments, setLoadingDepartments] = useState(true)
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        setLoadingDepartments(true)
+        const response = await apiService.getDepartments()
+        const list = response.data?.results || response.data || []
+        const formatted = (Array.isArray(list) ? list : []).map(d => ({
+          value: d.code || d.slug || (d.name ? d.name.toLowerCase().replace(/\s+/g, '_') : 'other'),
+          label: d.name || d.display_name || d.title || 'Department'
+        }))
+        if (formatted.length) {
+          setDepartments(formatted)
+        } else {
+          setDepartments([
+            { value: "it_service_desk", label: "IT Service Desk" },
+            { value: "desktop_support", label: "Desktop Support" },
+            { value: "field_services", label: "Field Services" },
+            { value: "network_infrastructure", label: "Network & Infrastructure" },
+            { value: "systems_administration", label: "Systems Administration" },
+            { value: "security_operations", label: "Security Operations" },
+            { value: "applications_support", label: "Applications Support" },
+            { value: "ehr_support", label: "EHR/EMR Support" },
+            { value: "clinical_engineering", label: "Clinical Engineering (Biomedical)" },
+            { value: "imaging_it", label: "Imaging/Radiology IT" },
+            { value: "telecom_voip", label: "Telecommunications/VoIP" },
+            { value: "identity_access", label: "Identity & Access Management" },
+            { value: "database_reporting", label: "Database & Reporting" },
+            { value: "devops_platform", label: "DevOps/Platform" },
+            { value: "it_management_pmo", label: "IT Management/PMO" },
+            { value: "other", label: "Other" },
+          ])
+        }
+      } catch (e) {
+        console.warn('Falling back to default departments:', e)
+        setDepartments([
+          { value: "it_service_desk", label: "IT Service Desk" },
+          { value: "desktop_support", label: "Desktop Support" },
+          { value: "field_services", label: "Field Services" },
+          { value: "network_infrastructure", label: "Network & Infrastructure" },
+          { value: "systems_administration", label: "Systems Administration" },
+          { value: "security_operations", label: "Security Operations" },
+          { value: "applications_support", label: "Applications Support" },
+          { value: "ehr_support", label: "EHR/EMR Support" },
+          { value: "clinical_engineering", label: "Clinical Engineering (Biomedical)" },
+          { value: "imaging_it", label: "Imaging/Radiology IT" },
+          { value: "telecom_voip", label: "Telecommunications/VoIP" },
+          { value: "identity_access", label: "Identity & Access Management" },
+          { value: "database_reporting", label: "Database & Reporting" },
+          { value: "devops_platform", label: "DevOps/Platform" },
+          { value: "it_management_pmo", label: "IT Management/PMO" },
+          { value: "other", label: "Other" },
+        ])
+      } finally {
+        setLoadingDepartments(false)
+      }
+    }
+    fetchDepartments()
+  }, [])
 
   const validateForm = () => {
     const newErrors = {}
@@ -64,6 +115,8 @@ const Register = () => {
     if (!formData.password) newErrors.password = "Password is required"
     if (!formData.confirm_password) newErrors.confirm_password = "Please confirm your password"
     if (!formData.department) newErrors.department = "Please select a department"
+    if (!formData.phone_number.trim()) newErrors.phone_number = "Phone number is required"
+    if (!formData.employee_id.trim()) newErrors.employee_id = "Employee ID is required"
 
     // Username validation
     if (formData.username && formData.username.length < 3) {
@@ -163,12 +216,12 @@ const Register = () => {
             <Alert>
               <CheckCircleIcon className="h-4 w-4" />
               <AlertDescription>
-                Your account has been created successfully. Please check your email to verify your account before logging in.
+                Your IT support account has been created successfully. Please check your email to verify your account before logging in.
               </AlertDescription>
             </Alert>
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">
-                Your account is pending approval from an administrator. You will be notified once approved.
+                Your account is pending approval from a system administrator. You will be notified via email once approved and can then access the IT support system.
               </p>
               <Link to="/login">
                 <Button className="w-full">
@@ -183,16 +236,16 @@ const Register = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#2F327D] px-4 py-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-blue-800 px-4 py-8">
       <Card className="w-full max-w-2xl bg-white border border-gray-200">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="w-12 h-12 bg-[#2F327D] rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg">
               <UserPlusIcon className="w-8 h-8 text-white" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-[#2F327D]">Create Account</CardTitle>
-          <p className="text-gray-600">Join the Hospital IT System</p>
+          <CardTitle className="text-2xl font-bold text-gray-900">Create IT Support Account</CardTitle>
+          <p className="text-gray-600">Join the IT helpdesk system to submit requests and get support</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -205,7 +258,10 @@ const Register = () => {
 
             {/* Personal Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Personal Information</h3>
+              <div className="flex items-center space-x-2">
+                <h3 className="text-lg font-medium text-gray-900">Personal Information</h3>
+                <ShieldCheckIcon className="w-4 h-4 text-blue-600" />
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="first_name" className="text-gray-700">First Name *</Label>
@@ -274,7 +330,10 @@ const Register = () => {
 
             {/* Work Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Work Information</h3>
+              <div className="flex items-center space-x-2">
+                <h3 className="text-lg font-medium text-gray-900">Work Information</h3>
+                <WrenchScrewdriverIcon className="w-4 h-4 text-blue-600" />
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="department" className="text-gray-700">Department *</Label>
@@ -296,7 +355,7 @@ const Register = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="employee_id" className="text-gray-700">Employee ID</Label>
+                  <Label htmlFor="employee_id" className="text-gray-700">Employee ID *</Label>
                   <Input
                     id="employee_id"
                     name="employee_id"
@@ -315,7 +374,10 @@ const Register = () => {
 
             {/* Account Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Account Information</h3>
+              <div className="flex items-center space-x-2">
+                <h3 className="text-lg font-medium text-gray-900">Account Information</h3>
+                <UserPlusIcon className="w-4 h-4 text-blue-600" />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="username" className="text-gray-700">Username *</Label>
                 <Input
@@ -391,13 +453,17 @@ const Register = () => {
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-center space-y-2">
             <p className="text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link to="/login" className="text-primary hover:text-primary/80 font-medium">
+              <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
                 Sign in here
               </Link>
             </p>
+            <div className="flex items-center justify-center text-xs text-gray-500">
+              <ShieldCheckIcon className="w-3 h-3 mr-1" />
+              <span>All accounts require administrator approval</span>
+            </div>
           </div>
         </CardContent>
       </Card>

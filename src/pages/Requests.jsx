@@ -2,6 +2,8 @@ import { useState, useEffect } from "react"
 import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
+import StatusBadge from "../components/ui/status-badge"
+import { usePermissions, PermissionGate } from "../contexts/PermissionsContext"
 import {
   ExclamationTriangleIcon,
   PlusIcon,
@@ -22,6 +24,7 @@ import AlertsPanel from "../components/Requests/AlertsPanel"
 import RequestForm from "../components/Requests/RequestForm"
 
 const Requests = () => {
+  const { hasPermission, userRole, user } = usePermissions()
   const [requests, setRequests] = useState([])
   const [alerts, setAlerts] = useState([])
   const [loading, setLoading] = useState(true)

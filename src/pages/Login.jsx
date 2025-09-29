@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Navigate, Link } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
-import { ComputerDesktopIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline"
+import { WrenchScrewdriverIcon, EyeIcon, EyeSlashIcon, ShieldCheckIcon } from "@heroicons/react/24/outline"
 
 const Login = () => {
   const { user, login } = useAuth()
@@ -48,16 +48,16 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#2F327D] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-blue-800 px-4">
       <Card className="w-full max-w-md bg-white border border-gray-200">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="w-12 h-12 bg-[#2F327D] rounded-lg flex items-center justify-center">
-              <ComputerDesktopIcon className="w-8 h-8 text-white" />
+            <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+              <WrenchScrewdriverIcon className="w-8 h-8 text-white" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-[#2F327D]">Hospital IT System</CardTitle>
-          <p className="text-gray-600">Sign in to access the IT management portal</p>
+          <CardTitle className="text-2xl font-bold text-gray-900">IT Support Portal</CardTitle>
+          <p className="text-gray-600">Sign in to access the IT helpdesk system</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -79,7 +79,7 @@ const Login = () => {
                 required
                 value={credentials.email}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#2F327D] focus:border-[#2F327D]"
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Enter your email or username"
               />
             </div>
@@ -97,7 +97,7 @@ const Login = () => {
                   required
                   value={credentials.password}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 pr-10 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#2F327D] focus:border-[#2F327D]"
+                  className="w-full px-3 py-2 pr-10 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Enter your password"
                 />
                 <button
@@ -118,13 +118,13 @@ const Login = () => {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-[#2F327D] focus:ring-[#2F327D] border-gray-300 rounded"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
                   Remember me
                 </label>
               </div>
-              <Link to="/forgot-password" className="text-sm text-[#2F327D] hover:text-[#2F327D]/80">
+              <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
                 Forgot password?
               </Link>
             </div>
@@ -132,14 +132,18 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading || loginAttempts >= 5}
-              className="w-full bg-[#2F327D] text-white py-2 px-4 rounded-md hover:bg-[#2F327D]/90 focus:outline-none focus:ring-2 focus:ring-[#2F327D] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
             >
               {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">Need access? Contact your IT administrator</p>
+          <div className="mt-6 text-center space-y-2">
+            <p className="text-sm text-gray-600">Need access? Contact your system administrator</p>
+            <div className="flex items-center justify-center text-xs text-gray-500">
+              <ShieldCheckIcon className="w-3 h-3 mr-1" />
+              <span>Secure IT Support System</span>
+            </div>
           </div>
         </CardContent>
       </Card>

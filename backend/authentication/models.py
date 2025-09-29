@@ -7,28 +7,29 @@ class CustomUser(AbstractUser):
     """Extended user model with additional fields for hospital IT system"""
     
     ROLE_CHOICES = [
-        ('admin', 'Administrator'),
-        ('staff', 'IT Staff'),
-        ('user', 'Regular User'),
+        ('end_user', 'End User'),
         ('technician', 'Technician'),
-        ('manager', 'Manager'),
+        ('senior_technician', 'Senior Technician'),
+        ('it_manager', 'IT Manager'),
+        ('system_admin', 'System Administrator'),
     ]
     
     DEPARTMENT_CHOICES = [
         ('it', 'Information Technology'),
-        ('admin', 'Administration'),
-        ('medical', 'Medical'),
-        ('nursing', 'Nursing'),
-        ('pharmacy', 'Pharmacy'),
-        ('laboratory', 'Laboratory'),
-        ('radiology', 'Radiology'),
-        ('maintenance', 'Maintenance'),
-        ('security', 'Security'),
+        ('administration', 'Administration'),
+        ('human_resources', 'Human Resources'),
+        ('finance', 'Finance'),
+        ('operations', 'Operations'),
+        ('marketing', 'Marketing'),
+        ('sales', 'Sales'),
+        ('customer_service', 'Customer Service'),
+        ('legal', 'Legal'),
+        ('facilities', 'Facilities'),
         ('other', 'Other'),
     ]
     
     email = models.EmailField(unique=True)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='user')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='end_user')
     department = models.CharField(max_length=20, choices=DEPARTMENT_CHOICES, default='other')
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     employee_id = models.CharField(max_length=20, unique=True, blank=True, null=True)
@@ -68,17 +69,58 @@ class CustomUser(AbstractUser):
         # Superusers always have access
         if getattr(self, 'is_superuser', False):
             return True
-        # Admin role gets access without additional approval checks
-        if self.role == 'admin':
+        # System admin role gets access without additional approval checks
+        if self.role == 'system_admin':
             return True
-        # Managers require explicit approval
-        if self.role == 'manager':
+        # IT managers require explicit approval
+        if self.role == 'it_manager':
             return self.is_approved is True
         return False
     
     def can_manage_users(self):
         """Check if user can manage other users"""
-        return self.role == 'admin' and self.is_approved
+        return self.role == 'system_admin' and self.is_approved
+    
+    def get_role_hierarchy_level(self):
+        """Get numeric role hierarchy level for permissions"""
+        hierarchy = {
+            'end_user': 1,
+            'technician': 2,
+            'senior_technician': 3,
+            'it_manager': 4,
+            'system_admin': 5
+        }
+        return hierarchy.get(self.role, 0)
+    
+    def can_view_all_departments(self):
+        """Check if user can view data from all departments"""
+        return self.role in ['it_manager', 'system_admin']
+    
+    def can_assign_tickets(self):
+        """Check if user can assign tickets to others"""
+        return self.role in ['senior_technician', 'it_manager', 'system_admin']
+    
+    def can_escalate_tickets(self):
+        """Check if user can escalate tickets"""
+        return self.role in ['technician', 'senior_technician', 'it_manager', 'system_admin']
+    
+    def can_close_tickets(self):
+        """Check if user can close tickets"""
+        return self.role in ['technician', 'senior_technician', 'it_manager', 'system_admin']
+    
+    def can_manage_equipment(self):
+        """Check if user can manage equipment"""
+        return self.role in ['senior_technician', 'it_manager', 'system_admin']
+    
+    def get_accessible_departments(self):
+        """Get list of departments this user can access"""
+        if self.can_view_all_departments():
+            return [choice[0] for choice in self.DEPARTMENT_CHOICES]
+        elif self.role == 'technician' and self.department != 'it':
+            # Technicians can see their department + IT
+            return [self.department, 'it']
+        else:
+            return [self.department]
 
 
 class EmailVerificationToken(models.Model):

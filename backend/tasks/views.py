@@ -11,7 +11,8 @@ from .serializers import (
 )
 from .services import TaskAssignmentService, TechnicianDashboardService
 from requests_system.models import SupportRequest
-from authentication.permissions import IsOwnerOrStaff, IsStaffOrReadOnly, IsAdminUser, RoleBasedPermission
+from authentication.permissions import IsOwnerOrStaff, IsStaffOrReadOnly, RoleBasedPermission
+from authentication.admin_views import IsAdminUser
 from core.workflow_engine import WorkflowEngine
 from core.notification_service import WorkflowNotifications
 

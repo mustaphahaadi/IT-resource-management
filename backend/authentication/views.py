@@ -487,3 +487,169 @@ def send_password_reset_email(user, token):
         [user.email],
         fail_silently=False,
     )
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def pending_approval_users(request):
+    """Get users pending approval"""
+    from .permissions import RoleBasedPermission
+    
+    permission = RoleBasedPermission()
+    if not permission.has_permission(request, None):
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    user_permissions = permission.get_user_permissions(request.user)
+    if not user_permissions.get('manage_users', False):
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        pending_users = CustomUser.objects.filter(
+            is_approved=False,
+            is_active=True
+        ).order_by('-date_joined')
+        
+        serializer = UserProfileSerializer(pending_users, many=True)
+        return Response({'results': serializer.data}, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        logger.error(f"Error fetching pending users: {e}")
+        return Response(
+            {'error': 'Failed to fetch pending users'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def approve_user(request, user_id):
+    """Approve a pending user"""
+    from .permissions import RoleBasedPermission
+    
+    permission = RoleBasedPermission()
+    if not permission.has_permission(request, None):
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    user_permissions = permission.get_user_permissions(request.user)
+    if not user_permissions.get('manage_users', False):
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        user_to_approve = CustomUser.objects.get(id=user_id)
+        
+        if user_to_approve.is_approved:
+            return Response(
+                {'error': 'User is already approved'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        with transaction.atomic():
+            user_to_approve.is_approved = True
+            user_to_approve.approved_by = request.user
+            user_to_approve.approved_at = timezone.now()
+            user_to_approve.save()
+            
+            # Send approval notification email
+            try:
+                send_mail(
+                    'IT Support Account Approved',
+                    f'''Dear {user_to_approve.first_name} {user_to_approve.last_name},
+
+Your IT Support account has been approved.
+
+You can now log in to the system using your credentials.
+
+Welcome to the IT Support team!
+
+Best regards,
+IT Support Team''',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user_to_approve.email],
+                    fail_silently=True,
+                )
+            except Exception as e:
+                logger.warning(f"Failed to send approval email: {e}")
+        
+        return Response(
+            {'message': 'User approved successfully'}, 
+            status=status.HTTP_200_OK
+        )
+        
+    except CustomUser.DoesNotExist:
+        return Response(
+            {'error': 'User not found'}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        logger.error(f"Error approving user: {e}")
+        return Response(
+            {'error': 'Failed to approve user'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def reject_user(request, user_id):
+    """Reject a pending user"""
+    from .permissions import RoleBasedPermission
+    
+    permission = RoleBasedPermission()
+    if not permission.has_permission(request, None):
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    user_permissions = permission.get_user_permissions(request.user)
+    if not user_permissions.get('manage_users', False):
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        user_to_reject = CustomUser.objects.get(id=user_id)
+        reason = request.data.get('reason', 'No reason provided')
+        
+        if user_to_reject.is_approved:
+            return Response(
+                {'error': 'Cannot reject an approved user'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        with transaction.atomic():
+            # Send rejection notification email before deleting
+            try:
+                send_mail(
+                    'IT Support Account Application Rejected',
+                    f'''Dear {user_to_reject.first_name} {user_to_reject.last_name},
+
+Your IT Support account application has been reviewed and unfortunately cannot be approved at this time.
+
+Reason: {reason}
+
+If you believe this is an error or have questions, please contact your system administrator.
+
+Best regards,
+IT Support Team''',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user_to_reject.email],
+                    fail_silently=True,
+                )
+            except Exception as e:
+                logger.warning(f"Failed to send rejection email: {e}")
+            
+            # Delete the user account
+            user_to_reject.delete()
+        
+        return Response(
+            {'message': 'User rejected and removed successfully'}, 
+            status=status.HTTP_200_OK
+        )
+        
+    except CustomUser.DoesNotExist:
+        return Response(
+            {'error': 'User not found'}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        logger.error(f"Error rejecting user: {e}")
+        return Response(
+            {'error': 'Failed to reject user'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

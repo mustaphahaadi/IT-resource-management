@@ -55,19 +55,9 @@ const Settings = () => {
     security_alerts: true,
     system_updates: false
   })
-
-  const departments = [
-    { value: "it", label: "Information Technology" },
-    { value: "admin", label: "Administration" },
-    { value: "medical", label: "Medical" },
-    { value: "nursing", label: "Nursing" },
-    { value: "pharmacy", label: "Pharmacy" },
-    { value: "laboratory", label: "Laboratory" },
-    { value: "radiology", label: "Radiology" },
-    { value: "maintenance", label: "Maintenance" },
-    { value: "security", label: "Security" },
-    { value: "other", label: "Other" }
-  ]
+  
+  const [departments, setDepartments] = useState([])
+  const [loadingDepartments, setLoadingDepartments] = useState(true)
 
   useEffect(() => {
     if (user) {
@@ -81,6 +71,66 @@ const Settings = () => {
       })
     }
   }, [user])
+
+  // Fetch departments from API with IT help desk fallback
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        setLoadingDepartments(true)
+        const response = await apiService.getDepartments()
+        const list = response.data?.results || response.data || []
+        const formatted = (Array.isArray(list) ? list : []).map(d => ({
+          value: d.code || d.slug || (d.name ? d.name.toLowerCase().replace(/\s+/g, '_') : 'other'),
+          label: d.name || d.display_name || d.title || 'Department'
+        }))
+        if (formatted.length) {
+          setDepartments(formatted)
+        } else {
+          setDepartments([
+            { value: "it_service_desk", label: "IT Service Desk" },
+            { value: "desktop_support", label: "Desktop Support" },
+            { value: "field_services", label: "Field Services" },
+            { value: "network_infrastructure", label: "Network & Infrastructure" },
+            { value: "systems_administration", label: "Systems Administration" },
+            { value: "security_operations", label: "Security Operations" },
+            { value: "applications_support", label: "Applications Support" },
+            { value: "ehr_support", label: "EHR/EMR Support" },
+            { value: "clinical_engineering", label: "Clinical Engineering (Biomedical)" },
+            { value: "imaging_it", label: "Imaging/Radiology IT" },
+            { value: "telecom_voip", label: "Telecommunications/VoIP" },
+            { value: "identity_access", label: "Identity & Access Management" },
+            { value: "database_reporting", label: "Database & Reporting" },
+            { value: "devops_platform", label: "DevOps/Platform" },
+            { value: "it_management_pmo", label: "IT Management/PMO" },
+            { value: "other", label: "Other" },
+          ])
+        }
+      } catch (e) {
+        console.warn('Falling back to default departments:', e)
+        setDepartments([
+          { value: "it_service_desk", label: "IT Service Desk" },
+          { value: "desktop_support", label: "Desktop Support" },
+          { value: "field_services", label: "Field Services" },
+          { value: "network_infrastructure", label: "Network & Infrastructure" },
+          { value: "systems_administration", label: "Systems Administration" },
+          { value: "security_operations", label: "Security Operations" },
+          { value: "applications_support", label: "Applications Support" },
+          { value: "ehr_support", label: "EHR/EMR Support" },
+          { value: "clinical_engineering", label: "Clinical Engineering (Biomedical)" },
+          { value: "imaging_it", label: "Imaging/Radiology IT" },
+          { value: "telecom_voip", label: "Telecommunications/VoIP" },
+          { value: "identity_access", label: "Identity & Access Management" },
+          { value: "database_reporting", label: "Database & Reporting" },
+          { value: "devops_platform", label: "DevOps/Platform" },
+          { value: "it_management_pmo", label: "IT Management/PMO" },
+          { value: "other", label: "Other" },
+        ])
+      } finally {
+        setLoadingDepartments(false)
+      }
+    }
+    fetchDepartments()
+  }, [])
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target
