@@ -89,8 +89,8 @@ const EquipmentForm = ({ equipment, onClose, onSuccess }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white border border-gray-200">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white border border-gray-200 shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>{equipment ? "Edit Equipment" : "Add New Equipment"}</CardTitle>
           <button onClick={onClose} className="p-1 hover:bg-muted rounded">

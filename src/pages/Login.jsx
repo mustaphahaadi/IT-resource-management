@@ -136,6 +136,13 @@ const Login = () => {
             >
               {loading ? "Signing in..." : "Sign In"}
             </button>
+
+            <div className="text-center text-sm space-x-3">
+              <Link to="/" className="text-gray-600 hover:text-gray-800">Home</Link>
+              <span className="text-gray-300">|</span>
+              <span className="text-gray-600">Don't have an account? </span>
+              <Link to="/register" className="text-blue-600 hover:text-blue-700">Register</Link>
+            </div>
           </form>
 
           <div className="mt-6 text-center space-y-2">

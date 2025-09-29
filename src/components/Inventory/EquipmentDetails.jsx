@@ -33,8 +33,8 @@ const EquipmentDetails = ({ equipment, onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white border border-gray-200">
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex items-center space-x-3">
             <ComputerDesktopIcon className="w-6 h-6 text-primary" />
@@ -68,7 +68,7 @@ const EquipmentDetails = ({ equipment, onClose }) => {
 
           {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
+            <Card className="bg-white border border-gray-200">
               <CardHeader>
                 <CardTitle className="text-lg">Basic Information</CardTitle>
               </CardHeader>
@@ -92,7 +92,7 @@ const EquipmentDetails = ({ equipment, onClose }) => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-white border border-gray-200">
               <CardHeader>
                 <CardTitle className="text-lg">Location & Assignment</CardTitle>
               </CardHeader>
@@ -114,7 +114,7 @@ const EquipmentDetails = ({ equipment, onClose }) => {
           </div>
 
           {/* Financial Information */}
-          <Card>
+          <Card className="bg-white border border-gray-200">
             <CardHeader>
               <CardTitle className="text-lg flex items-center space-x-2">
                 <CurrencyDollarIcon className="w-5 h-5" />
@@ -154,7 +154,7 @@ const EquipmentDetails = ({ equipment, onClose }) => {
           </Card>
 
           {/* Timeline */}
-          <Card>
+          <Card className="bg-white border border-gray-200">
             <CardHeader>
               <CardTitle className="text-lg flex items-center space-x-2">
                 <CalendarIcon className="w-5 h-5" />
@@ -175,7 +175,7 @@ const EquipmentDetails = ({ equipment, onClose }) => {
 
           {/* Description */}
           {equipment.description && (
-            <Card>
+            <Card className="bg-white border border-gray-200">
               <CardHeader>
                 <CardTitle className="text-lg">Description</CardTitle>
               </CardHeader>

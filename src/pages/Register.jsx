@@ -516,6 +516,8 @@ const Register = () => {
 
           <div className="mt-6 text-center space-y-2">
             <p className="text-sm text-muted-foreground">
+              <Link to="/" className="text-gray-600 hover:text-gray-800">Home</Link>
+              <span className="mx-2 text-gray-300">|</span>
               Already have an account?{" "}
               <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
                 Sign in here
