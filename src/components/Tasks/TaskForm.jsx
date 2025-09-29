@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { apiService } from "../../services/api"
 import { NativeSelect } from "../ui/native-select"
 import { Textarea } from "../ui/textarea"
+import { usePermissions } from "../../contexts/PermissionsContext"
 
 const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
     related_request: "",
   })
   const [requests, setRequests] = useState([])
+  const { hasPermission } = usePermissions()
 
   useEffect(() => {
     if (task) {
@@ -23,7 +25,7 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
         description: task.description || "",
         priority: task.priority || "medium",
         status: task.status || "pending",
-        assigned_to: task.assigned_to || "",
+        assigned_to: task.assigned_to ? String(task.assigned_to) : "",
         due_date: task.due_date ? task.due_date.split("T")[0] : "",
         estimated_hours: task.estimated_hours || "",
         related_request: task.related_request || "",
@@ -136,18 +138,24 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Assign To</label>
-              <NativeSelect
-                name="assigned_to"
-                value={formData.assigned_to}
-                onChange={handleChange}
-              >
-                <option value="">Select Personnel</option>
-                {personnel.map((person) => (
-                  <option key={person.id} value={person.id}>
-                    {person.user_name || person.username} - {person.skill_level}
-                  </option>
-                ))}
-              </NativeSelect>
+              {hasPermission('tasks.assign') ? (
+                <NativeSelect
+                  name="assigned_to"
+                  value={formData.assigned_to ?? ""}
+                  onChange={handleChange}
+                >
+                  <option value="">Select Personnel</option>
+                  {personnel.map((person) => (
+                    <option key={person.id} value={String(person.id)}>
+                      {person.user_name || person.username} - {person.skill_level}
+                    </option>
+                  ))}
+                </NativeSelect>
+              ) : (
+                <div className="px-3 py-2 bg-gray-100 rounded text-sm text-gray-700">
+                  You don't have permission to assign tasks.
+                </div>
+              )}
             </div>
 
             <div>

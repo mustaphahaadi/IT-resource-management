@@ -47,10 +47,7 @@ const RolePermissions = ({ roles = [], onClose, onUpdate }) => {
       if (hasPerm) {
         await apiService.delete(`/auth/role-permissions/${roleKey}/${permissionId}/`)
       } else {
-        await apiService.post("/auth/role-permissions/", {
-          role: roleKey,
-          permission: permissionId,
-        })
+        await apiService.post("/auth/role-permissions/", { role: roleKey, permission: permissionId })
       }
       fetchRolePermissions()
       onUpdate && onUpdate()

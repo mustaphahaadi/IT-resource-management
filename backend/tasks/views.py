@@ -19,7 +19,8 @@ from core.notification_service import WorkflowNotifications
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
-    permission_classes = [RoleBasedPermission]
+    # Role-based access plus read-only for non-technical staff on write ops
+    permission_classes = [RoleBasedPermission, IsStaffOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['status', 'priority', 'assigned_to', 'related_request']
     search_fields = ['title', 'description', 'related_request__ticket_number']
@@ -27,35 +28,27 @@ class TaskViewSet(viewsets.ModelViewSet):
     ordering = ['-created_at']
     
     def get_queryset(self):
-        """Filter tasks based on user role."""
+        """Filter tasks based on user role (aligned with RoleBasedPermission roles)."""
         queryset = Task.objects.all()
         user = self.request.user
         
         if not user or not user.is_authenticated:
             return Task.objects.none()
         
-        # Staff and admin can see all tasks
-        if user.role in ['admin', 'staff'] or user.is_staff:
+        # System admin and IT manager can see all tasks
+        if getattr(user, 'role', '') in ['system_admin', 'it_manager'] or user.is_staff:
             return queryset
         
-        # Technicians can see tasks assigned to them or related to their department
-        if user.role == 'technician':
+        # Technicians (including senior technicians) can see assigned + department + IT
+        if getattr(user, 'role', '') in ['technician', 'senior_technician']:
             from django.db import models
             return queryset.filter(
                 models.Q(assigned_to__user=user) |
-                models.Q(related_request__requester__department__iexact=user.department) |
+                models.Q(related_request__requester__department__iexact=getattr(user, 'department', '')) |
                 models.Q(related_request__requester__department__iexact='it')
             )
         
-        # Managers can see tasks related to their department
-        if user.role == 'manager':
-            from django.db import models
-            return queryset.filter(
-                models.Q(assigned_to__user=user) |
-                models.Q(related_request__requester__department__iexact=user.department)
-            )
-        
-        # Regular users can only see tasks assigned to them
+        # End users can only see tasks assigned to them
         return queryset.filter(assigned_to__user=user)
 
     @action(detail=False, methods=['get'])
@@ -300,36 +293,40 @@ class TaskViewSet(viewsets.ModelViewSet):
 class ITPersonnelViewSet(viewsets.ModelViewSet):
     queryset = ITPersonnel.objects.all()
     serializer_class = ITPersonnelSerializer
-    permission_classes = [RoleBasedPermission]
+    permission_classes = [RoleBasedPermission, IsStaffOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['department', 'skill_level', 'is_available']
     search_fields = ['user__first_name', 'user__last_name', 'employee_id', 'specializations']
     
     def get_queryset(self):
-        """Filter personnel based on user role."""
+        """Filter personnel based on user role (aligned with RoleBasedPermission roles)."""
         queryset = ITPersonnel.objects.all()
         user = self.request.user
         
         if not user or not user.is_authenticated:
             return ITPersonnel.objects.none()
         
-        # Admin and staff can see all personnel
-        if user.role in ['admin', 'staff'] or user.is_staff:
+        # System admin and IT manager can see all personnel
+        if getattr(user, 'role', '') in ['system_admin', 'it_manager'] or user.is_staff:
             return queryset
         
-        # Technicians and managers can see personnel in their department and IT
-        if user.role in ['technician', 'manager']:
+        # Technicians (incl. senior technicians) can see their department + IT
+        if getattr(user, 'role', '') in ['technician', 'senior_technician']:
             from django.db import models
             return queryset.filter(
-                models.Q(department__iexact=user.department) |
+                models.Q(department__iexact=getattr(user, 'department', '')) |
                 models.Q(department__iexact='it')
             )
         
-        # Regular users can only see their own personnel record
+        # End users can only see their own personnel record
         return queryset.filter(user=user)
 
     @action(detail=False, methods=['get'])
     def available(self, request):
+        # Restrict end users from accessing available technicians
+        if getattr(request.user, 'role', '') == 'end_user':
+            return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+
         department = request.query_params.get('department')
         skill_required = request.query_params.get('skill')
         
@@ -344,6 +341,7 @@ class ITPersonnelViewSet(viewsets.ModelViewSet):
             tech = tech_info['technician']
             formatted_technicians.append({
                 'id': tech.id,
+                'user_name': tech.user.get_full_name(),
                 'user': {
                     'id': tech.user.id,
                     'username': tech.user.username,

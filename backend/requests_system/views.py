@@ -20,36 +20,28 @@ class SupportRequestViewSet(viewsets.ModelViewSet):
     ordering = ['-created_at']
     
     def get_queryset(self):
-        """Filter requests based on user role."""
+        """Filter requests based on user role (aligned with RoleBasedPermission roles)."""
         queryset = SupportRequest.objects.all()
         user = self.request.user
         
         if not user or not user.is_authenticated:
             return SupportRequest.objects.none()
         
-        # Staff and admin can see all requests
-        if user.role in ['admin', 'staff'] or user.is_staff:
+        # System admin and IT manager can see all requests
+        if getattr(user, 'role', '') in ['system_admin', 'it_manager'] or user.is_staff:
             return queryset
         
-        # Technicians can see requests from their department and IT department
-        if user.role == 'technician':
-            from django.db import models
+        from django.db import models
+        # Technicians (including senior technicians) can see department + IT + own
+        if getattr(user, 'role', '') in ['technician', 'senior_technician']:
             return queryset.filter(
                 models.Q(requester=user) |
                 models.Q(assigned_to=user) |
-                models.Q(requester__department__iexact=user.department) |
+                models.Q(requester__department__iexact=getattr(user, 'department', '')) |
                 models.Q(requester__department__iexact='it')
             )
         
-        # Managers can see requests from their department
-        if user.role == 'manager':
-            from django.db import models
-            return queryset.filter(
-                models.Q(requester=user) |
-                models.Q(requester__department__iexact=user.department)
-            )
-        
-        # Regular users can only see their own requests
+        # Regular end users: only their own requests
         return queryset.filter(requester=user)
     
     def perform_create(self, serializer):
@@ -149,26 +141,26 @@ class AlertViewSet(viewsets.ModelViewSet):
     ordering = ['-created_at']
     
     def get_queryset(self):
-        """Filter alerts based on user role."""
+        """Filter alerts based on user role (aligned with RoleBasedPermission roles)."""
         queryset = Alert.objects.all()
         user = self.request.user
         
         if not user or not user.is_authenticated:
             return Alert.objects.none()
         
-        # Admin and staff can see all alerts
-        if user.role in ['admin', 'staff'] or user.is_staff:
+        # System admin and IT manager can see all alerts
+        if getattr(user, 'role', '') in ['system_admin', 'it_manager'] or user.is_staff:
             return queryset
         
-        # Technicians and managers can see alerts related to their work
-        if user.role in ['technician', 'manager']:
+        # Technicians (incl. senior technicians) can see relevant alerts + own
+        if getattr(user, 'role', '') in ['technician', 'senior_technician']:
             from django.db import models
             return queryset.filter(
                 models.Q(alert_type__in=['equipment_failure', 'maintenance_due', 'system_alert']) |
                 models.Q(created_by=user)
             )
         
-        # Regular users see only their own alerts
+        # Regular end users see only their own alerts
         return queryset.filter(created_by=user)
 
     @action(detail=True, methods=['post'])

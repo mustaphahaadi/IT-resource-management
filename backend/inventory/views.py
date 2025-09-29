@@ -22,25 +22,25 @@ class EquipmentViewSet(viewsets.ModelViewSet):
     ordering = ['-created_at']
     
     def get_queryset(self):
-        """Filter equipment based on user role and department."""
+        """Filter equipment based on user role and department (aligned roles)."""
         queryset = Equipment.objects.all()
         user = self.request.user
         
         if not user or not user.is_authenticated:
             return Equipment.objects.none()
         
-        # Admin and staff can see all equipment
-        if user.role in ['admin', 'staff'] or user.is_staff:
+        # System admin and IT manager can see all equipment
+        if getattr(user, 'role', '') in ['system_admin', 'it_manager'] or user.is_staff:
             return queryset
         
-        # Technicians can see equipment in their department and IT department
-        if user.role == 'technician':
+        # Technicians (incl. senior technicians) can see department + IT
+        if getattr(user, 'role', '') in ['technician', 'senior_technician']:
             return queryset.filter(
-                models.Q(location__department__name__iexact=user.department) |
+                models.Q(location__department__name__iexact=getattr(user, 'department', '')) |
                 models.Q(location__department__name__iexact='it')
             )
         
-        # Regular users can only see equipment in their department
+        # End users can only see equipment in their department
         if hasattr(user, 'department') and user.department:
             return queryset.filter(location__department__name__iexact=user.department)
         
@@ -71,7 +71,10 @@ class SoftwareViewSet(viewsets.ModelViewSet):
 class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    # Allow unauthenticated read access so public pages (e.g., Register) can load department list
+    permission_classes = [permissions.AllowAny]
+    # Expose only safe methods to keep this endpoint read-only for the public
+    http_method_names = ['get', 'head', 'options']
 
 class LocationViewSet(viewsets.ModelViewSet):
     queryset = Location.objects.all()
@@ -81,25 +84,25 @@ class LocationViewSet(viewsets.ModelViewSet):
     filterset_fields = ['department']
     
     def get_queryset(self):
-        """Filter locations based on user role and department."""
+        """Filter locations based on user role and department (aligned roles)."""
         queryset = Location.objects.all()
         user = self.request.user
         
         if not user or not user.is_authenticated:
             return Location.objects.none()
         
-        # Admin and staff can see all locations
-        if user.role in ['admin', 'staff'] or user.is_staff:
+        # System admin and IT manager can see all locations
+        if getattr(user, 'role', '') in ['system_admin', 'it_manager'] or user.is_staff:
             return queryset
         
-        # Technicians can see locations in their department and IT
-        if user.role == 'technician':
+        # Technicians (incl. senior technicians) can see their department + IT
+        if getattr(user, 'role', '') in ['technician', 'senior_technician']:
             return queryset.filter(
-                models.Q(department__name__iexact=user.department) |
+                models.Q(department__name__iexact=getattr(user, 'department', '')) |
                 models.Q(department__name__iexact='it')
             )
         
-        # Regular users can only see locations in their department
+        # End users can only see locations in their department
         if hasattr(user, 'department') and user.department:
             return queryset.filter(department__name__iexact=user.department)
         
@@ -124,25 +127,25 @@ class MaintenanceScheduleViewSet(viewsets.ModelViewSet):
     ordering = ['next_maintenance']
     
     def get_queryset(self):
-        """Filter maintenance schedules based on user role and department."""
+        """Filter maintenance schedules based on user role and department (aligned roles)."""
         queryset = MaintenanceSchedule.objects.all()
         user = self.request.user
         
         if not user or not user.is_authenticated:
             return MaintenanceSchedule.objects.none()
         
-        # Admin and staff can see all schedules
-        if user.role in ['admin', 'staff'] or user.is_staff:
+        # System admin and IT manager can see all schedules
+        if getattr(user, 'role', '') in ['system_admin', 'it_manager'] or user.is_staff:
             return queryset
         
-        # Technicians can see schedules for equipment in their department and IT
-        if user.role == 'technician':
+        # Technicians (incl. senior technicians) can see department + IT
+        if getattr(user, 'role', '') in ['technician', 'senior_technician']:
             return queryset.filter(
-                models.Q(equipment__location__department__name__iexact=user.department) |
+                models.Q(equipment__location__department__name__iexact=getattr(user, 'department', '')) |
                 models.Q(equipment__location__department__name__iexact='it')
             )
         
-        # Regular users can only see schedules for equipment in their department
+        # End users can only see schedules in their department
         if hasattr(user, 'department') and user.department:
             return queryset.filter(equipment__location__department__name__iexact=user.department)
         

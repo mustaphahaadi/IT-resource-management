@@ -132,11 +132,7 @@ const TaskAssignment = ({ onTaskUpdate }) => {
 
   const getAssignmentSuggestions = async (task) => {
     try {
-      const response = await apiService.getAssignmentSuggestions(
-        task.id,
-        task.related_request?.requester_department,
-        null // skill parameter
-      )
+      const response = await apiService.getAssignmentSuggestions(task.id)
       if (response?.data?.suggestions) {
         return response.data.suggestions
       }
@@ -354,11 +350,13 @@ const TaskAssignment = ({ onTaskUpdate }) => {
                             </Badge>
                           </div>
                           
-                          {task.related_request && (
+                          {(task.request_ticket || task.request_title) && (
                             <div className="flex items-center gap-1 text-sm text-gray-600 mb-1">
                               <BuildingOfficeIcon className="w-4 h-4" />
-                              <span>Request: {task.related_request.ticket_number}</span>
-                              <span>• {task.related_request.requester_department}</span>
+                              <span>Request: {task.request_ticket}</span>
+                              {task.request_title && (
+                                <span>• {task.request_title}</span>
+                              )}
                             </div>
                           )}
                           

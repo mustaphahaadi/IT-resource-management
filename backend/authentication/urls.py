@@ -27,6 +27,7 @@ urlpatterns = [
     path('users/pending-approval/', views.pending_approval_users, name='pending_approval_users'),
     path('users/<int:user_id>/approve/', views.approve_user, name='approve_user'),
     path('users/<int:user_id>/reject/', views.reject_user, name='reject_user'),
+    path('users/bulk-approve/', views.bulk_approve_users, name='bulk_approve_users'),
     
     # Admin endpoints
     path('admin/users/', admin_views.get_users, name='admin_get_users'),

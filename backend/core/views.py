@@ -328,9 +328,9 @@ class ActivityLogViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = ActivityLog.objects.all()
         
         # Apply user-based filtering
-        if user.role == 'user':
+        if user.role == 'end_user':
             queryset = queryset.filter(user=user)
-        elif user.role in ['technician', 'manager']:
+        elif user.role in ['technician', 'senior_technician', 'it_manager']:
             # Show activities related to user's department
             queryset = queryset.filter(
                 Q(user=user) |

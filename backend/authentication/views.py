@@ -653,3 +653,41 @@ IT Support Team''',
             {'error': 'Failed to reject user'}, 
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def bulk_approve_users(request):
+    """Approve multiple pending users at once."""
+    from .permissions import RoleBasedPermission
+    permission = RoleBasedPermission()
+    if not permission.has_permission(request, None):
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+
+    user_permissions = permission.get_user_permissions(request.user)
+    if not user_permissions.get('manage_users', False):
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+
+    try:
+        user_ids = request.data.get('user_ids', [])
+        if not isinstance(user_ids, list) or not user_ids:
+            return Response({'error': 'user_ids must be a non-empty list'}, status=status.HTTP_400_BAD_REQUEST)
+
+        updated = 0
+        with transaction.atomic():
+            for uid in user_ids:
+                try:
+                    user = CustomUser.objects.get(id=uid, is_active=True)
+                    if not user.is_approved:
+                        user.is_approved = True
+                        user.approved_by = request.user
+                        user.approved_at = timezone.now()
+                        user.save()
+                        updated += 1
+                except CustomUser.DoesNotExist:
+                    continue
+
+        return Response({'message': f'Approved {updated} users', 'approved_count': updated}, status=status.HTTP_200_OK)
+    except Exception as e:
+        logger.error(f"bulk_approve_users failed: {e}")
+        return Response({'error': 'Failed to bulk approve users'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

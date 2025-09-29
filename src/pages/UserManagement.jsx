@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useAuth } from "../contexts/AuthContext"
 import { usePermissions, getRoleDisplayName, getRoleColor } from "../contexts/PermissionsContext"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
+import { Alert, AlertDescription } from "../components/ui/alert"
 import { apiService } from "../services/api"
 import UserForm from "../components/Auth/UserForm"
 import RolePermissions from "../components/Auth/RolePermissions"
@@ -20,10 +21,15 @@ const UserManagement = () => {
     role: "",
     status: "",
     search: "",
+    approval: "", // "approved" | "pending" | ""
   })
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
 
   useEffect(() => {
     if (hasPermission("users.view_all")) {
+      setError("")
+      setSuccess("")
       fetchUsers()
       fetchRoles()
     }
@@ -37,10 +43,13 @@ const UserManagement = () => {
       if (filters.role) params.role = filters.role
       if (filters.status === 'active') params.is_active = true
       if (filters.status === 'inactive') params.is_active = false
+      if (filters.approval === 'approved') params.is_approved = true
+      if (filters.approval === 'pending') params.is_approved = false
       const response = await apiService.getUsers(params)
       setUsers(response.data.results || response.data)
     } catch (error) {
       console.error("Error fetching users:", error)
+      setError("Failed to load users")
     } finally {
       setLoading(false)
     }
@@ -61,14 +70,32 @@ const UserManagement = () => {
       if (selectedUser) {
         await apiService.updateUser(selectedUser.id, userData)
       } else {
-        // Fallback to registration endpoint for creating users
-        await apiService.register(userData)
+        // Create via registration endpoint with allowed fields only
+        const createData = {
+          username: userData.username,
+          email: userData.email,
+          password: userData.password,
+          confirm_password: userData.confirm_password,
+          first_name: userData.first_name,
+          last_name: userData.last_name,
+          phone_number: userData.phone_number,
+          department: userData.department,
+          employee_id: userData.employee_id,
+        }
+        const res = await apiService.register(createData)
+        const newUserId = res?.data?.user_id
+        // If role was selected, set it via admin update endpoint
+        if (userData.role && newUserId) {
+          await apiService.updateUser(newUserId, { role: userData.role })
+        }
       }
       fetchUsers()
       setShowUserForm(false)
       setSelectedUser(null)
+      setSuccess("User saved successfully")
     } catch (error) {
       console.error("Error saving user:", error)
+      setError(error?.response?.data?.error || "Failed to save user")
     }
   }
 
@@ -91,8 +118,32 @@ const UserManagement = () => {
         await apiService.activateUser(userId)
       }
       fetchUsers()
+      setSuccess("User status updated")
     } catch (error) {
       console.error("Error updating user status:", error)
+      setError("Failed to update user status")
+    }
+  }
+
+  const handleApprove = async (userId) => {
+    try {
+      await apiService.approveUser(userId)
+      fetchUsers()
+      setSuccess("User approved")
+    } catch (error) {
+      console.error("Error approving user:", error)
+      setError("Failed to approve user")
+    }
+  }
+
+  const handleDisapprove = async (userId) => {
+    try {
+      await apiService.disapproveUser(userId)
+      fetchUsers()
+      setSuccess("User approval revoked")
+    } catch (error) {
+      console.error("Error disapproving user:", error)
+      setError("Failed to revoke approval")
     }
   }
 
@@ -142,6 +193,20 @@ const UserManagement = () => {
           <CardTitle>User Filters</CardTitle>
         </CardHeader>
         <CardContent>
+          {error && (
+            <div className="mb-3">
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            </div>
+          )}
+          {success && (
+            <div className="mb-3">
+              <Alert>
+                <AlertDescription>{success}</AlertDescription>
+              </Alert>
+            </div>
+          )}
           <div className="flex flex-wrap gap-4 items-center">
             <div className="flex-1 min-w-[200px]">
               <input
@@ -160,7 +225,7 @@ const UserManagement = () => {
               >
                 <option value="">All Roles</option>
                 {roles.map((role) => (
-                  <option key={role.id} value={role.name}>
+                  <option key={role.name || role.id || role.display_name} value={role.name}>
                     {role.display_name}
                   </option>
                 ))}
@@ -175,6 +240,17 @@ const UserManagement = () => {
                 <option value="">All Status</option>
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
+              </select>
+            </div>
+            <div>
+              <select
+                value={filters.approval}
+                onChange={(e) => setFilters((prev) => ({ ...prev, approval: e.target.value }))}
+                className="px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <option value="">All Approvals</option>
+                <option value="approved">Approved</option>
+                <option value="pending">Pending</option>
               </select>
             </div>
           </div>
@@ -203,6 +279,7 @@ const UserManagement = () => {
                     <th className="text-left py-3 px-4 font-medium">User</th>
                     <th className="text-left py-3 px-4 font-medium">Role</th>
                     <th className="text-left py-3 px-4 font-medium">Department</th>
+                    <th className="text-left py-3 px-4 font-medium">Approval</th>
                     <th className="text-left py-3 px-4 font-medium">Status</th>
                     <th className="text-left py-3 px-4 font-medium">Last Login</th>
                     <th className="text-left py-3 px-4 font-medium">Actions</th>
@@ -226,6 +303,28 @@ const UserManagement = () => {
                         </span>
                       </td>
                       <td className="py-3 px-4 text-sm">{user.department || "N/A"}</td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.is_approved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                            {user.is_approved ? 'Approved' : 'Pending'}
+                          </span>
+                          {user.is_approved ? (
+                            <button
+                              onClick={() => handleDisapprove(user.id)}
+                              className="px-2 py-1 rounded text-xs bg-red-100 text-red-700 hover:bg-red-200"
+                            >
+                              Revoke
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleApprove(user.id)}
+                              className="px-2 py-1 rounded text-xs bg-blue-100 text-blue-700 hover:bg-blue-200"
+                            >
+                              Approve
+                            </button>
+                          )}
+                        </div>
+                      </td>
                       <td className="py-3 px-4">
                         <button
                           onClick={() => handleToggleUserStatus(user.id, user.is_active)}

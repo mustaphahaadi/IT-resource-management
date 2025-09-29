@@ -9,6 +9,7 @@ import {
   ChatBubbleLeftIcon,
 } from "@heroicons/react/24/outline"
 import { apiService } from "../../services/api"
+import { usePermissions } from "../../contexts/PermissionsContext"
 
 const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
   const [comments, setComments] = useState([])
@@ -16,6 +17,7 @@ const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
   const [isInternal, setIsInternal] = useState(false)
   const [personnel, setPersonnel] = useState([])
   const [loading, setLoading] = useState(false)
+  const { hasPermission } = usePermissions()
 
   useEffect(() => {
     fetchComments()
@@ -25,7 +27,7 @@ const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
   const fetchComments = async () => {
     try {
       const response = await apiService.get(`/requests/support-requests/${request.id}/`)
-      setComments(response.data.comments || [])
+      setComments(response.data?.comments || [])
     } catch (error) {
       console.error("Error fetching comments:", error)
     }
@@ -34,7 +36,8 @@ const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
   const fetchPersonnel = async () => {
     try {
       const response = await apiService.getAvailablePersonnel()
-      setPersonnel(response.data)
+      const raw = response.data?.available_technicians || response.data?.results || response.data || []
+      setPersonnel(Array.isArray(raw) ? raw : [])
     } catch (error) {
       console.error("Error fetching personnel:", error)
     }
@@ -195,40 +198,49 @@ const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
               <CardTitle className="text-lg">Assignment</CardTitle>
             </CardHeader>
             <CardContent>
-              {request.assigned_to_name ? (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <UserIcon className="w-5 h-5 text-muted-foreground" />
-                    <span className="text-foreground">Assigned to {request.assigned_to_name}</span>
+              {hasPermission('requests.assign') ? (
+                request.assigned_to_name ? (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <UserIcon className="w-5 h-5 text-muted-foreground" />
+                      <span className="text-foreground">Assigned to {request.assigned_to_name}</span>
+                    </div>
+                    <select
+                      onChange={(e) => e.target.value && handleAssign(e.target.value)}
+                      className="px-3 py-1 bg-white border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      defaultValue=""
+                    >
+                      <option value="">Reassign to...</option>
+                      {(Array.isArray(personnel) ? personnel : []).map((person) => (
+                        <option key={person.id} value={person.user.id}>
+                          {person.user_name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                  <select
-                    onChange={(e) => e.target.value && handleAssign(e.target.value)}
-                    className="px-3 py-1 bg-white border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    defaultValue=""
-                  >
-                    <option value="">Reassign to...</option>
-                    {personnel.map((person) => (
-                      <option key={person.id} value={person.user.id}>
-                        {person.user_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                ) : (
+                  <div className="flex items-center space-x-3">
+                    <span className="text-muted-foreground">Unassigned</span>
+                    <select
+                      onChange={(e) => e.target.value && handleAssign(e.target.value)}
+                      className="px-3 py-1 bg-white border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      defaultValue=""
+                    >
+                      <option value="">Assign to...</option>
+                      {(Array.isArray(personnel) ? personnel : []).map((person) => (
+                        <option key={person.id} value={person.user.id}>
+                          {person.user_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )
               ) : (
-                <div className="flex items-center space-x-3">
-                  <span className="text-muted-foreground">Unassigned</span>
-                  <select
-                    onChange={(e) => e.target.value && handleAssign(e.target.value)}
-                    className="px-3 py-1 bg-white border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    defaultValue=""
-                  >
-                    <option value="">Assign to...</option>
-                    {personnel.map((person) => (
-                      <option key={person.id} value={person.user.id}>
-                        {person.user_name}
-                      </option>
-                    ))}
-                  </select>
+                <div className="flex items-center space-x-2">
+                  <UserIcon className="w-5 h-5 text-muted-foreground" />
+                  <span className="text-foreground">
+                    {request.assigned_to_name ? `Assigned to ${request.assigned_to_name}` : 'Unassigned'}
+                  </span>
                 </div>
               )}
             </CardContent>

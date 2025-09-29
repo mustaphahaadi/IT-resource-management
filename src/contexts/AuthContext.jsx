@@ -43,7 +43,8 @@ export const AuthProvider = ({ children }) => {
 
   // Set up WebSocket connection when user is authenticated
   useEffect(() => {
-    if (user && isOnline) {
+    const wsEnabled = String(import.meta?.env?.VITE_WS_ENABLED ?? 'false') === 'true'
+    if (user && isOnline && wsEnabled) {
       websocketService.connect()
       websocketService.startHeartbeat()
 

@@ -38,11 +38,6 @@ const StatusBadge = ({
         icon: ClockIcon,
         label: 'Pending User'
       },
-      pending_approval: { 
-        color: 'bg-amber-100 text-amber-800 border-amber-200', 
-        icon: ClockIcon,
-        label: 'Pending Approval'
-      },
       escalated: { 
         color: 'bg-red-100 text-red-800 border-red-200', 
         icon: ExclamationTriangleIcon,

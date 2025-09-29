@@ -108,7 +108,7 @@ class RoleBasedPermission(BasePermission):
             'view_own': True, 'view_department': True, 'view_all': True,
             'create': True, 'update_own': True, 'update_department': True, 'update_all': False,
             'delete_own': True, 'delete_department': True, 'delete_all': False,
-            'assign': True, 'escalate': True, 'close': True, 'manage_users': False, 
+            'assign': True, 'escalate': True, 'close': True, 'manage_users': True, 
             'system_config': False, 'manage_equipment': True, 'generate_reports': True
         },
         'senior_technician': {
@@ -143,6 +143,12 @@ class RoleBasedPermission(BasePermission):
         if request.user.role != 'system_admin' and not request.user.is_approved:
             return False
         
+        # Optional: gate specific list-level actions by role to prevent end-user control
+        action = getattr(view, 'action', None)
+        if action in ['assignment_suggestions']:
+            # Only technical staff can query assignment suggestions
+            return request.user.role in ['system_admin', 'it_manager', 'senior_technician', 'technician'] or request.user.is_staff
+        
         return True
     
     def has_object_permission(self, request, view, obj):
@@ -153,6 +159,7 @@ class RoleBasedPermission(BasePermission):
         permissions = self.get_user_permissions(request.user)
         is_owner = self._is_owner(request.user, obj)
         is_same_department = self._is_same_department(request.user, obj)
+        action = getattr(view, 'action', None)
         
         # Check view permissions
         if request.method in ['GET', 'HEAD', 'OPTIONS']:
@@ -165,6 +172,21 @@ class RoleBasedPermission(BasePermission):
         
         # Check create permissions
         elif request.method in ['POST']:
+            # Custom action controls (management)
+            if action in ['assign', 'reassign']:
+                return permissions.get('assign', False)
+            if action in ['complete', 'close']:
+                return permissions.get('close', False)
+            if action in ['start']:
+                # Start is allowed if user can update own/department or all
+                if permissions.get('update_all'):
+                    return True
+                if permissions.get('update_department') and is_same_department:
+                    return True
+                if permissions.get('update_own') and is_owner:
+                    return True
+                return False
+            # Default to create permission for non-custom actions
             return permissions.get('create', False)
         
         # Check update permissions

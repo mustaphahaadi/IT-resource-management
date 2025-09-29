@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react"
 import { apiService } from "../../services/api"
 import { NativeSelect } from "../ui/native-select"
+import { usePermissions } from "../../contexts/PermissionsContext"
 
 const TaskDetails = ({ task, personnel, onClose, onEdit, onAssign, onStatusUpdate }) => {
   const [comments, setComments] = useState([])
   const [newComment, setNewComment] = useState("")
+  const { hasPermission } = usePermissions()
 
   useEffect(() => {
     if (task) {
@@ -157,39 +159,51 @@ const TaskDetails = ({ task, personnel, onClose, onEdit, onAssign, onStatusUpdat
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Created:</span>
-                  <span>{new Date(task.created_at).toLocaleDateString()}</span>
+                  <span>{task.created_at ? new Date(task.created_at).toLocaleString() : ""}</span>
                 </div>
               </div>
-            </div>
 
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Reassign Task</label>
-                <NativeSelect
-                  value={task.assigned_to || ""}
-                  onChange={(e) => onAssign(task.id, e.target.value)}
-                >
-                  <option value="">Unassigned</option>
-                  {personnel.map((person) => (
-                    <option key={person.id} value={person.id}>
-                      {person.user_name || person.username} - {person.skill_level}
-                    </option>
-                  ))}
-                </NativeSelect>
-              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Reassign Task</label>
+                  {hasPermission('tasks.assign') ? (
+                    <NativeSelect
+                      value={task.assigned_to ? String(task.assigned_to) : ""}
+                      onChange={(e) => onAssign(task.id, e.target.value)}
+                    >
+                      <option value="">Unassigned</option>
+                      {personnel.map((person) => (
+                        <option key={person.id} value={String(person.id)}>
+                          {person.user_name || person.username} - {person.skill_level}
+                        </option>
+                      ))}
+                    </NativeSelect>
+                  ) : (
+                    <div className="px-3 py-2 bg-gray-100 rounded text-sm text-gray-700">
+                      {task.assigned_to_name || "Unassigned"}
+                    </div>
+                  )}
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Update Status</label>
-                <NativeSelect
-                  value={task.status}
-                  onChange={(e) => onStatusUpdate(task.id, e.target.value)}
-                >
-                  <option value="pending">Pending</option>
-                  <option value="assigned">Assigned</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                </NativeSelect>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Update Status</label>
+                  {hasPermission('tasks.update') ? (
+                    <NativeSelect
+                      value={task.status}
+                      onChange={(e) => onStatusUpdate(task.id, e.target.value)}
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="assigned">Assigned</option>
+                      <option value="in_progress">In Progress</option>
+                      <option value="completed">Completed</option>
+                      <option value="cancelled">Cancelled</option>
+                    </NativeSelect>
+                  ) : (
+                    <div className="px-3 py-2 bg-gray-100 rounded text-sm text-gray-700">
+                      {task.status?.replace("_", " ")}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { apiService } from "../../services/api"
 
 const UserForm = ({ user, roles, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
@@ -8,12 +9,15 @@ const UserForm = ({ user, roles, onSubmit, onClose }) => {
     last_name: "",
     role: "",
     department: "",
-    phone: "",
+    phone_number: "",
+    employee_id: "",
     is_active: true,
     password: "",
     confirm_password: "",
   })
   const [errors, setErrors] = useState({})
+  const [departments, setDepartments] = useState([])
+  const [loadingDepartments, setLoadingDepartments] = useState(true)
 
   useEffect(() => {
     if (user) {
@@ -24,13 +28,71 @@ const UserForm = ({ user, roles, onSubmit, onClose }) => {
         last_name: user.last_name || "",
         role: user.role || "",
         department: user.department || "",
-        phone: user.phone || "",
+        phone_number: user.phone_number || "",
+        employee_id: user.employee_id || "",
         is_active: user.is_active !== undefined ? user.is_active : true,
         password: "",
         confirm_password: "",
       })
     }
   }, [user])
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        setLoadingDepartments(true)
+        const res = await apiService.getDepartments()
+        const list = res.data?.results || res.data || []
+
+        const ALLOWED = new Set([
+          'it','administration','human_resources','finance','operations','marketing','sales','customer_service','legal','facilities','other'
+        ])
+        const mapToAllowed = (raw, label) => {
+          const norm = String(raw || label || '')
+            .toLowerCase()
+            .replace(/&/g, 'and')
+            .replace(/\s+/g, '_')
+            .replace(/[^a-z_]/g, '')
+          if (/(information_technology|it|tech|i_t)/.test(norm)) return 'it'
+          if (/(human_resources|hr)/.test(norm)) return 'human_resources'
+          if (/(customer_service|support|helpdesk)/.test(norm)) return 'customer_service'
+          if (/(ops|operations)/.test(norm)) return 'operations'
+          if (/(finance|accounting)/.test(norm)) return 'finance'
+          if (/(legal)/.test(norm)) return 'legal'
+          if (/(facilities|facility|maintenance)/.test(norm)) return 'facilities'
+          if (/(marketing)/.test(norm)) return 'marketing'
+          if (/(sales)/.test(norm)) return 'sales'
+          if (ALLOWED.has(norm)) return norm
+          return 'other'
+        }
+
+        const formatted = (Array.isArray(list) ? list : []).map(d => {
+          const label = d.name || d.display_name || d.title || 'Department'
+          const raw = d.code || d.slug || (d.name ? d.name : 'other')
+          const value = mapToAllowed(raw, label)
+          return { value, label }
+        })
+        // Dedupe by value, keep first label
+        const seen = new Set()
+        const deduped = []
+        for (const item of formatted) {
+          if (!seen.has(item.value)) { seen.add(item.value); deduped.push(item) }
+        }
+        deduped.sort((a, b) => a.label.localeCompare(b.label))
+        setDepartments(deduped)
+      } catch (e) {
+        setDepartments([
+          { value: 'it', label: 'Information Technology' },
+          { value: 'administration', label: 'Administration' },
+          { value: 'operations', label: 'Operations' },
+          { value: 'other', label: 'Other' },
+        ])
+      } finally {
+        setLoadingDepartments(false)
+      }
+    }
+    fetchDepartments()
+  }, [])
 
   const validateForm = () => {
     const newErrors = {}
@@ -161,7 +223,7 @@ const UserForm = ({ user, roles, onSubmit, onClose }) => {
               >
                 <option value="">Select Role</option>
                 {roles.map((role) => (
-                  <option key={role.id} value={role.name}>
+                  <option key={role.name || role.id || role.display_name} value={role.name}>
                     {role.display_name}
                   </option>
                 ))}
@@ -171,25 +233,42 @@ const UserForm = ({ user, roles, onSubmit, onClose }) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
-              <input
-                type="text"
+              <select
                 name="department"
                 value={formData.department}
+                onChange={handleChange}
+                disabled={loadingDepartments}
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                <option value="">{loadingDepartments ? 'Loading departments...' : 'Select Department'}</option>
+                {(Array.isArray(departments) ? departments : []).map((d) => (
+                  <option key={d.value} value={d.value}>{d.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Employee ID</label>
+              <input
+                type="text"
+                name="employee_id"
+                value={formData.employee_id}
                 onChange={handleChange}
                 className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+              <input
+                type="tel"
+                name="phone_number"
+                value={formData.phone_number}
+                onChange={handleChange}
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
           </div>
 
           {(!user || formData.password) && (

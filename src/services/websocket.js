@@ -18,7 +18,8 @@ class WebSocketService {
     }
 
     // Feature flag to fully disable WS in dev if backend WS server isn't running
-    const enabled = String(import.meta?.env?.VITE_WS_ENABLED ?? 'true') === 'true'
+    // Default is disabled unless explicitly enabled
+    const enabled = String(import.meta?.env?.VITE_WS_ENABLED ?? 'false') === 'true'
     if (!enabled) {
       if (!this.firstErrorLogged) {
         console.log('WebSocket disabled via VITE_WS_ENABLED=false. Real-time features are off.')

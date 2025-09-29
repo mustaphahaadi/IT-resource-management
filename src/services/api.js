@@ -485,6 +485,9 @@ class ApiService {
   }
 
   // Backup methods
+  async getBackupHistory() {
+    return this.get("/admin/backup/history/")
+  }
   async createBackup() {
     return this.post("/admin/backup/create/")
   }

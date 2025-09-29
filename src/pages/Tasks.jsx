@@ -45,10 +45,10 @@ const Tasks = () => {
   const getBasePath = () => (location.pathname.startsWith("/app/") ? "/app/tasks" : "/tasks")
 
   useEffect(() => {
-    // Set default view based on user role
+    // Set default view based on user role (aligned with system roles)
     if (userRole === 'technician') {
       setActiveView('technician')
-    } else if (userRole === 'staff' || userRole === 'admin') {
+    } else if (["system_admin", "it_manager", "senior_technician"].includes(userRole)) {
       setActiveView('assignment')
     }
     
@@ -208,21 +208,25 @@ const Tasks = () => {
           <p className="text-gray-600 mt-1">Assign and track IT tasks and workflows</p>
         </div>
         <div className="flex gap-2">
-          <Button
-            onClick={() => setShowPersonnelPanel(true)}
-            variant="outline"
-            className="flex items-center space-x-2"
-          >
-            <UserGroupIcon className="w-4 h-4" />
-            <span>Manage Personnel</span>
-          </Button>
-          <Button
-            onClick={() => navigate(`${getBasePath()}/new`)}
-            className="flex items-center space-x-2"
-          >
-            <PlusIcon className="w-4 h-4" />
-            <span>Create Task</span>
-          </Button>
+          {hasPermission('tasks.assign') && (
+            <Button
+              onClick={() => setShowPersonnelPanel(true)}
+              variant="outline"
+              className="flex items-center space-x-2"
+            >
+              <UserGroupIcon className="w-4 h-4" />
+              <span>Manage Personnel</span>
+            </Button>
+          )}
+          {hasPermission('tasks.create') && (
+            <Button
+              onClick={() => navigate(`${getBasePath()}/new`)}
+              className="flex items-center space-x-2"
+            >
+              <PlusIcon className="w-4 h-4" />
+              <span>Create Task</span>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -270,7 +274,7 @@ const Tasks = () => {
             >
               <option value="">All Assignees</option>
               {personnel.map((person) => (
-                <option key={person.id} value={person.id}>
+                <option key={person.id} value={String(person.id)}>
                   {person.user_name || person.username}
                 </option>
               ))}
@@ -357,31 +361,37 @@ const Tasks = () => {
                         Created {new Date(task.created_at).toLocaleDateString()}
                       </div>
                       <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                        {task.status !== "completed" && (
+                        {hasPermission('tasks.assign') && task.status !== "completed" && (
                           <NativeSelect
-                            value={task.assigned_to || ""}
+                            value={task.assigned_to ? String(task.assigned_to) : ""}
                             onChange={(e) => handleTaskAssign(task.id, e.target.value)}
                             className="px-2 py-1 text-xs rounded"
                           >
                             <option value="">Assign to...</option>
                             {personnel.map((person) => (
-                              <option key={person.id} value={person.id}>
+                              <option key={person.id} value={String(person.id)}>
                                 {person.user_name || person.username}
                               </option>
                             ))}
                           </NativeSelect>
                         )}
-                        <NativeSelect
-                          value={task.status}
-                          onChange={(e) => handleStatusUpdate(task.id, e.target.value)}
-                          className="px-2 py-1 text-xs rounded"
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="assigned">Assigned</option>
-                          <option value="in_progress">In Progress</option>
-                          <option value="completed">Completed</option>
-                          <option value="cancelled">Cancelled</option>
-                        </NativeSelect>
+                        {hasPermission('tasks.update') ? (
+                          <NativeSelect
+                            value={task.status}
+                            onChange={(e) => handleStatusUpdate(task.id, e.target.value)}
+                            className="px-2 py-1 text-xs rounded"
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="assigned">Assigned</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                          </NativeSelect>
+                        ) : (
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(task.status)}`}>
+                            {task.status.replace("_", " ")}
+                          </span>
+                        )}
                         </div>
                       </div>
                     </div>
