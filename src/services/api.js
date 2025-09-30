@@ -313,6 +313,16 @@ class ApiService {
     return this.get("/tasks/personnel/available/", { params })
   }
 
+  // Get users for assignment (non-admin endpoint)
+  async getUsersForAssignment(params = {}) {
+    return this.get("/auth/users/assignable/", { params })
+  }
+
+  // Get all active users (for dropdowns)
+  async getActiveUsers(params = {}) {
+    return this.get("/auth/users/active/", { params })
+  }
+
   async createPersonnel(data) {
     return this.post("/tasks/personnel/", data)
   }

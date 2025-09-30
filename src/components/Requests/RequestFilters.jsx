@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react"
 import { apiService } from "../../services/api"
+import UserSelect from "../ui/user-select"
 
 const RequestFilters = ({ filters, onFiltersChange }) => {
   const [categories, setCategories] = useState([])
-  const [personnel, setPersonnel] = useState([])
 
   useEffect(() => {
     fetchFilterData()
@@ -11,12 +11,8 @@ const RequestFilters = ({ filters, onFiltersChange }) => {
 
   const fetchFilterData = async () => {
     try {
-      const [categoriesRes, personnelRes] = await Promise.all([
-        apiService.get("/requests/categories/"),
-        apiService.getPersonnel(),
-      ])
+      const categoriesRes = await apiService.get("/requests/categories/")
       setCategories(categoriesRes.data.results || categoriesRes.data)
-      setPersonnel(personnelRes.data.results || personnelRes.data)
     } catch (error) {
       console.error("Error fetching filter data:", error)
     }
@@ -89,19 +85,14 @@ const RequestFilters = ({ filters, onFiltersChange }) => {
 
         <div>
           <label className="block text-sm font-medium text-foreground mb-1">Assigned To</label>
-          <select
+          <UserSelect
+            name="assigned_to"
             value={filters.assigned_to}
             onChange={(e) => handleFilterChange("assigned_to", e.target.value)}
+            userType="personnel"
+            placeholder="All Assignees"
             className="w-full px-3 py-2 bg-input border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-          >
-            <option value="">All Assignees</option>
-            <option value="unassigned">Unassigned</option>
-            {personnel.map((person) => (
-              <option key={person.id} value={person.user.id}>
-                {person.user_name}
-              </option>
-            ))}
-          </select>
+          />
         </div>
       </div>
 

@@ -205,7 +205,7 @@ const Careers = () => {
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <WrenchScrewdriverIcon className="w-5 h-5 text-white" />
               </div>
-              <span className="font-bold text-lg text-blue-900">IT Support Portal</span>
+              <span className="font-bold text-lg text-blue-900">Ghana Health IT Portal</span>
             </Link>
             <div className="hidden md:flex items-center space-x-8">
               <Link to="/" className="text-gray-600 hover:text-[#2F327D] font-medium transition-colors">Home</Link>
@@ -471,8 +471,8 @@ const Careers = () => {
               <div className="space-y-4">
                 <div>
                   <p className="text-sm text-gray-600">Email us at</p>
-                  <a href="mailto:careers@hospital-it.com" className="text-[#2F327D] font-medium hover:underline">
-                    careers@hospital-it.com
+                  <a href="mailto:careers@ghanahealthit.gov.gh" className="text-[#2F327D] font-medium hover:underline">
+                    careers@ghanahealthit.gov.gh
                   </a>
                 </div>
                 <div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 import { Button } from "../ui/button"
+import UserSelect from "../ui/user-select"
 import {
   XMarkIcon,
   ExclamationTriangleIcon,
@@ -15,13 +16,11 @@ const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
   const [comments, setComments] = useState([])
   const [newComment, setNewComment] = useState("")
   const [isInternal, setIsInternal] = useState(false)
-  const [personnel, setPersonnel] = useState([])
   const [loading, setLoading] = useState(false)
   const { hasPermission } = usePermissions()
 
   useEffect(() => {
     fetchComments()
-    fetchPersonnel()
   }, [request.id])
 
   const fetchComments = async () => {
@@ -33,15 +32,6 @@ const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
     }
   }
 
-  const fetchPersonnel = async () => {
-    try {
-      const response = await apiService.getAvailablePersonnel()
-      const raw = response.data?.available_technicians || response.data?.results || response.data || []
-      setPersonnel(Array.isArray(raw) ? raw : [])
-    } catch (error) {
-      console.error("Error fetching personnel:", error)
-    }
-  }
 
   const handleAddComment = async (e) => {
     e.preventDefault()
@@ -205,34 +195,26 @@ const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
                       <UserIcon className="w-5 h-5 text-muted-foreground" />
                       <span className="text-foreground">Assigned to {request.assigned_to_name}</span>
                     </div>
-                    <select
+                    <UserSelect
+                      name="reassign_to"
+                      value=""
                       onChange={(e) => e.target.value && handleAssign(e.target.value)}
+                      userType="personnel"
+                      placeholder="Reassign to..."
                       className="px-3 py-1 bg-white border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      defaultValue=""
-                    >
-                      <option value="">Reassign to...</option>
-                      {(Array.isArray(personnel) ? personnel : []).map((person) => (
-                        <option key={person.id} value={person.user.id}>
-                          {person.user_name}
-                        </option>
-                      ))}
-                    </select>
+                    />
                   </div>
                 ) : (
                   <div className="flex items-center space-x-3">
                     <span className="text-muted-foreground">Unassigned</span>
-                    <select
+                    <UserSelect
+                      name="assigned_to"
+                      value=""
                       onChange={(e) => e.target.value && handleAssign(e.target.value)}
+                      userType="personnel"
+                      placeholder="Assign to..."
                       className="px-3 py-1 bg-white border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      defaultValue=""
-                    >
-                      <option value="">Assign to...</option>
-                      {(Array.isArray(personnel) ? personnel : []).map((person) => (
-                        <option key={person.id} value={person.user.id}>
-                          {person.user_name}
-                        </option>
-                      ))}
-                    </select>
+                    />
                   </div>
                 )
               ) : (

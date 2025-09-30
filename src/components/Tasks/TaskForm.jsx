@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { apiService } from "../../services/api"
 import { NativeSelect } from "../ui/native-select"
 import { Textarea } from "../ui/textarea"
+import UserSelect from "../ui/user-select"
 import { usePermissions } from "../../contexts/PermissionsContext"
 
 const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
@@ -16,6 +17,7 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
     related_request: "",
   })
   const [requests, setRequests] = useState([])
+  const [loading, setLoading] = useState(false)
   const { hasPermission } = usePermissions()
 
   useEffect(() => {
@@ -36,12 +38,16 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
   useEffect(() => {
     // Load support requests for selection
     const fetchRequests = async () => {
+      setLoading(true)
       try {
         const res = await apiService.getSupportRequests({ page_size: 100 })
         const data = res.data.results || res.data
         setRequests(Array.isArray(data) ? data : [])
       } catch (e) {
         console.error("Error fetching support requests:", e)
+        setRequests([])
+      } finally {
+        setLoading(false)
       }
     }
     fetchRequests()
@@ -139,18 +145,14 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Assign To</label>
               {hasPermission('tasks.assign') ? (
-                <NativeSelect
+                <UserSelect
                   name="assigned_to"
                   value={formData.assigned_to ?? ""}
                   onChange={handleChange}
-                >
-                  <option value="">Select Personnel</option>
-                  {personnel.map((person) => (
-                    <option key={person.id} value={String(person.id)}>
-                      {person.user_name || person.username} - {person.skill_level}
-                    </option>
-                  ))}
-                </NativeSelect>
+                  userType="personnel"
+                  placeholder="Select Personnel"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
               ) : (
                 <div className="px-3 py-2 bg-gray-100 rounded text-sm text-gray-700">
                   You don't have permission to assign tasks.

@@ -19,7 +19,7 @@ const Blog = () => {
     title: "Introducing AI-Powered Ticket Routing: 40% Faster Resolution Times",
     excerpt: "Our latest machine learning algorithms now automatically categorize and route support tickets to the right technicians, dramatically reducing response times and improving patient care outcomes.",
     content: "Healthcare IT teams are under constant pressure to resolve issues quickly while maintaining the highest standards of patient care...",
-    author: "Dr. Emily Carter",
+    author: "Dr. Ama Boateng",
     authorRole: "Chief Technology Officer",
     publishedAt: "2024-12-10",
     readTime: "5 min read",
@@ -33,7 +33,7 @@ const Blog = () => {
       id: 2,
       title: "HIPAA Compliance in 2024: New Requirements and Best Practices",
       excerpt: "Stay ahead of evolving healthcare regulations with our comprehensive guide to HIPAA compliance requirements for IT management platforms.",
-      author: "David Rodriguez",
+      author: "Yaw Osei",
       authorRole: "Security & Compliance Officer",
       publishedAt: "2024-12-08",
       readTime: "8 min read",
@@ -45,7 +45,7 @@ const Blog = () => {
       id: 3,
       title: "5 Ways to Optimize Your Healthcare IT Workflow",
       excerpt: "Learn practical strategies to streamline your IT operations, reduce technician workload, and improve service delivery across your healthcare organization.",
-      author: "Sarah Kim",
+      author: "Efua Asante",
       authorRole: "Product Manager & UX Lead",
       publishedAt: "2024-12-05",
       readTime: "6 min read",
@@ -57,7 +57,7 @@ const Blog = () => {
       id: 4,
       title: "Case Study: Regional Medical Center Reduces IT Costs by 35%",
       excerpt: "Discover how Regional Medical Center transformed their IT operations and achieved significant cost savings while improving patient care quality.",
-      author: "Jennifer Walsh",
+      author: "Akosua Frimpong",
       authorRole: "Customer Success Manager",
       publishedAt: "2024-12-03",
       readTime: "7 min read",
@@ -69,7 +69,7 @@ const Blog = () => {
       id: 5,
       title: "The Future of Healthcare IT: Trends to Watch in 2025",
       excerpt: "Explore emerging technologies and trends that will shape healthcare IT management in the coming year, from AI automation to cloud-native solutions.",
-      author: "Marcus Thompson",
+      author: "Kwaku Adjei",
       authorRole: "Lead Software Engineer",
       publishedAt: "2024-12-01",
       readTime: "9 min read",
@@ -81,7 +81,7 @@ const Blog = () => {
       id: 6,
       title: "Mobile-First IT Support: Empowering Field Technicians",
       excerpt: "Learn how our mobile-optimized platform is revolutionizing field service management and enabling technicians to resolve issues faster than ever.",
-      author: "Michael Chen",
+      author: "Kofi Mensah",
       authorRole: "DevOps Engineer",
       publishedAt: "2024-11-28",
       readTime: "4 min read",
@@ -93,7 +93,7 @@ const Blog = () => {
       id: 7,
       title: "Building Resilient Healthcare IT Infrastructure",
       excerpt: "Essential strategies for creating robust, scalable IT infrastructure that can handle the critical demands of modern healthcare environments.",
-      author: "Dr. Emily Carter",
+      author: "Dr. Ama Boateng",
       authorRole: "Chief Technology Officer",
       publishedAt: "2024-11-25",
       readTime: "10 min read",
@@ -155,7 +155,7 @@ const Blog = () => {
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <WrenchScrewdriverIcon className="w-5 h-5 text-white" />
               </div>
-              <span className="font-bold text-lg text-blue-900">IT Support Portal</span>
+              <span className="font-bold text-lg text-blue-900">Ghana Health IT Portal</span>
             </Link>
             <div className="hidden md:flex items-center space-x-8">
               <Link to="/" className="text-gray-600 hover:text-[#2F327D] font-medium transition-colors">Home</Link>

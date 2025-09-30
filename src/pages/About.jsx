@@ -17,40 +17,40 @@ import {
 const About = () => {
   const team = [
     {
-      name: 'Dr. Emily Carter',
+      name: 'Dr. Ama Boateng',
       role: 'Chief Technology Officer',
-      bio: '20+ years in healthcare IT, former CIO at Johns Hopkins Medical Center, expert in HIPAA compliance',
-      avatar: 'EC'
+      bio: '20+ years in healthcare IT, former CIO at Korle-Bu Teaching Hospital, expert in Ghana health data compliance',
+      avatar: 'AB'
     },
     {
-      name: 'Marcus Thompson',
+      name: 'Kwaku Adjei',
       role: 'Lead Software Engineer',
       bio: 'Full-stack developer specializing in healthcare systems, Django/React expert, CISSP certified',
-      avatar: 'MT'
+      avatar: 'KA'
     },
     {
-      name: 'Sarah Kim',
+      name: 'Efua Asante',
       role: 'Product Manager & UX Lead',
-      bio: 'Healthcare operations expert with MBA from Wharton, 10+ years in medical technology',
-      avatar: 'SK'
+      bio: 'Healthcare operations expert with MBA from University of Ghana, 10+ years in medical technology',
+      avatar: 'EA'
     },
     {
-      name: 'David Rodriguez',
+      name: 'Yaw Osei',
       role: 'Security & Compliance Officer',
-      bio: 'Cybersecurity specialist with focus on healthcare data protection, SOC 2 and HIPAA expert',
-      avatar: 'DR'
+      bio: 'Cybersecurity specialist with focus on healthcare data protection, SOC 2 and Ghana Data Protection Act expert',
+      avatar: 'YO'
     },
     {
-      name: 'Jennifer Walsh',
+      name: 'Akosua Frimpong',
       role: 'Customer Success Manager',
       bio: 'Former hospital IT director, specializes in healthcare workflow optimization and training',
-      avatar: 'JW'
+      avatar: 'AF'
     },
     {
-      name: 'Michael Chen',
+      name: 'Kofi Mensah',
       role: 'DevOps Engineer',
       bio: 'Cloud infrastructure specialist, AWS certified, expert in healthcare system scalability',
-      avatar: 'MC'
+      avatar: 'KM'
     }
   ]
 

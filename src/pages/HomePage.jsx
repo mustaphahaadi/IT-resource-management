@@ -101,31 +101,30 @@ const HomePage = () => {
     "Enhanced security and compliance",
     "Reduced operational costs",
     "Improved staff productivity",
-    "Real-time monitoring and alerts",
     "Comprehensive audit trails"
   ]
 
   const testimonials = [
     {
-      name: 'Dr. Sarah Johnson',
+      name: 'Dr. Kwame Asante',
       role: 'Chief Medical Officer',
-      hospital: 'Metropolitan General Hospital',
-      content: 'This system has revolutionized our IT support. Response times are down 60% and our technicians can focus on critical patient care.',
-      avatar: 'SJ'
+      hospital: 'Korle-Bu Teaching Hospital',
+      content: 'This platform has revolutionized our IT operations. The automated ticketing and role-based access have improved our response times by 60%.',
+      avatar: 'KA'
     },
     {
-      name: 'Michael Chen',
+      name: 'Akosua Mensah',
       role: 'IT Director',
-      hospital: 'Regional Medical Center',
-      content: 'The asset management features alone have saved us thousands in equipment costs. The reporting is exceptional for compliance.',
-      avatar: 'MC'
+      hospital: 'Komfo Anokye Teaching Hospital',
+      content: 'The asset management features are incredible. We can track every piece of equipment across our entire network with real-time updates.',
+      avatar: 'AM'
     },
     {
-      name: 'Lisa Rodriguez',
+      name: 'Kofi Osei',
       role: 'System Administrator',
-      hospital: 'University Hospital',
+      hospital: 'Tamale Teaching Hospital',
       content: 'User approval workflows and role-based access give us the security we need in healthcare. Couldn\'t operate without it.',
-      avatar: 'LR'
+      avatar: 'KO'
     }
   ]
 

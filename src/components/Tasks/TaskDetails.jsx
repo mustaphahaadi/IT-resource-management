@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { apiService } from "../../services/api"
 import { NativeSelect } from "../ui/native-select"
+import UserSelect from "../ui/user-select"
 import { usePermissions } from "../../contexts/PermissionsContext"
 
 const TaskDetails = ({ task, personnel, onClose, onEdit, onAssign, onStatusUpdate }) => {
@@ -167,17 +168,14 @@ const TaskDetails = ({ task, personnel, onClose, onEdit, onAssign, onStatusUpdat
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Reassign Task</label>
                   {hasPermission('tasks.assign') ? (
-                    <NativeSelect
+                    <UserSelect
+                      name="assigned_to"
                       value={task.assigned_to ? String(task.assigned_to) : ""}
                       onChange={(e) => onAssign(task.id, e.target.value)}
-                    >
-                      <option value="">Unassigned</option>
-                      {personnel.map((person) => (
-                        <option key={person.id} value={String(person.id)}>
-                          {person.user_name || person.username} - {person.skill_level}
-                        </option>
-                      ))}
-                    </NativeSelect>
+                      userType="personnel"
+                      placeholder="Unassigned"
+                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
                   ) : (
                     <div className="px-3 py-2 bg-gray-100 rounded text-sm text-gray-700">
                       {task.assigned_to_name || "Unassigned"}
