@@ -17,6 +17,16 @@ import ServerError from "./pages/ServerError"
 import Analytics from "./pages/Analytics"
 import AdminPanel from "./pages/AdminPanel"
 import HomePage from "./pages/HomePage"
+import Features from "./pages/Features"
+import About from "./pages/About"
+import Pricing from "./pages/Pricing"
+import Contact from "./pages/Contact"
+import Privacy from "./pages/Privacy"
+import Terms from "./pages/Terms"
+import Security from "./pages/Security"
+import Resources from "./pages/Resources"
+import Careers from "./pages/Careers"
+import Blog from "./pages/Blog"
 import SearchResults from "./pages/SearchResults"
 import Help from "./pages/Help"
 import SystemStatus from "./pages/SystemStatus"
@@ -54,6 +64,16 @@ function App() {
             <Route path="/server-error" element={<ServerError />} />
             
             {/* Public pages */}
+            <Route path="/features" element={<Features />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/security" element={<Security />} />
+            <Route path="/resources" element={<Resources />} />
+            <Route path="/careers" element={<Careers />} />
+            <Route path="/blog" element={<Blog />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/help" element={<Help />} />
             <Route path="/status" element={<SystemStatus />} />

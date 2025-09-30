@@ -20,7 +20,7 @@ const Header = ({ onMenuClick }) => {
   const handleLogout = async () => {
     try {
       await logout()
-      window.location.href = '/login'
+      window.location.href = '/'
     } catch (error) {
       console.error('Logout error:', error)
     }

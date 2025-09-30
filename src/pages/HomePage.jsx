@@ -24,9 +24,10 @@ const HomePage = () => {
 
   const navigation = [
     { name: 'Home', href: '/' },
-    { name: 'Analytics', href: '/analytics' },
-    { name: 'Features', href: '#features' },
-    { name: 'About', href: '#about' },
+    { name: 'Features', href: '/features' },
+    { name: 'About', href: '/about' },
+    { name: 'Pricing', href: '/pricing' },
+    { name: 'Contact', href: '/contact' },
   ]
 
   const features = [
@@ -104,6 +105,60 @@ const HomePage = () => {
     "Comprehensive audit trails"
   ]
 
+  const testimonials = [
+    {
+      name: 'Dr. Sarah Johnson',
+      role: 'Chief Medical Officer',
+      hospital: 'Metropolitan General Hospital',
+      content: 'This system has revolutionized our IT support. Response times are down 60% and our technicians can focus on critical patient care.',
+      avatar: 'SJ'
+    },
+    {
+      name: 'Michael Chen',
+      role: 'IT Director',
+      hospital: 'Regional Medical Center',
+      content: 'The asset management features alone have saved us thousands in equipment costs. The reporting is exceptional for compliance.',
+      avatar: 'MC'
+    },
+    {
+      name: 'Lisa Rodriguez',
+      role: 'System Administrator',
+      hospital: 'University Hospital',
+      content: 'User approval workflows and role-based access give us the security we need in healthcare. Couldn\'t operate without it.',
+      avatar: 'LR'
+    }
+  ]
+
+  const stats = [
+    { number: '5,000+', label: 'IT Assets Managed' },
+    { number: '25+', label: 'Ghana Health Facilities' },
+    { number: '99.5%', label: 'System Uptime' },
+    { number: '24/7', label: 'Support Available' }
+  ]
+
+  const workflowSteps = [
+    {
+      step: '1',
+      title: 'Submit Request',
+      description: 'Users submit IT support requests through an intuitive interface with automatic categorization.'
+    },
+    {
+      step: '2',
+      title: 'Smart Routing',
+      description: 'AI-powered routing assigns tickets to the right technician based on skills and workload.'
+    },
+    {
+      step: '3',
+      title: 'Resolution & Tracking',
+      description: 'Real-time updates, SLA monitoring, and comprehensive audit trails for every request.'
+    },
+    {
+      step: '4',
+      title: 'Analytics & Improvement',
+      description: 'Detailed reporting helps optimize processes and improve service delivery.'
+    }
+  ]
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -115,7 +170,7 @@ const HomePage = () => {
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <WrenchScrewdriverIcon className="w-5 h-5 text-white" />
               </div>
-              <span className="font-bold text-lg text-blue-900">IT Support Portal</span>
+              <span className="font-bold text-lg text-blue-900">Ghana Health IT Portal</span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -218,15 +273,15 @@ const HomePage = () => {
             </div>
             
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-              IT Support
-              <span className="text-white">
-                {" "}Management Portal
+              Ghana Healthcare IT
+              <span className="text-blue-200">
+                {" "}Management System
               </span>
             </h1>
             
             <p className="text-xl text-white/90 mb-8 leading-relaxed">
-              Comprehensive IT helpdesk solution with intelligent ticket routing, asset management, and role-based workflows. 
-              Streamline IT operations, enhance security, and deliver exceptional support experiences.
+              Revolutionize Ghana's healthcare IT infrastructure with intelligent automation, comprehensive asset management, 
+              and role-based workflows. Built specifically for Ghana's healthcare system with enterprise-grade security and local compliance.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -287,8 +342,96 @@ const HomePage = () => {
         </div>
       </div>
 
+      {/* How It Works Section */}
+      <div className="bg-gray-50 py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-[#2F327D] mb-4">
+              How Our IT Helpdesk Works
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Streamlined workflows designed for healthcare IT environments with intelligent automation and role-based access.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {workflowSteps.map((step, index) => (
+              <div key={index} className="text-center">
+                <div className="relative mb-6">
+                  <div className="w-16 h-16 bg-[#2F327D] text-white rounded-full flex items-center justify-center mx-auto text-xl font-bold">
+                    {step.step}
+                  </div>
+                  {index < workflowSteps.length - 1 && (
+                    <div className="hidden lg:block absolute top-8 left-full w-full h-0.5 bg-gray-300 -translate-y-0.5"></div>
+                  )}
+                </div>
+                <h3 className="text-lg font-semibold text-[#2F327D] mb-3">{step.title}</h3>
+                <p className="text-gray-600 text-sm">{step.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Statistics Section */}
+      <div className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-[#2F327D] mb-4">
+              Trusted by Healthcare Organizations Worldwide
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Join thousands of healthcare professionals who rely on our platform for their IT management needs.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center">
+                <div className="text-4xl font-bold text-[#2F327D] mb-2">{stat.number}</div>
+                <div className="text-gray-600">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Testimonials Section */}
+      <div className="bg-gray-50 py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-[#2F327D] mb-4">
+              Trusted by Healthcare Professionals
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              See what healthcare IT professionals are saying about our platform.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <Card key={index} className="bg-white border border-gray-200 shadow-lg">
+                <CardContent className="p-6">
+                  <div className="flex items-center mb-4">
+                    <div className="w-12 h-12 bg-[#2F327D] text-white rounded-full flex items-center justify-center font-semibold">
+                      {testimonial.avatar}
+                    </div>
+                    <div className="ml-4">
+                      <div className="font-semibold text-[#2F327D]">{testimonial.name}</div>
+                      <div className="text-sm text-gray-600">{testimonial.role}</div>
+                      <div className="text-xs text-gray-500">{testimonial.hospital}</div>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 text-sm italic">"{testimonial.content}"</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Benefits Section */}
-      <div id="about" className="bg-gray-50 py-16">
+      <div id="about" className="py-16">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -344,8 +487,6 @@ const HomePage = () => {
           </div>
         </div>
       </div>
-
-    
 
       {/* Footer */}
       <footer className="bg-[#2F327D] text-white py-12">
