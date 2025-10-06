@@ -70,7 +70,7 @@ const UserManagement = () => {
       if (selectedUser) {
         await apiService.updateUser(selectedUser.id, userData)
       } else {
-        // Create via registration endpoint with allowed fields only
+        // Create via registration endpoint, now including role
         const createData = {
           username: userData.username,
           email: userData.email,
@@ -81,13 +81,9 @@ const UserManagement = () => {
           phone_number: userData.phone_number,
           department: userData.department,
           employee_id: userData.employee_id,
+          role: userData.role, // Pass role directly
         }
-        const res = await apiService.register(createData)
-        const newUserId = res?.data?.user_id
-        // If role was selected, set it via admin update endpoint
-        if (userData.role && newUserId) {
-          await apiService.updateUser(newUserId, { role: userData.role })
-        }
+        await apiService.register(createData)
       }
       fetchUsers()
       setShowUserForm(false)

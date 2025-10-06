@@ -44,7 +44,7 @@ const Analytics = () => {
             <CardTitle className="text-[#2F327D]">Analytics Dashboard</CardTitle>
           </CardHeader>
           <CardContent className="bg-white">
-            <DashboardCharts analytics={analytics || {}} loading={loading} />
+            <DashboardCharts analytics={analytics} loading={loading} />
           </CardContent>
         </Card>
       </div>

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Navigate, Link } from "react-router-dom"
-import { useAuth } from "../contexts/AuthContext"
+import { useAuth } from "../contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { WrenchScrewdriverIcon, EyeIcon, EyeSlashIcon, ShieldCheckIcon } from "@heroicons/react/24/outline"
 

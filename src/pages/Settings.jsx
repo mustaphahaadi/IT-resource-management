@@ -72,6 +72,21 @@ const Settings = () => {
     }
   }, [user])
 
+  useEffect(() => {
+    const fetchNotificationPreferences = async () => {
+      try {
+        const response = await apiService.getNotificationPreferences()
+        setNotifications(response.data)
+      } catch (error) {
+        console.error("Error fetching notification preferences:", error)
+        setError("Failed to load notification preferences.")
+      }
+    }
+    if (activeTab === 'notifications') {
+      fetchNotificationPreferences()
+    }
+  }, [activeTab])
+
   // Fetch departments from API with IT help desk fallback
   useEffect(() => {
     const fetchDepartments = async () => {
@@ -250,6 +265,21 @@ const Settings = () => {
 
   const togglePasswordVisibility = (field) => {
     setShowPasswords(prev => ({ ...prev, [field]: !prev[field] }))
+  }
+
+  const handleNotificationSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError("")
+    setMessage("")
+    try {
+      await apiService.updateNotificationPreferences(notifications)
+      setMessage("Notification preferences updated successfully.")
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to update preferences.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -530,45 +560,52 @@ const Settings = () => {
             <CardHeader>
               <CardTitle>Notification Preferences</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Email Notifications</Label>
-                  <p className="text-sm text-muted-foreground">Receive notifications via email</p>
+            <CardContent>
+              <form onSubmit={handleNotificationSubmit} className="space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Email Notifications</Label>
+                      <p className="text-sm text-muted-foreground">Receive notifications via email for important updates.</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={notifications.email_notifications}
+                      onChange={(e) => handleNotificationChange("email_notifications", e.target.checked)}
+                      className="h-4 w-4"
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Security Alerts</Label>
+                      <p className="text-sm text-muted-foreground">Get notified about critical security events.</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={notifications.security_alerts}
+                      onChange={(e) => handleNotificationChange("security_alerts", e.target.checked)}
+                      className="h-4 w-4"
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>System Updates</Label>
+                      <p className="text-sm text-muted-foreground">Receive information about system maintenance and new features.</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={notifications.system_updates}
+                      onChange={(e) => handleNotificationChange("system_updates", e.target.checked)}
+                      className="h-4 w-4"
+                    />
+                  </div>
                 </div>
-                <input
-                  type="checkbox"
-                  checked={notifications.email_notifications}
-                  onChange={(e) => handleNotificationChange("email_notifications", e.target.checked)}
-                  className="h-4 w-4"
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Security Alerts</Label>
-                  <p className="text-sm text-muted-foreground">Important security notifications</p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={notifications.security_alerts}
-                  onChange={(e) => handleNotificationChange("security_alerts", e.target.checked)}
-                  className="h-4 w-4"
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>System Updates</Label>
-                  <p className="text-sm text-muted-foreground">Notifications about system maintenance and updates</p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={notifications.system_updates}
-                  onChange={(e) => handleNotificationChange("system_updates", e.target.checked)}
-                  className="h-4 w-4"
-                />
-              </div>
+                <Button type="submit" disabled={loading}>
+                  {loading ? "Saving..." : "Save Preferences"}
+                </Button>
+              </form>
             </CardContent>
           </Card>
         </TabsContent>

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom"
-import { useAuth } from "../../contexts/AuthContext"
+import { useAuth } from "../../contexts/AuthContext";
 import { usePermissions, PermissionGate, getRoleDisplayName, getRoleColor } from "../../contexts/PermissionsContext"
 import {
   HomeIcon,

@@ -85,7 +85,17 @@ const UserSelect = ({
     <NativeSelect
       name={name}
       value={value}
-      onChange={onChange}
+      onChange={(e) => {
+        const selectedId = e.target.value
+        const selectedUser = users.find(user => String(user.id) === selectedId)
+        onChange({
+          target: {
+            name: name,
+            value: selectedId,
+            selectedObject: selectedUser || null
+          }
+        })
+      }}
       required={required}
       disabled={disabled || loading}
       className={className}

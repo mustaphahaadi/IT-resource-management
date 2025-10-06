@@ -1,6 +1,6 @@
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
-import { usePermissions, getRoleDisplayName } from '../../contexts/PermissionsContext'
+import { usePermissions, getRoleDisplayName } from '../../contexts/PermissionsContext';
 import {
   ArrowPathIcon,
   InformationCircleIcon,

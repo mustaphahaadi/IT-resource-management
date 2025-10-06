@@ -92,11 +92,11 @@ class ApiService {
       token,
       new_password: newPassword,
       confirm_password: confirmPassword
-    })
+    });
   }
 
   async verifyEmail(token) {
-    return this.client.post("/auth/verify-email/", { token })
+    return this.client.post("/auth/verify-email/", { token });
   }
 
   async resendVerificationEmail() {
@@ -346,11 +346,15 @@ class ApiService {
 
   // Analytics API methods
   async getDashboardAnalytics() {
-    return this.get("/analytics/dashboard/")
+    return this.get("/analytics/dashboard/");
   }
 
-  async getEquipmentAnalytics(params = {}) {
-    return this.get("/analytics/equipment/", { params })
+  async getTechnicianDashboard() {
+    return this.get("/tasks/my_dashboard/");
+  }
+
+  async getManagerDashboard() {
+    return this.get("/analytics/manager_dashboard/");
   }
 
   async getRequestAnalytics(params = {}) {
@@ -370,7 +374,7 @@ class ApiService {
   }
 
   async getSystemHealth() {
-    return this.get("/analytics/system-health/")
+    return this.get("/analytics/system-health/");
   }
 
   async getRecentActivity(params = {}) {

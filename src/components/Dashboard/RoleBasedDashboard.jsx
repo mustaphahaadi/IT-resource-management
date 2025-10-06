@@ -4,7 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import StatusBadge from '../ui/status-badge'
 import { usePermissions, PermissionGate } from '../../contexts/PermissionsContext'
-import { apiService } from '../../services/api'
+import { apiService } from '../../services/api';
+import EndUserDashboard from './EndUserDashboard';
+import TechnicianDashboard from './TechnicianDashboard';
+import ManagerDashboard from './ManagerDashboard';
 import {
   PlusIcon,
   ArrowTopRightOnSquareIcon,
@@ -24,134 +27,45 @@ const RoleBasedDashboard = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchDashboardData()
-  }, [userRole])
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true)
+        const response = await apiService.getDashboardAnalytics()
+        const data = response.data
 
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true)
-      
-      // Fetch role-specific data using real API endpoints
-      const promises = []
-      const apiCalls = []
-      
-      // Fetch request statistics
-      if (hasPermission('requests.view_own') || hasPermission('requests.view_all')) {
-        promises.push(apiService.getRequestStats())
-        apiCalls.push('requestStats')
-        
-        // Also fetch recent requests for activity
-        promises.push(apiService.getSupportRequests({ limit: 5, ordering: '-created_at' }))
-        apiCalls.push('recentRequests')
-      }
-      
-      // Fetch equipment statistics
-      if (hasPermission('equipment.view_basic')) {
-        promises.push(apiService.getEquipmentStats())
-        apiCalls.push('equipmentStats')
-      }
-      
-      // Fetch task statistics
-      if (hasPermission('tasks.view_assigned') || hasPermission('tasks.view_all')) {
-        promises.push(apiService.getTaskStats())
-        apiCalls.push('taskStats')
-        
-        // Also fetch recent tasks for activity
-        promises.push(apiService.getTasks({ limit: 5, ordering: '-created_at' }))
-        apiCalls.push('recentTasks')
-      }
+        // Set statistics, using safe fallbacks
+        setStats({
+          requests: data.request_stats || {},
+          equipment: data.equipment_stats || {},
+          tasks: data.task_stats || {},
+        })
 
-      const results = await Promise.allSettled(promises)
-      
-      // Process results based on role
-      processRoleSpecificData(results, apiCalls)
-      
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error)
-    } finally {
-      setLoading(false)
+        // Set recent activity, transforming backend shape to frontend shape
+        const formattedRecentItems = (data.recent_activity || []).map(item => ({
+          id: item.id,
+          type: item.type, // 'request' or 'task'
+          title: item.title || `${item.type.charAt(0).toUpperCase() + item.type.slice(1)} #${item.id}`,
+          subtitle: item.type === 'request' 
+            ? `Priority: ${item.priority || 'Medium'}` 
+            : `Assigned to: ${item.assigned_to_name || 'Unassigned'}`,
+          status: item.status,
+          date: item.created_at,
+        }))
+        setRecentItems(formattedRecentItems)
+
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error)
+        // Set empty state on error to prevent crashes
+        setStats({ requests: {}, equipment: {}, tasks: {} })
+        setRecentItems([])
+      } finally {
+        setLoading(false)
+      }
     }
-  }
 
-  const processRoleSpecificData = (results, apiCalls) => {
-    // Process data based on user role and permissions
-    const newStats = {}
-    const newRecentItems = []
+    fetchDashboardData()
+  }, []) // Run only once on component mount
 
-    results.forEach((result, index) => {
-      if (result.status === 'fulfilled') {
-        const data = result.value.data
-        const callType = apiCalls[index]
-        
-        // Process based on the API call type
-        switch (callType) {
-          case 'requestStats':
-            newStats.requests = {
-              total: data.total || 0,
-              open: data.open || 0,
-              assigned: data.assigned || 0,
-              critical: data.critical || 0,
-              overdue: data.overdue || 0
-            }
-            break
-            
-          case 'recentRequests':
-            if (data.results) {
-              newRecentItems.push(...data.results.slice(0, 3).map(item => ({
-                ...item,
-                type: 'request',
-                title: item.title || `Request #${item.id}`,
-                subtitle: `Priority: ${item.priority || 'Medium'}`,
-                status: item.status,
-                date: item.created_at
-              })))
-            }
-            break
-            
-          case 'equipmentStats':
-            newStats.equipment = {
-              total: data.total || 0,
-              active: data.active || 0,
-              maintenance: data.maintenance || 0,
-              critical: data.critical || 0,
-              operational: data.operational || 0
-            }
-            break
-            
-          case 'taskStats':
-            newStats.tasks = {
-              total: data.total || 0,
-              pending: data.pending || 0,
-              in_progress: data.in_progress || 0,
-              completed: data.completed || 0,
-              overdue: data.overdue || 0
-            }
-            break
-            
-          case 'recentTasks':
-            if (data.results) {
-              newRecentItems.push(...data.results.slice(0, 3).map(item => ({
-                ...item,
-                type: 'task',
-                title: item.title || `Task #${item.id}`,
-                subtitle: `Assigned to: ${item.assigned_to_name || 'Unassigned'}`,
-                status: item.status,
-                date: item.created_at
-              })))
-            }
-            break
-            
-          default:
-            console.warn(`Unknown API call type: ${callType}`)
-        }
-      } else {
-        console.error(`API call failed for ${apiCalls[index]}:`, result.reason)
-      }
-    })
-
-    setStats(newStats)
-    setRecentItems(newRecentItems.slice(0, 5))
-  }
 
   const getQuickActions = () => {
     const actions = []
@@ -199,97 +113,20 @@ const RoleBasedDashboard = () => {
     return actions
   }
 
-  const getRoleSpecificCards = () => {
-    const cards = []
-
-    // End User Dashboard
-    if (userRole === 'end_user') {
-      cards.push(
-        <Card key="my-requests" className="bg-gradient-to-br from-blue-50 to-blue-100">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <ExclamationTriangleIcon className="w-5 h-5 text-blue-600" />
-              My Support Requests
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <div className="text-2xl font-bold text-blue-600">{stats.requests?.total || 0}</div>
-                <div className="text-xs text-gray-600">Total</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-orange-600">{stats.requests?.open || 0}</div>
-                <div className="text-xs text-gray-600">Open</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-purple-600">{stats.requests?.assigned || 0}</div>
-                <div className="text-xs text-gray-600">Assigned</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )
+  const renderRoleSpecificDashboard = () => {
+    switch (userRole) {
+      case 'end_user':
+        return <EndUserDashboard stats={stats.requests} />;
+      case 'technician':
+      case 'senior_technician':
+        return <TechnicianDashboard />;
+      case 'it_manager':
+      case 'system_admin':
+        return <ManagerDashboard />;
+      default:
+        return null;
     }
-
-    // Technician Dashboard
-    if (userRole === 'technician' || userRole === 'senior_technician') {
-      cards.push(
-        <Card key="my-tasks" className="bg-gradient-to-br from-green-50 to-green-100">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <WrenchScrewdriverIcon className="w-5 h-5 text-green-600" />
-              My Tasks
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <div className="text-2xl font-bold text-green-600">{stats.tasks?.total || 0}</div>
-                <div className="text-xs text-gray-600">Total</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-yellow-600">{stats.tasks?.pending || 0}</div>
-                <div className="text-xs text-gray-600">Pending</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-blue-600">{stats.tasks?.in_progress || 0}</div>
-                <div className="text-xs text-gray-600">In Progress</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )
-    }
-
-    // Manager/Admin Dashboard
-    if (userRole === 'it_manager' || userRole === 'system_admin') {
-      cards.push(
-        <Card key="equipment-overview" className="bg-gradient-to-br from-purple-50 to-purple-100">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <ComputerDesktopIcon className="w-5 h-5 text-purple-600" />
-              Equipment Overview
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4 text-center">
-              <div>
-                <div className="text-2xl font-bold text-purple-600">{stats.equipment?.total || 0}</div>
-                <div className="text-xs text-gray-600">Total Assets</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-red-600">{stats.equipment?.critical || 0}</div>
-                <div className="text-xs text-gray-600">Critical</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )
-    }
-
-    return cards
-  }
+  };
 
   const getWelcomeMessage = () => {
     const timeOfDay = new Date().getHours()
@@ -329,9 +166,8 @@ const RoleBasedDashboard = () => {
     )
   }
 
-  const welcome = getWelcomeMessage()
-  const quickActions = getQuickActions()
-  const roleCards = getRoleSpecificCards()
+  const welcome = getWelcomeMessage();
+  const quickActions = getQuickActions();
 
   return (
     <div className="space-y-6">
@@ -360,9 +196,9 @@ const RoleBasedDashboard = () => {
         </div>
       )}
 
-      {/* Role-specific Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {roleCards}
+      {/* Role-specific Dashboard */}
+      <div>
+        {renderRoleSpecificDashboard()}
       </div>
 
       {/* Recent Activity */}

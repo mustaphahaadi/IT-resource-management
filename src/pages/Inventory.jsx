@@ -175,7 +175,7 @@ const Inventory = () => {
           <h1 className="text-3xl font-bold text-gray-900">IT Inventory</h1>
           <p className="text-gray-600 mt-1">Manage hospital IT equipment and assets</p>
         </div>
-        <PermissionGate permissions="ui.create_equipment">
+        <PermissionGate permissions="equipment.create">
           <Button onClick={handleAddEquipment} className="flex items-center space-x-2">
             <PlusIcon className="w-4 h-4" />
             <span>Add Equipment</span>
@@ -282,7 +282,7 @@ const Inventory = () => {
                           >
                             <EyeIcon className="w-4 h-4" />
                           </button>
-                          <PermissionGate permissions="ui.edit_equipment">
+                          <PermissionGate permissions="equipment.edit">
                             <button
                               onClick={() => handleEditEquipment(item)}
                               className="p-1 text-gray-400 hover:text-green-600 transition-colors"
@@ -291,7 +291,7 @@ const Inventory = () => {
                               <PencilIcon className="w-4 h-4" />
                             </button>
                           </PermissionGate>
-                          <PermissionGate permissions="ui.delete_equipment">
+                          <PermissionGate permissions="equipment.delete">
                             <button
                               onClick={() => handleDeleteEquipment(item.id)}
                               className="p-1 text-gray-400 hover:text-red-600 transition-colors"

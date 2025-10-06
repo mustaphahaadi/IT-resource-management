@@ -200,7 +200,7 @@ const Assignment = () => {
               {available.map(t => (
                 <div key={t.id} className="border rounded-md p-3 flex items-center justify-between">
                   <div>
-                    <div className="font-medium">{t.user?.first_name} {t.user?.last_name}</div>
+                    <div className="font-medium">{t.first_name || t.name} {t.last_name}</div>
                     <div className="text-xs text-gray-500">Employee #{t.employee_id} • Dept: {t.department}</div>
                     <div className="text-xs text-gray-500">Skill: {t.skill_level} • Current {t.workload?.current_tasks}/{t.workload?.max_tasks} ({t.workload?.utilization_percentage}%)</div>
                   </div>

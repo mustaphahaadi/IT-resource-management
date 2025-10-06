@@ -6,7 +6,7 @@ import { Input } from "../components/ui/input"
 import { Label } from "../components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
 import { Alert, AlertDescription } from "../components/ui/alert"
-import { useAuth } from "../contexts/AuthContext"
+import { useAuth } from "../contexts/AuthContext";
 import { apiService } from "../services/api"
 import { 
   UserPlusIcon, 

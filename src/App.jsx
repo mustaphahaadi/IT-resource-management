@@ -41,7 +41,8 @@ import AdminSettings from "./pages/AdminSettings"
 import Assignment from "./pages/Assignment"
 import { AuthProvider } from "./contexts/AuthContext"
 import { PermissionsProvider } from "./contexts/PermissionsContext"
-import ProtectedRoute from "./components/Auth/ProtectedRoute"
+import ProtectedRoute from "./components/Auth/ProtectedRoute";
+import RoleBasedRoute from "./components/Auth/RoleBasedRoute";
 import ErrorBoundary from "./components/common/ErrorBoundary"
 
 function App() {
@@ -100,75 +101,103 @@ function App() {
               <Route path="requests/new" element={<Requests />} />
               <Route path="requests/:requestId" element={<Requests />} />
               <Route path="requests/:requestId/edit" element={<Requests />} />
-              <Route path="tasks" element={<Tasks />} />
-              <Route path="tasks/new" element={<Tasks />} />
-              <Route path="tasks/:taskId" element={<Tasks />} />
-              <Route path="tasks/:taskId/edit" element={<Tasks />} />
+              <Route
+                path="tasks"
+                element={
+                  <RoleBasedRoute requiredRoles={["system_admin", "it_manager", "senior_technician", "technician"]}>
+                    <Tasks />
+                  </RoleBasedRoute>
+                }
+              />
+              <Route
+                path="tasks/new"
+                element={
+                  <RoleBasedRoute requiredRoles={["system_admin", "it_manager", "senior_technician", "technician"]}>
+                    <Tasks />
+                  </RoleBasedRoute>
+                }
+              />
+              <Route
+                path="tasks/:taskId"
+                element={
+                  <RoleBasedRoute requiredRoles={["system_admin", "it_manager", "senior_technician", "technician"]}>
+                    <Tasks />
+                  </RoleBasedRoute>
+                }
+              />
+              <Route
+                path="tasks/:taskId/edit"
+                element={
+                  <RoleBasedRoute requiredRoles={["system_admin", "it_manager", "senior_technician", "technician"]}>
+                    <Tasks />
+                  </RoleBasedRoute>
+                }
+              />
               <Route path="reports" element={<Reports />} />
               <Route path="settings" element={<Settings />} />
               <Route path="profile" element={<Profile />} />
               <Route
                 path="team"
                 element={
-                  <ProtectedRoute requiredRole="system_admin">
+                  <RoleBasedRoute requiredRoles={["system_admin"]}>
                     <UserManagement />
-                  </ProtectedRoute>
+                  </RoleBasedRoute>
                 }
               />
               <Route
                 path="users"
                 element={
-                  <ProtectedRoute requiredRole="system_admin">
+                  <RoleBasedRoute requiredRoles={["system_admin"]}>
                     <UserManagement />
-                  </ProtectedRoute>
+                  </RoleBasedRoute>
                 }
               />
               <Route
                 path="assignment"
                 element={
-                  <ProtectedRoute requiredPermission="ui.assign_tickets">
+                  <RoleBasedRoute requiredRoles={["staff", "system_admin"]}>
                     <Assignment />
-                  </ProtectedRoute>
+                  </RoleBasedRoute>
                 }
               />
               <Route
                 path="backup"
                 element={
-                  <ProtectedRoute requiredPermission="system.backup">
+                  <RoleBasedRoute requiredRoles={["system_admin"]}>
                     <BackupExport />
-                  </ProtectedRoute>
+                  </RoleBasedRoute>
                 }
               />
               <Route
                 path="admin/backup"
                 element={
-                  <ProtectedRoute requiredPermission="system.backup">
+                  <RoleBasedRoute requiredRoles={["system_admin"]}>
                     <BackupExport />
-                  </ProtectedRoute>
+                  </RoleBasedRoute>
                 }
               />
               <Route
                 path="admin/settings"
                 element={
-                  <ProtectedRoute requiredPermission="system.settings">
+                  <RoleBasedRoute requiredRoles={["system_admin"]}>
                     <AdminSettings />
-                  </ProtectedRoute>
+                  </RoleBasedRoute>
                 }
               />
               <Route
                 path="admin/security"
                 element={
-                  <ProtectedRoute requiredPermission="system.monitoring">
+                  <RoleBasedRoute requiredRoles={["system_admin"]}>
                     <ActivityLog />
-                  </ProtectedRoute>
+                  </RoleBasedRoute>
                 }
               />
               <Route
                 path="admin/health"
                 element={
-                  <ProtectedRoute requiredPermission="system.monitoring">
+                  <RoleBasedRoute requiredRoles={["system_admin"]}>
                     <SystemStatus />
-                  </ProtectedRoute>
+                  </RoleBasedRoute>
                 }
               />
               <Route path="help" element={<Help />} />
@@ -176,9 +205,9 @@ function App() {
               <Route
                 path="status"
                 element={
-                  <ProtectedRoute requiredRole="admin">
+                  <RoleBasedRoute requiredRoles={["system_admin"]}>
                     <SystemStatus />
-                  </ProtectedRoute>
+                  </RoleBasedRoute>
                 }
               />
               <Route path="search" element={<SearchResults />} />
@@ -186,25 +215,25 @@ function App() {
               <Route
                 path="api-docs"
                 element={
-                  <ProtectedRoute requiredRole="admin">
+                  <RoleBasedRoute requiredRoles={["system_admin"]}>
                     <ApiDocs />
-                  </ProtectedRoute>
+                  </RoleBasedRoute>
                 }
               />
               <Route
                 path="activity-log"
                 element={
-                  <ProtectedRoute requiredRole="admin">
+                  <RoleBasedRoute requiredRoles={["system_admin"]}>
                     <ActivityLog />
-                  </ProtectedRoute>
+                  </RoleBasedRoute>
                 }
               />
               <Route
                 path="admin"
                 element={
-                  <ProtectedRoute requiredRole="admin">
+                  <RoleBasedRoute requiredRoles={["system_admin"]}>
                     <AdminPanel />
-                  </ProtectedRoute>
+                  </RoleBasedRoute>
                 }
               />
             </Route>
@@ -219,20 +248,56 @@ function App() {
             <Route path="/requests/new" element={<ProtectedRoute><Layout><Requests /></Layout></ProtectedRoute>} />
             <Route path="/requests/:requestId" element={<ProtectedRoute><Layout><Requests /></Layout></ProtectedRoute>} />
             <Route path="/requests/:requestId/edit" element={<ProtectedRoute><Layout><Requests /></Layout></ProtectedRoute>} />
-            <Route path="/tasks" element={<ProtectedRoute><Layout><Tasks /></Layout></ProtectedRoute>} />
-            <Route path="/tasks/new" element={<ProtectedRoute><Layout><Tasks /></Layout></ProtectedRoute>} />
-            <Route path="/tasks/:taskId" element={<ProtectedRoute><Layout><Tasks /></Layout></ProtectedRoute>} />
-            <Route path="/tasks/:taskId/edit" element={<ProtectedRoute><Layout><Tasks /></Layout></ProtectedRoute>} />
+            <Route
+              path="/tasks"
+              element={
+                <RoleBasedRoute requiredRoles={["system_admin", "it_manager", "senior_technician", "technician"]}>
+                  <Layout>
+                    <Tasks />
+                  </Layout>
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="/tasks/new"
+              element={
+                <RoleBasedRoute requiredRoles={["system_admin", "it_manager", "senior_technician", "technician"]}>
+                  <Layout>
+                    <Tasks />
+                  </Layout>
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="/tasks/:taskId"
+              element={
+                <RoleBasedRoute requiredRoles={["system_admin", "it_manager", "senior_technician", "technician"]}>
+                  <Layout>
+                    <Tasks />
+                  </Layout>
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="/tasks/:taskId/edit"
+              element={
+                <RoleBasedRoute requiredRoles={["system_admin", "it_manager", "senior_technician", "technician"]}>
+                  <Layout>
+                    <Tasks />
+                  </Layout>
+                </RoleBasedRoute>
+              }
+            />
             <Route path="/reports" element={<ProtectedRoute><Layout><Reports /></Layout></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Layout><Settings /></Layout></ProtectedRoute>} />
             <Route
               path="/admin"
               element={
-                <ProtectedRoute requiredRole="admin">
+                <RoleBasedRoute requiredRoles={["system_admin"]}>
                   <Layout>
                     <AdminPanel />
                   </Layout>
-                </ProtectedRoute>
+                </RoleBasedRoute>
               }
             />
             
