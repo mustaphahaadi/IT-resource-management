@@ -19,6 +19,7 @@ import {
   BellIcon,
   ClipboardDocumentCheckIcon,
   BookOpenIcon,
+  UserIcon,
   UserGroupIcon,
   ShieldCheckIcon,
   AcademicCapIcon
@@ -60,7 +61,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
     },
     { 
       name: "Knowledge Base", 
-      href: "/app/knowledge", 
+      href: "/app/knowledge-base", 
       icon: BookOpenIcon,
       permission: "nav.knowledge",
       description: "Documentation and solutions"
@@ -130,6 +131,12 @@ const Sidebar = ({ isOpen, onToggle }) => {
   ]
 
   const userNavigation = [
+    { 
+      name: "Self-Service Portal", 
+      href: "/app/self-service", 
+      icon: UserIcon,
+      description: "Access knowledge base and create tickets"
+    },
     { 
       name: "Notifications", 
       href: "/app/notifications", 

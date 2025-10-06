@@ -161,6 +161,7 @@ def notification_preferences(request):
                 'request_notifications': 'both',
                 'task_notifications': 'both',
                 'maintenance_notifications': 'web',
+                'equipment_alerts_enabled': True,
                 'email_digest_frequency': 'daily'
             }
         )

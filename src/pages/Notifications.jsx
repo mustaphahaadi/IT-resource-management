@@ -94,6 +94,7 @@ const Notifications = () => {
       const req = prefs.request_notifications
       const task = prefs.task_notifications
       const maint = prefs.maintenance_notifications
+      const equipmentEnabled = typeof prefs.equipment_alerts_enabled === 'boolean' ? prefs.equipment_alerts_enabled : true
       setNotificationSettings(prev => ({
         // Global channel toggles derived from any type having the channel
         email_notifications: [sys, req, task, maint].some(hasEmail),
@@ -103,8 +104,7 @@ const Notifications = () => {
         request_updates: req !== 'none' && !!req,
         task_assignments: task !== 'none' && !!task,
         maintenance_reminders: maint !== 'none' && !!maint,
-        // Keep equipment_alerts as-is (not supported in backend preferences)
-        equipment_alerts: prev.equipment_alerts,
+        equipment_alerts: equipmentEnabled,
       }))
     } catch (error) {
       console.error('Error fetching notification settings:', error)
@@ -202,6 +202,7 @@ const Notifications = () => {
       request_notifications: computePref(newSettings.request_updates, newSettings.email_notifications, newSettings.push_notifications),
       task_notifications: computePref(newSettings.task_assignments, newSettings.email_notifications, newSettings.push_notifications),
       maintenance_notifications: computePref(newSettings.maintenance_reminders, newSettings.email_notifications, newSettings.push_notifications),
+      equipment_alerts_enabled: newSettings.equipment_alerts,
     }
 
     try {

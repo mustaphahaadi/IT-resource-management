@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime, time
 from django.db.models import Count, Q
 from django.contrib.auth import get_user_model
 
@@ -258,65 +258,162 @@ def dashboard_analytics(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def recent_activity(request):
-    """Get recent activity data"""
+    """Get recent activity data with optional filtering support"""
     try:
         limit = int(request.GET.get('limit', 10))
         activities = []
-        
+
+        resource_filter = request.GET.get('resource_type') or request.GET.get('type')
+        action_filter = request.GET.get('action_type')
+        search_filter = request.GET.get('search')
+        user_filter = request.GET.get('user')
+        date_from = request.GET.get('date_from')
+        date_to = request.GET.get('date_to')
+
+        start_dt = None
+        end_dt = None
+
+        if date_from:
+            try:
+                start_dt = datetime.strptime(date_from, '%Y-%m-%d')
+                start_dt = timezone.make_aware(datetime.combine(start_dt.date(), time.min))
+            except ValueError:
+                start_dt = None
+
+        if date_to:
+            try:
+                end_dt = datetime.strptime(date_to, '%Y-%m-%d')
+                end_dt = timezone.make_aware(datetime.combine(end_dt.date(), time.max))
+            except ValueError:
+                end_dt = None
+
+        def activity_passes_filters(activity):
+            # Resource / action filters
+            if resource_filter and activity.get('resource_type') != resource_filter:
+                return False
+            if action_filter and activity.get('action_type') != action_filter:
+                return False
+
+            # User filter (match username or display name)
+            if user_filter:
+                user_obj = activity.get('user') or {}
+                user_display = activity.get('user_display', '')
+                username = user_obj.get('username') if isinstance(user_obj, dict) else ''
+                target = f"{user_display} {username}".lower()
+                if user_filter.lower() not in target:
+                    return False
+
+            # Search filter (title + description)
+            if search_filter:
+                haystack = f"{activity.get('title', '')} {activity.get('description', '')}".lower()
+                if search_filter.lower() not in haystack:
+                    return False
+
+            # Date filters
+            if start_dt or end_dt:
+                ts_str = activity.get('timestamp')
+                try:
+                    ts = datetime.fromisoformat(ts_str)
+                    if timezone.is_naive(ts):
+                        ts = timezone.make_aware(ts)
+                except Exception:
+                    ts = None
+
+                if ts is None:
+                    return False
+
+                if start_dt and ts < start_dt:
+                    return False
+                if end_dt and ts > end_dt:
+                    return False
+
+            return True
+
+        def build_user_payload(user_instance):
+            if not user_instance:
+                return {
+                    'first_name': '',
+                    'last_name': '',
+                    'username': '',
+                    'full_name': 'Unknown'
+                }
+            full_name = user_instance.get_full_name() or user_instance.username or 'Unknown'
+            return {
+                'first_name': user_instance.first_name,
+                'last_name': user_instance.last_name,
+                'username': getattr(user_instance, 'username', ''),
+                'full_name': full_name
+            }
+
         # Get recent requests - with safe fallbacks
         try:
-            recent_requests = SupportRequest.objects.select_related('requester').order_by('-created_at')[:limit//2]
-            
-            # Add requests to activities
+            recent_requests = SupportRequest.objects.select_related('requester').order_by('-created_at')[:limit]
+
             for req in recent_requests:
                 try:
-                    activities.append({
+                    user_payload = build_user_payload(getattr(req, 'requester', None))
+                    activity = {
                         'id': f'request_{req.id}',
-                        'type': 'request',
+                        'resource_type': 'request',
+                        'action_type': 'create',
                         'title': f'New support request: {getattr(req, "title", "Untitled")}',
                         'description': f'Priority: {getattr(req, "priority", "unknown")}',
-                        'user': req.requester.get_full_name() if req.requester else 'Unknown',
-                        'timestamp': req.created_at.isoformat() if hasattr(req, 'created_at') else timezone.now().isoformat(),
+                        'user': user_payload,
+                        'user_display': user_payload['full_name'],
+                        'timestamp': req.created_at.isoformat() if getattr(req, 'created_at', None) else timezone.now().isoformat(),
                         'status': getattr(req, 'status', 'unknown'),
-                    })
+                        'resource_id': req.id,
+                    }
+                    if activity_passes_filters(activity):
+                        activities.append(activity)
                 except Exception:
                     continue
         except Exception:
-            pass  # Skip if requests table doesn't exist
-        
+            pass
+
         # Get recent tasks - with safe fallbacks
         try:
-            recent_tasks = Task.objects.select_related('assigned_to').order_by('-created_at')[:limit//2]
-            
-            # Add tasks to activities
+            recent_tasks = Task.objects.select_related('assigned_to__user').order_by('-created_at')[:limit]
+
             for task in recent_tasks:
                 try:
-                    activities.append({
+                    personnel = getattr(task, 'assigned_to', None)
+                    user_instance = personnel.user if getattr(personnel, 'user', None) else None
+                    user_payload = build_user_payload(user_instance)
+                    due_description = (
+                        f'Due: {task.due_date.strftime("%Y-%m-%d")}'
+                        if getattr(task, 'due_date', None) else 'No due date'
+                    )
+                    activity = {
                         'id': f'task_{task.id}',
-                        'type': 'task',
+                        'resource_type': 'task',
+                        'action_type': 'create',
                         'title': f'Task assigned: {getattr(task, "title", "Untitled")}',
-                        'description': f'Due: {task.due_date.strftime("%Y-%m-%d") if getattr(task, "due_date", None) else "No due date"}',
-                        'user': task.assigned_to.get_full_name() if task.assigned_to else 'Unassigned',
-                        'timestamp': task.created_at.isoformat() if hasattr(task, 'created_at') else timezone.now().isoformat(),
+                        'description': due_description,
+                        'user': user_payload if user_instance else {'first_name': '', 'last_name': '', 'username': '', 'full_name': 'Unassigned'},
+                        'user_display': user_payload['full_name'] if user_instance else 'Unassigned',
+                        'timestamp': task.created_at.isoformat() if getattr(task, 'created_at', None) else timezone.now().isoformat(),
                         'status': getattr(task, 'status', 'unknown'),
-                    })
+                        'resource_id': task.id,
+                    }
+                    if activity_passes_filters(activity):
+                        activities.append(activity)
                 except Exception:
                     continue
         except Exception:
-            pass  # Skip if tasks table doesn't exist
-        
-        # Sort by timestamp (most recent first)
+            pass
+
+        # Sort by timestamp (most recent first) and trim to limit
         try:
             activities.sort(key=lambda x: x['timestamp'], reverse=True)
         except Exception:
             pass
-        
+
         return Response({
             'activities': activities[:limit]
         })
-        
-    except Exception as e:
-        # Return empty activities instead of error
+
+    except Exception:
         return Response({
             'activities': []
         })

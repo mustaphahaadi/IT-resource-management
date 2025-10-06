@@ -1,0 +1,5365 @@
+openapi: 3.0.3
+info:
+  title: Hospital IT Resource Management API
+  version: 1.0.0
+  description: API for managing IT resources, support requests, and tasks in a hospital
+    environment.
+paths:
+  /api/admin/audit-logs/:
+    get:
+      operationId: api_admin_audit_logs_retrieve
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/admin/backup/{backup_id}/:
+    delete:
+      operationId: api_admin_backup_destroy
+      parameters:
+      - in: path
+        name: backup_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/admin/backup/{backup_id}/download/:
+    get:
+      operationId: api_admin_backup_download_retrieve
+      parameters:
+      - in: path
+        name: backup_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/admin/backup/{backup_id}/restore/:
+    post:
+      operationId: api_admin_backup_restore_create
+      parameters:
+      - in: path
+        name: backup_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/admin/backup/create/:
+    post:
+      operationId: api_admin_backup_create_create
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/admin/backup/history/:
+    get:
+      operationId: api_admin_backup_history_retrieve
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/admin/export/:
+    post:
+      operationId: api_admin_export_create
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/admin/settings/:
+    get:
+      operationId: api_admin_settings_retrieve
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+    patch:
+      operationId: api_admin_settings_partial_update
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/dashboard/:
+    get:
+      operationId: api_analytics_dashboard_retrieve
+      description: Get dashboard analytics data
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/recent-activity/:
+    get:
+      operationId: api_analytics_recent_activity_retrieve
+      description: Get recent activity data
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/requests/:
+    get:
+      operationId: api_analytics_requests_retrieve
+      description: Get request analytics data
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/system-health/:
+    get:
+      operationId: api_analytics_system_health_retrieve
+      description: Return high-level system health metrics. Safe defaults when data
+        is unavailable.
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/admin/login-attempts/:
+    get:
+      operationId: api_auth_admin_login_attempts_retrieve
+      description: Get recent login attempts for monitoring
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/admin/statistics/:
+    get:
+      operationId: api_auth_admin_statistics_retrieve
+      description: Get admin dashboard statistics
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/admin/users/:
+    get:
+      operationId: api_auth_admin_users_retrieve
+      description: Get paginated list of users with filtering
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/admin/users/{user_id}/:
+    get:
+      operationId: api_auth_admin_users_retrieve_2
+      description: Get detailed information about a specific user
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/admin/users/{user_id}/activate/:
+    post:
+      operationId: api_auth_admin_users_activate_create
+      description: Activate a user account
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/admin/users/{user_id}/approve/:
+    post:
+      operationId: api_auth_admin_users_approve_create
+      description: Approve a user account
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/admin/users/{user_id}/deactivate/:
+    post:
+      operationId: api_auth_admin_users_deactivate_create
+      description: Deactivate a user account
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/admin/users/{user_id}/delete/:
+    delete:
+      operationId: api_auth_admin_users_delete_destroy
+      description: Delete a user account (soft delete by deactivating)
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/auth/admin/users/{user_id}/disapprove/:
+    post:
+      operationId: api_auth_admin_users_disapprove_create
+      description: Disapprove a user account
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/admin/users/{user_id}/unlock/:
+    post:
+      operationId: api_auth_admin_users_unlock_create
+      description: Unlock a locked user account
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/admin/users/{user_id}/update/:
+    put:
+      operationId: api_auth_admin_users_update_update
+      description: Update user information
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/change-password/:
+    post:
+      operationId: api_auth_change_password_create
+      description: Change user password
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/login/:
+    post:
+      operationId: api_auth_login_create
+      description: Login user and return token
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/auth/logout/:
+    post:
+      operationId: api_auth_logout_create
+      description: Logout user and delete token
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/profile/:
+    get:
+      operationId: api_auth_profile_retrieve
+      description: Get current user profile
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/profile/update/:
+    put:
+      operationId: api_auth_profile_update_update
+      description: Update user profile
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+    patch:
+      operationId: api_auth_profile_update_partial_update
+      description: Update user profile
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/register/:
+    post:
+      operationId: api_auth_register_create
+      description: Register a new user
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/auth/request-password-reset/:
+    post:
+      operationId: api_auth_request_password_reset_create
+      description: Request password reset
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/auth/resend-verification/:
+    post:
+      operationId: api_auth_resend_verification_create
+      description: Resend email verification
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/reset-password/:
+    post:
+      operationId: api_auth_reset_password_create
+      description: Reset password with token
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/auth/roles/:
+    get:
+      operationId: api_auth_roles_retrieve
+      description: Return available user roles from CustomUser.ROLE_CHOICES
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/user/activity/:
+    get:
+      operationId: api_auth_user_activity_retrieve
+      description: Recent activity for the current user, composed from requests and
+        tasks. Safe fallbacks.
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/user/preferences/:
+    get:
+      operationId: api_auth_user_preferences_retrieve
+      description: |-
+        Simple per-user preferences using an in-memory store.
+        Frontend calls: GET to read, PATCH to update.
+        Keys are flexible; common examples: theme, timezone, notifications.
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+    patch:
+      operationId: api_auth_user_preferences_partial_update
+      description: |-
+        Simple per-user preferences using an in-memory store.
+        Frontend calls: GET to read, PATCH to update.
+        Keys are flexible; common examples: theme, timezone, notifications.
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/user/stats/:
+    get:
+      operationId: api_auth_user_stats_retrieve
+      description: Return basic activity stats for the current user. Safe defaults
+        if related apps unavailable.
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/users/{user_id}/approve/:
+    post:
+      operationId: api_auth_users_approve_create
+      description: Approve a pending user
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/users/{user_id}/reject/:
+    post:
+      operationId: api_auth_users_reject_create
+      description: Reject a pending user
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/users/bulk-approve/:
+    post:
+      operationId: api_auth_users_bulk_approve_create
+      description: Approve multiple pending users at once.
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/users/pending-approval/:
+    get:
+      operationId: api_auth_users_pending_approval_retrieve
+      description: Get users pending approval
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/verify-email/:
+    post:
+      operationId: api_auth_verify_email_create
+      description: Verify user email with token
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/core/activity-logs/:
+    get:
+      operationId: api_core_activity_logs_retrieve
+      description: ViewSet for activity logs
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/core/activity-logs/{id}/:
+    get:
+      operationId: api_core_activity_logs_retrieve_2
+      description: ViewSet for activity logs
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this activity log.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/core/activity-logs/my_activity/:
+    get:
+      operationId: api_core_activity_logs_my_activity_retrieve
+      description: Get current user's activity
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/core/activity-logs/system_activity/:
+    get:
+      operationId: api_core_activity_logs_system_activity_retrieve
+      description: Get recent system activity
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/core/bulk-operations/bulk_assign_requests/:
+    post:
+      operationId: api_core_bulk_operations_bulk_assign_requests_create
+      description: Bulk assign multiple requests
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/core/bulk-operations/bulk_close_requests/:
+    post:
+      operationId: api_core_bulk_operations_bulk_close_requests_create
+      description: Bulk close multiple requests
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/core/bulk-operations/bulk_update_equipment_status/:
+    post:
+      operationId: api_core_bulk_operations_bulk_update_equipment_status_create
+      description: Bulk update equipment status
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/core/bulk-operations/bulk_update_priority/:
+    post:
+      operationId: api_core_bulk_operations_bulk_update_priority_create
+      description: Bulk update priority for requests or tasks
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/core/files/upload/:
+    post:
+      operationId: api_core_files_upload_create
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/core/import/equipment/:
+    post:
+      operationId: api_core_import_equipment_create
+      description: Import equipment data from CSV
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/core/reports/{report_id}/download/:
+    get:
+      operationId: api_core_reports_download_retrieve
+      parameters:
+      - in: path
+        name: report_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/core/reports/generate/:
+    post:
+      operationId: api_core_reports_generate_create
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/core/reports/history/:
+    get:
+      operationId: api_core_reports_history_retrieve
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/core/reports/schedule/:
+    post:
+      operationId: api_core_reports_schedule_create
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/core/search/:
+    get:
+      operationId: api_core_search_retrieve
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/core/system/health/:
+    get:
+      operationId: api_core_system_health_retrieve
+      description: Get system health metrics
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/inventory/categories/:
+    get:
+      operationId: api_inventory_categories_list
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EquipmentCategory'
+          description: ''
+    post:
+      operationId: api_inventory_categories_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EquipmentCategory'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EquipmentCategory'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EquipmentCategory'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentCategory'
+          description: ''
+  /api/inventory/categories/{id}/:
+    get:
+      operationId: api_inventory_categories_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this equipment category.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentCategory'
+          description: ''
+    put:
+      operationId: api_inventory_categories_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this equipment category.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EquipmentCategory'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EquipmentCategory'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EquipmentCategory'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentCategory'
+          description: ''
+    patch:
+      operationId: api_inventory_categories_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this equipment category.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEquipmentCategory'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEquipmentCategory'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEquipmentCategory'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentCategory'
+          description: ''
+    delete:
+      operationId: api_inventory_categories_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this equipment category.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/inventory/departments/:
+    get:
+      operationId: api_inventory_departments_list
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Department'
+          description: ''
+  /api/inventory/departments/{id}/:
+    get:
+      operationId: api_inventory_departments_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this department.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+          description: ''
+  /api/inventory/equipment/:
+    get:
+      operationId: api_inventory_equipment_list
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: integer
+      - in: query
+        name: location
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: priority
+        schema:
+          type: string
+          enum:
+          - critical
+          - high
+          - low
+          - medium
+        description: |-
+          * `critical` - Critical
+          * `high` - High
+          * `medium` - Medium
+          * `low` - Low
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - active
+          - broken
+          - maintenance
+          - retired
+        description: |-
+          * `active` - Active
+          * `maintenance` - Under Maintenance
+          * `retired` - Retired
+          * `broken` - Broken
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Equipment'
+          description: ''
+    post:
+      operationId: api_inventory_equipment_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Equipment'
+          description: ''
+  /api/inventory/equipment/{id}/:
+    get:
+      operationId: api_inventory_equipment_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this equipment.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Equipment'
+          description: ''
+    put:
+      operationId: api_inventory_equipment_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this equipment.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Equipment'
+          description: ''
+    patch:
+      operationId: api_inventory_equipment_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this equipment.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEquipment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEquipment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEquipment'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Equipment'
+          description: ''
+    delete:
+      operationId: api_inventory_equipment_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this equipment.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/inventory/equipment/dashboard_stats/:
+    get:
+      operationId: api_inventory_equipment_dashboard_stats_retrieve
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Equipment'
+          description: ''
+  /api/inventory/locations/:
+    get:
+      operationId: api_inventory_locations_list
+      parameters:
+      - in: query
+        name: department
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+          description: ''
+    post:
+      operationId: api_inventory_locations_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Location'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Location'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+          description: ''
+  /api/inventory/locations/{id}/:
+    get:
+      operationId: api_inventory_locations_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this location.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+          description: ''
+    put:
+      operationId: api_inventory_locations_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this location.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Location'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Location'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+          description: ''
+    patch:
+      operationId: api_inventory_locations_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this location.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLocation'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLocation'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLocation'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+          description: ''
+    delete:
+      operationId: api_inventory_locations_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this location.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/inventory/maintenance/:
+    get:
+      operationId: api_inventory_maintenance_list
+      parameters:
+      - in: query
+        name: equipment
+        schema:
+          type: integer
+      - in: query
+        name: frequency
+        schema:
+          type: string
+          enum:
+          - annually
+          - monthly
+          - quarterly
+          - weekly
+        description: |-
+          * `weekly` - Weekly
+          * `monthly` - Monthly
+          * `quarterly` - Quarterly
+          * `annually` - Annually
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MaintenanceSchedule'
+          description: ''
+    post:
+      operationId: api_inventory_maintenance_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaintenanceSchedule'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MaintenanceSchedule'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MaintenanceSchedule'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MaintenanceSchedule'
+          description: ''
+  /api/inventory/maintenance/{id}/:
+    get:
+      operationId: api_inventory_maintenance_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this maintenance schedule.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MaintenanceSchedule'
+          description: ''
+    put:
+      operationId: api_inventory_maintenance_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this maintenance schedule.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaintenanceSchedule'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MaintenanceSchedule'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MaintenanceSchedule'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MaintenanceSchedule'
+          description: ''
+    patch:
+      operationId: api_inventory_maintenance_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this maintenance schedule.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMaintenanceSchedule'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMaintenanceSchedule'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMaintenanceSchedule'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MaintenanceSchedule'
+          description: ''
+    delete:
+      operationId: api_inventory_maintenance_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this maintenance schedule.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/inventory/software/:
+    get:
+      operationId: api_inventory_software_list
+      parameters:
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Software'
+          description: ''
+    post:
+      operationId: api_inventory_software_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Software'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Software'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Software'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Software'
+          description: ''
+  /api/inventory/software/{id}/:
+    get:
+      operationId: api_inventory_software_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this software.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Software'
+          description: ''
+    put:
+      operationId: api_inventory_software_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this software.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Software'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Software'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Software'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Software'
+          description: ''
+    patch:
+      operationId: api_inventory_software_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this software.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSoftware'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSoftware'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSoftware'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Software'
+          description: ''
+    delete:
+      operationId: api_inventory_software_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this software.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/inventory/vendors/:
+    get:
+      operationId: api_inventory_vendors_list
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vendor'
+          description: ''
+    post:
+      operationId: api_inventory_vendors_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+          description: ''
+  /api/inventory/vendors/{id}/:
+    get:
+      operationId: api_inventory_vendors_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendor.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+          description: ''
+    put:
+      operationId: api_inventory_vendors_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendor.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+          description: ''
+    patch:
+      operationId: api_inventory_vendors_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendor.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedVendor'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedVendor'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedVendor'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+          description: ''
+    delete:
+      operationId: api_inventory_vendors_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendor.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/knowledge-base/articles/:
+    get:
+      operationId: api_knowledge_base_articles_list
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Article'
+          description: ''
+    post:
+      operationId: api_knowledge_base_articles_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Article'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Article'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Article'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+          description: ''
+  /api/knowledge-base/articles/{id}/:
+    get:
+      operationId: api_knowledge_base_articles_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this article.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+          description: ''
+    put:
+      operationId: api_knowledge_base_articles_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this article.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Article'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Article'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Article'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+          description: ''
+    patch:
+      operationId: api_knowledge_base_articles_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this article.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedArticle'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedArticle'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedArticle'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+          description: ''
+    delete:
+      operationId: api_knowledge_base_articles_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this article.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/knowledge-base/categories/:
+    get:
+      operationId: api_knowledge_base_categories_list
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+          description: ''
+    post:
+      operationId: api_knowledge_base_categories_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Category'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Category'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+  /api/knowledge-base/categories/{id}/:
+    get:
+      operationId: api_knowledge_base_categories_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this category.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    put:
+      operationId: api_knowledge_base_categories_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this category.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Category'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Category'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    patch:
+      operationId: api_knowledge_base_categories_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this category.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCategory'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCategory'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCategory'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    delete:
+      operationId: api_knowledge_base_categories_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this category.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/notifications/:
+    get:
+      operationId: api_notifications_retrieve
+      description: Get user's notifications with pagination and filtering
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/notifications/{notification_id}/dismiss/:
+    delete:
+      operationId: api_notifications_dismiss_destroy
+      description: Dismiss a specific notification
+      parameters:
+      - in: path
+        name: notification_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/notifications/{notification_id}/read/:
+    post:
+      operationId: api_notifications_read_create
+      description: Mark a specific notification as read
+      parameters:
+      - in: path
+        name: notification_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/notifications/create/:
+    post:
+      operationId: api_notifications_create_create
+      description: Create a new notification (admin/system use)
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/notifications/mark-all-read/:
+    post:
+      operationId: api_notifications_mark_all_read_create
+      description: Mark all user's notifications as read
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/notifications/preferences/:
+    get:
+      operationId: api_notifications_preferences_retrieve
+      description: Get or update user's notification preferences
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: api_notifications_preferences_update
+      description: Get or update user's notification preferences
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/notifications/stats/:
+    get:
+      operationId: api_notifications_stats_retrieve
+      description: Get notification statistics for the user
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/requests/alerts/:
+    get:
+      operationId: api_requests_alerts_list
+      parameters:
+      - in: query
+        name: alert_type
+        schema:
+          type: string
+          enum:
+          - critical_request
+          - equipment_down
+          - license_expiry
+          - maintenance_due
+          - sla_breach
+          - warranty_expiry
+        description: |-
+          * `equipment_down` - Equipment Down
+          * `maintenance_due` - Maintenance Due
+          * `warranty_expiry` - Warranty Expiring
+          * `license_expiry` - License Expiring
+          * `sla_breach` - SLA Breach
+          * `critical_request` - Critical Request
+      - in: query
+        name: is_acknowledged
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Alert'
+          description: ''
+    post:
+      operationId: api_requests_alerts_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Alert'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Alert'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Alert'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+          description: ''
+  /api/requests/alerts/{id}/:
+    get:
+      operationId: api_requests_alerts_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this alert.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+          description: ''
+    put:
+      operationId: api_requests_alerts_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this alert.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Alert'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Alert'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Alert'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+          description: ''
+    patch:
+      operationId: api_requests_alerts_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this alert.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAlert'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAlert'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAlert'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+          description: ''
+    delete:
+      operationId: api_requests_alerts_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this alert.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/requests/alerts/{id}/acknowledge/:
+    post:
+      operationId: api_requests_alerts_acknowledge_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this alert.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Alert'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Alert'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Alert'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+          description: ''
+  /api/requests/categories/:
+    get:
+      operationId: api_requests_categories_list
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RequestCategory'
+          description: ''
+    post:
+      operationId: api_requests_categories_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestCategory'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RequestCategory'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RequestCategory'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestCategory'
+          description: ''
+  /api/requests/categories/{id}/:
+    get:
+      operationId: api_requests_categories_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this request category.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestCategory'
+          description: ''
+    put:
+      operationId: api_requests_categories_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this request category.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestCategory'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RequestCategory'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RequestCategory'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestCategory'
+          description: ''
+    patch:
+      operationId: api_requests_categories_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this request category.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRequestCategory'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRequestCategory'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRequestCategory'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestCategory'
+          description: ''
+    delete:
+      operationId: api_requests_categories_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this request category.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/requests/support-requests/:
+    get:
+      operationId: api_requests_support_requests_list
+      parameters:
+      - in: query
+        name: assigned_to
+        schema:
+          type: integer
+      - in: query
+        name: category
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: priority
+        schema:
+          type: string
+          enum:
+          - critical
+          - high
+          - low
+          - medium
+        description: |-
+          * `critical` - Critical - System Down/Security Breach
+          * `high` - High - Major Impact on Operations
+          * `medium` - Medium - Standard Request
+          * `low` - Low - Enhancement/Non-urgent
+      - in: query
+        name: requester_department
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - assigned
+          - cancelled
+          - closed
+          - escalated
+          - in_progress
+          - open
+          - pending_approval
+          - pending_user
+          - resolved
+        description: |-
+          * `open` - Open
+          * `assigned` - Assigned
+          * `in_progress` - In Progress
+          * `pending_user` - Pending User Response
+          * `pending_approval` - Pending Approval
+          * `escalated` - Escalated
+          * `resolved` - Resolved
+          * `closed` - Closed
+          * `cancelled` - Cancelled
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SupportRequest'
+          description: ''
+    post:
+      operationId: api_requests_support_requests_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SupportRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SupportRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportRequest'
+          description: ''
+  /api/requests/support-requests/{id}/:
+    get:
+      operationId: api_requests_support_requests_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this support request.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportRequest'
+          description: ''
+    put:
+      operationId: api_requests_support_requests_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this support request.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SupportRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SupportRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportRequest'
+          description: ''
+    patch:
+      operationId: api_requests_support_requests_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this support request.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSupportRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSupportRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSupportRequest'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportRequest'
+          description: ''
+    delete:
+      operationId: api_requests_support_requests_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this support request.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/requests/support-requests/{id}/add_comment/:
+    post:
+      operationId: api_requests_support_requests_add_comment_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this support request.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SupportRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SupportRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportRequest'
+          description: ''
+  /api/requests/support-requests/{id}/assign/:
+    post:
+      operationId: api_requests_support_requests_assign_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this support request.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SupportRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SupportRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportRequest'
+          description: ''
+  /api/requests/support-requests/dashboard_stats/:
+    get:
+      operationId: api_requests_support_requests_dashboard_stats_retrieve
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportRequest'
+          description: ''
+  /api/tasks/assignment-rules/:
+    get:
+      operationId: api_tasks_assignment_rules_list
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - in: query
+        name: rule_type
+        schema:
+          type: string
+          enum:
+          - priority_based
+          - round_robin
+          - skill_based
+          - workload_based
+        description: |-
+          * `skill_based` - Skill Based
+          * `workload_based` - Workload Based
+          * `round_robin` - Round Robin
+          * `priority_based` - Priority Based
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskAssignmentRule'
+          description: ''
+    post:
+      operationId: api_tasks_assignment_rules_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskAssignmentRule'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TaskAssignmentRule'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TaskAssignmentRule'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskAssignmentRule'
+          description: ''
+  /api/tasks/assignment-rules/{id}/:
+    get:
+      operationId: api_tasks_assignment_rules_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this task assignment rule.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskAssignmentRule'
+          description: ''
+    put:
+      operationId: api_tasks_assignment_rules_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this task assignment rule.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskAssignmentRule'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TaskAssignmentRule'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TaskAssignmentRule'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskAssignmentRule'
+          description: ''
+    patch:
+      operationId: api_tasks_assignment_rules_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this task assignment rule.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTaskAssignmentRule'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTaskAssignmentRule'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTaskAssignmentRule'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskAssignmentRule'
+          description: ''
+    delete:
+      operationId: api_tasks_assignment_rules_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this task assignment rule.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/tasks/personnel/:
+    get:
+      operationId: api_tasks_personnel_list
+      parameters:
+      - in: query
+        name: department
+        schema:
+          type: string
+      - in: query
+        name: is_available
+        schema:
+          type: boolean
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: skill_level
+        schema:
+          type: string
+          enum:
+          - expert
+          - intermediate
+          - junior
+          - senior
+        description: |-
+          * `junior` - Junior
+          * `intermediate` - Intermediate
+          * `senior` - Senior
+          * `expert` - Expert
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ITPersonnel'
+          description: ''
+    post:
+      operationId: api_tasks_personnel_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ITPersonnel'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ITPersonnel'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ITPersonnel'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ITPersonnel'
+          description: ''
+  /api/tasks/personnel/{id}/:
+    get:
+      operationId: api_tasks_personnel_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this it personnel.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ITPersonnel'
+          description: ''
+    put:
+      operationId: api_tasks_personnel_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this it personnel.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ITPersonnel'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ITPersonnel'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ITPersonnel'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ITPersonnel'
+          description: ''
+    patch:
+      operationId: api_tasks_personnel_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this it personnel.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedITPersonnel'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedITPersonnel'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedITPersonnel'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ITPersonnel'
+          description: ''
+    delete:
+      operationId: api_tasks_personnel_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this it personnel.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/tasks/personnel/available/:
+    get:
+      operationId: api_tasks_personnel_available_retrieve
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ITPersonnel'
+          description: ''
+  /api/tasks/tasks/:
+    get:
+      operationId: api_tasks_tasks_list
+      parameters:
+      - in: query
+        name: assigned_to
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: priority
+        schema:
+          type: string
+          enum:
+          - critical
+          - high
+          - low
+          - medium
+        description: |-
+          * `critical` - Critical
+          * `high` - High
+          * `medium` - Medium
+          * `low` - Low
+      - in: query
+        name: related_request
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - assigned
+          - cancelled
+          - completed
+          - in_progress
+          - pending
+        description: |-
+          * `pending` - Pending Assignment
+          * `assigned` - Assigned
+          * `in_progress` - In Progress
+          * `completed` - Completed
+          * `cancelled` - Cancelled
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+          description: ''
+    post:
+      operationId: api_tasks_tasks_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Task'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /api/tasks/tasks/{id}/:
+    get:
+      operationId: api_tasks_tasks_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this task.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+    put:
+      operationId: api_tasks_tasks_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this task.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Task'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+    patch:
+      operationId: api_tasks_tasks_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this task.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTask'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTask'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTask'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+    delete:
+      operationId: api_tasks_tasks_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this task.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/tasks/tasks/{id}/assign/:
+    post:
+      operationId: api_tasks_tasks_assign_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this task.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Task'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /api/tasks/tasks/{id}/comments/:
+    get:
+      operationId: api_tasks_tasks_comments_retrieve
+      description: List or create comments for a task
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this task.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+    post:
+      operationId: api_tasks_tasks_comments_create
+      description: List or create comments for a task
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this task.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Task'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /api/tasks/tasks/{id}/complete/:
+    post:
+      operationId: api_tasks_tasks_complete_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this task.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Task'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /api/tasks/tasks/{id}/reassign/:
+    post:
+      operationId: api_tasks_tasks_reassign_create
+      description: Reassign task to a different technician
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this task.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Task'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /api/tasks/tasks/{id}/start/:
+    post:
+      operationId: api_tasks_tasks_start_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this task.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Task'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /api/tasks/tasks/assignment_suggestions/:
+    get:
+      operationId: api_tasks_tasks_assignment_suggestions_retrieve
+      description: Get assignment suggestions for unassigned tasks
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /api/tasks/tasks/create_from_request/:
+    post:
+      operationId: api_tasks_tasks_create_from_request_create
+      description: Create a task from a support request
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Task'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /api/tasks/tasks/dashboard_stats/:
+    get:
+      operationId: api_tasks_tasks_dashboard_stats_retrieve
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /api/tasks/tasks/my_dashboard/:
+    get:
+      operationId: api_tasks_tasks_my_dashboard_retrieve
+      description: Get dashboard statistics for the current technician
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /api/tasks/tasks/my_tasks/:
+    get:
+      operationId: api_tasks_tasks_my_tasks_retrieve
+      description: Get tasks assigned to the current user (technician)
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /api/tasks/workflows/:
+    get:
+      operationId: api_tasks_workflows_list
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: string
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WorkflowTemplate'
+          description: ''
+    post:
+      operationId: api_tasks_workflows_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowTemplate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WorkflowTemplate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WorkflowTemplate'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowTemplate'
+          description: ''
+  /api/tasks/workflows/{id}/:
+    get:
+      operationId: api_tasks_workflows_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this workflow template.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowTemplate'
+          description: ''
+    put:
+      operationId: api_tasks_workflows_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this workflow template.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowTemplate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WorkflowTemplate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WorkflowTemplate'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowTemplate'
+          description: ''
+    patch:
+      operationId: api_tasks_workflows_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this workflow template.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkflowTemplate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkflowTemplate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkflowTemplate'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowTemplate'
+          description: ''
+    delete:
+      operationId: api_tasks_workflows_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this workflow template.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    Alert:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        acknowledged_by_name:
+          type: string
+          readOnly: true
+        request_ticket:
+          type: string
+          readOnly: true
+        equipment_name:
+          type: string
+          readOnly: true
+        alert_type:
+          $ref: '#/components/schemas/AlertTypeEnum'
+        title:
+          type: string
+          maxLength: 200
+        message:
+          type: string
+        is_acknowledged:
+          type: boolean
+        acknowledged_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        related_request:
+          type: integer
+          nullable: true
+        related_equipment:
+          type: integer
+          nullable: true
+        acknowledged_by:
+          type: integer
+          nullable: true
+      required:
+      - acknowledged_by_name
+      - alert_type
+      - created_at
+      - equipment_name
+      - id
+      - message
+      - request_ticket
+      - title
+    AlertTypeEnum:
+      enum:
+      - equipment_down
+      - maintenance_due
+      - warranty_expiry
+      - license_expiry
+      - sla_breach
+      - critical_request
+      type: string
+      description: |-
+        * `equipment_down` - Equipment Down
+        * `maintenance_due` - Maintenance Due
+        * `warranty_expiry` - Warranty Expiring
+        * `license_expiry` - License Expiring
+        * `sla_breach` - SLA Breach
+        * `critical_request` - Critical Request
+    Article:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        category_name:
+          type: string
+          readOnly: true
+        author_name:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        content:
+          type: string
+        summary:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        category:
+          type: integer
+          nullable: true
+        author:
+          type: integer
+          nullable: true
+      required:
+      - author_name
+      - category_name
+      - content
+      - created_at
+      - id
+      - title
+      - updated_at
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+      required:
+      - id
+      - name
+    CategoryTypeEnum:
+      enum:
+      - hardware
+      - software
+      - network
+      - access
+      - email
+      - training
+      - maintenance
+      - security
+      - other
+      type: string
+      description: |-
+        * `hardware` - Hardware Issues
+        * `software` - Software Issues
+        * `network` - Network & Connectivity
+        * `access` - Access & Permissions
+        * `email` - Email & Communication
+        * `training` - Training & Support
+        * `maintenance` - Maintenance & Updates
+        * `security` - Security Issues
+        * `other` - Other
+    ChannelEnum:
+      enum:
+      - web_portal
+      - mobile_app
+      - phone
+      - email
+      - walk_in
+      - chat
+      - self_service
+      type: string
+      description: |-
+        * `web_portal` - Web Portal
+        * `mobile_app` - Mobile App
+        * `phone` - Phone Call
+        * `email` - Email
+        * `walk_in` - Walk-in/In-Person
+        * `chat` - Live Chat
+        * `self_service` - Self-Service Portal
+    Department:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+    Equipment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        category_name:
+          type: string
+          readOnly: true
+        location_name:
+          type: string
+          readOnly: true
+        vendor_name:
+          type: string
+          readOnly: true
+        assigned_to_name:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        asset_tag:
+          type: string
+          maxLength: 50
+        serial_number:
+          type: string
+          maxLength: 100
+        model:
+          type: string
+          maxLength: 100
+        manufacturer:
+          type: string
+          maxLength: 100
+        status:
+          $ref: '#/components/schemas/EquipmentStatusEnum'
+        priority:
+          $ref: '#/components/schemas/PriorityD90Enum'
+        purchase_date:
+          type: string
+          format: date
+          nullable: true
+        warranty_expiry:
+          type: string
+          format: date
+          nullable: true
+        purchase_cost:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        category:
+          type: integer
+        location:
+          type: integer
+        vendor:
+          type: integer
+          nullable: true
+        assigned_to:
+          type: integer
+          nullable: true
+      required:
+      - asset_tag
+      - assigned_to_name
+      - category
+      - category_name
+      - created_at
+      - id
+      - location
+      - location_name
+      - manufacturer
+      - model
+      - name
+      - updated_at
+      - vendor_name
+    EquipmentCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+    EquipmentStatusEnum:
+      enum:
+      - active
+      - maintenance
+      - retired
+      - broken
+      type: string
+      description: |-
+        * `active` - Active
+        * `maintenance` - Under Maintenance
+        * `retired` - Retired
+        * `broken` - Broken
+    FrequencyEnum:
+      enum:
+      - weekly
+      - monthly
+      - quarterly
+      - annually
+      type: string
+      description: |-
+        * `weekly` - Weekly
+        * `monthly` - Monthly
+        * `quarterly` - Quarterly
+        * `annually` - Annually
+    ITPersonnel:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_name:
+          type: string
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+        current_task_count:
+          type: string
+          readOnly: true
+        is_overloaded:
+          type: string
+          readOnly: true
+        employee_id:
+          type: string
+          maxLength: 20
+        department:
+          type: string
+          maxLength: 100
+        skill_level:
+          $ref: '#/components/schemas/SkillLevelEnum'
+        specializations:
+          type: string
+          description: Comma-separated list of specializations
+        phone:
+          type: string
+          maxLength: 20
+        is_available:
+          type: boolean
+        max_concurrent_tasks:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        user:
+          type: integer
+      required:
+      - created_at
+      - current_task_count
+      - department
+      - employee_id
+      - id
+      - is_overloaded
+      - phone
+      - specializations
+      - user
+      - user_name
+      - username
+    ImpactEnum:
+      enum:
+      - critical
+      - high
+      - medium
+      - low
+      type: string
+      description: |-
+        * `critical` - Critical - System Down/Security Breach
+        * `high` - High - Major Impact on Operations
+        * `medium` - Medium - Standard Request
+        * `low` - Low - Enhancement/Non-urgent
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        department_name:
+          type: string
+          readOnly: true
+        building:
+          type: string
+          maxLength: 100
+        floor:
+          type: string
+          maxLength: 50
+        room:
+          type: string
+          maxLength: 50
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        department:
+          type: integer
+      required:
+      - building
+      - created_at
+      - department
+      - department_name
+      - floor
+      - id
+      - room
+    MaintenanceSchedule:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        equipment_name:
+          type: string
+          readOnly: true
+        technician_name:
+          type: string
+          readOnly: true
+        maintenance_type:
+          type: string
+          maxLength: 100
+        frequency:
+          $ref: '#/components/schemas/FrequencyEnum'
+        last_maintenance:
+          type: string
+          format: date
+          nullable: true
+        next_maintenance:
+          type: string
+          format: date
+        notes:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        equipment:
+          type: integer
+        assigned_technician:
+          type: integer
+          nullable: true
+      required:
+      - created_at
+      - equipment
+      - equipment_name
+      - frequency
+      - id
+      - maintenance_type
+      - next_maintenance
+      - technician_name
+    PatchedAlert:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        acknowledged_by_name:
+          type: string
+          readOnly: true
+        request_ticket:
+          type: string
+          readOnly: true
+        equipment_name:
+          type: string
+          readOnly: true
+        alert_type:
+          $ref: '#/components/schemas/AlertTypeEnum'
+        title:
+          type: string
+          maxLength: 200
+        message:
+          type: string
+        is_acknowledged:
+          type: boolean
+        acknowledged_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        related_request:
+          type: integer
+          nullable: true
+        related_equipment:
+          type: integer
+          nullable: true
+        acknowledged_by:
+          type: integer
+          nullable: true
+    PatchedArticle:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        category_name:
+          type: string
+          readOnly: true
+        author_name:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        content:
+          type: string
+        summary:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        category:
+          type: integer
+          nullable: true
+        author:
+          type: integer
+          nullable: true
+    PatchedCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+    PatchedEquipment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        category_name:
+          type: string
+          readOnly: true
+        location_name:
+          type: string
+          readOnly: true
+        vendor_name:
+          type: string
+          readOnly: true
+        assigned_to_name:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        asset_tag:
+          type: string
+          maxLength: 50
+        serial_number:
+          type: string
+          maxLength: 100
+        model:
+          type: string
+          maxLength: 100
+        manufacturer:
+          type: string
+          maxLength: 100
+        status:
+          $ref: '#/components/schemas/EquipmentStatusEnum'
+        priority:
+          $ref: '#/components/schemas/PriorityD90Enum'
+        purchase_date:
+          type: string
+          format: date
+          nullable: true
+        warranty_expiry:
+          type: string
+          format: date
+          nullable: true
+        purchase_cost:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        category:
+          type: integer
+        location:
+          type: integer
+        vendor:
+          type: integer
+          nullable: true
+        assigned_to:
+          type: integer
+          nullable: true
+    PatchedEquipmentCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedITPersonnel:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_name:
+          type: string
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+        current_task_count:
+          type: string
+          readOnly: true
+        is_overloaded:
+          type: string
+          readOnly: true
+        employee_id:
+          type: string
+          maxLength: 20
+        department:
+          type: string
+          maxLength: 100
+        skill_level:
+          $ref: '#/components/schemas/SkillLevelEnum'
+        specializations:
+          type: string
+          description: Comma-separated list of specializations
+        phone:
+          type: string
+          maxLength: 20
+        is_available:
+          type: boolean
+        max_concurrent_tasks:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        user:
+          type: integer
+    PatchedLocation:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        department_name:
+          type: string
+          readOnly: true
+        building:
+          type: string
+          maxLength: 100
+        floor:
+          type: string
+          maxLength: 50
+        room:
+          type: string
+          maxLength: 50
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        department:
+          type: integer
+    PatchedMaintenanceSchedule:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        equipment_name:
+          type: string
+          readOnly: true
+        technician_name:
+          type: string
+          readOnly: true
+        maintenance_type:
+          type: string
+          maxLength: 100
+        frequency:
+          $ref: '#/components/schemas/FrequencyEnum'
+        last_maintenance:
+          type: string
+          format: date
+          nullable: true
+        next_maintenance:
+          type: string
+          format: date
+        notes:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        equipment:
+          type: integer
+        assigned_technician:
+          type: integer
+          nullable: true
+    PatchedRequestCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        category_type:
+          $ref: '#/components/schemas/CategoryTypeEnum'
+        description:
+          type: string
+        sla_hours:
+          type: integer
+          description: Default SLA response time in hours
+        auto_assign_to_it:
+          type: boolean
+          description: Automatically assign to IT department
+        requires_approval:
+          type: boolean
+          description: Requires manager approval
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedSoftware:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        vendor_name:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        version:
+          type: string
+          maxLength: 50
+        license_key:
+          type: string
+          maxLength: 200
+        license_type:
+          type: string
+          maxLength: 100
+        purchase_date:
+          type: string
+          format: date
+          nullable: true
+        expiry_date:
+          type: string
+          format: date
+          nullable: true
+        max_installations:
+          type: integer
+        current_installations:
+          type: integer
+        cost:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        vendor:
+          type: integer
+          nullable: true
+    PatchedSupportRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        requester_name:
+          type: string
+          readOnly: true
+        assigned_to_name:
+          type: string
+          readOnly: true
+        category_name:
+          type: string
+          readOnly: true
+        equipment_name:
+          type: string
+          readOnly: true
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestComment'
+          readOnly: true
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestAttachment'
+          readOnly: true
+        ticket_number:
+          type: string
+          maxLength: 20
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        priority:
+          $ref: '#/components/schemas/ImpactEnum'
+        status:
+          $ref: '#/components/schemas/SupportRequestStatusEnum'
+        channel:
+          $ref: '#/components/schemas/ChannelEnum'
+        requester_phone:
+          type: string
+          maxLength: 20
+        requester_department:
+          type: string
+          maxLength: 100
+        requester_location:
+          type: string
+          maxLength: 200
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        assigned_at:
+          type: string
+          format: date-time
+          nullable: true
+        resolved_at:
+          type: string
+          format: date-time
+          nullable: true
+        closed_at:
+          type: string
+          format: date-time
+          nullable: true
+        response_due:
+          type: string
+          format: date-time
+          nullable: true
+        resolution_due:
+          type: string
+          format: date-time
+          nullable: true
+        first_response_at:
+          type: string
+          format: date-time
+          nullable: true
+        sla_breached:
+          type: boolean
+        urgency:
+          $ref: '#/components/schemas/ImpactEnum'
+        impact:
+          $ref: '#/components/schemas/ImpactEnum'
+        business_justification:
+          type: string
+          description: Business reason for this request
+        estimated_hours:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+        actual_hours:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+        requires_approval:
+          type: boolean
+        approved_at:
+          type: string
+          format: date-time
+          nullable: true
+        approval_notes:
+          type: string
+        resolution_notes:
+          type: string
+        resolution_time_minutes:
+          type: integer
+          nullable: true
+        category:
+          type: integer
+        requester:
+          type: integer
+        assigned_to:
+          type: integer
+          nullable: true
+        related_equipment:
+          type: integer
+          nullable: true
+        approved_by:
+          type: integer
+          nullable: true
+    PatchedTask:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        assigned_to_name:
+          type: string
+          readOnly: true
+        request_ticket:
+          type: string
+          readOnly: true
+        request_title:
+          type: string
+          readOnly: true
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskComment'
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        priority:
+          $ref: '#/components/schemas/PriorityD90Enum'
+        status:
+          $ref: '#/components/schemas/TaskStatusEnum'
+        estimated_hours:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+        actual_hours:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        assigned_at:
+          type: string
+          format: date-time
+          nullable: true
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        due_date:
+          type: string
+          format: date-time
+          nullable: true
+        notes:
+          type: string
+        completion_notes:
+          type: string
+        related_request:
+          type: integer
+        assigned_to:
+          type: integer
+          nullable: true
+    PatchedTaskAssignmentRule:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        rule_type:
+          $ref: '#/components/schemas/RuleTypeEnum'
+        conditions:
+          description: JSON object defining rule conditions
+        is_active:
+          type: boolean
+        priority:
+          type: integer
+          description: Higher number = higher priority
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedVendor:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        contact_email:
+          type: string
+          format: email
+          maxLength: 254
+        contact_phone:
+          type: string
+          maxLength: 20
+        address:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedWorkflowTemplate:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowStep'
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        category:
+          type: string
+          maxLength: 100
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PriorityD90Enum:
+      enum:
+      - critical
+      - high
+      - medium
+      - low
+      type: string
+      description: |-
+        * `critical` - Critical
+        * `high` - High
+        * `medium` - Medium
+        * `low` - Low
+    RequestAttachment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        uploaded_by_name:
+          type: string
+          readOnly: true
+        file:
+          type: string
+          format: uri
+        filename:
+          type: string
+          maxLength: 255
+        uploaded_at:
+          type: string
+          format: date-time
+          readOnly: true
+        request:
+          type: integer
+        uploaded_by:
+          type: integer
+      required:
+      - file
+      - filename
+      - id
+      - request
+      - uploaded_at
+      - uploaded_by
+      - uploaded_by_name
+    RequestCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        category_type:
+          $ref: '#/components/schemas/CategoryTypeEnum'
+        description:
+          type: string
+        sla_hours:
+          type: integer
+          description: Default SLA response time in hours
+        auto_assign_to_it:
+          type: boolean
+          description: Automatically assign to IT department
+        requires_approval:
+          type: boolean
+          description: Requires manager approval
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+    RequestComment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        author_name:
+          type: string
+          readOnly: true
+        comment:
+          type: string
+        is_internal:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        request:
+          type: integer
+        author:
+          type: integer
+      required:
+      - author
+      - author_name
+      - comment
+      - created_at
+      - id
+      - request
+    RuleTypeEnum:
+      enum:
+      - skill_based
+      - workload_based
+      - round_robin
+      - priority_based
+      type: string
+      description: |-
+        * `skill_based` - Skill Based
+        * `workload_based` - Workload Based
+        * `round_robin` - Round Robin
+        * `priority_based` - Priority Based
+    SkillLevelEnum:
+      enum:
+      - junior
+      - intermediate
+      - senior
+      - expert
+      type: string
+      description: |-
+        * `junior` - Junior
+        * `intermediate` - Intermediate
+        * `senior` - Senior
+        * `expert` - Expert
+    Software:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        vendor_name:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        version:
+          type: string
+          maxLength: 50
+        license_key:
+          type: string
+          maxLength: 200
+        license_type:
+          type: string
+          maxLength: 100
+        purchase_date:
+          type: string
+          format: date
+          nullable: true
+        expiry_date:
+          type: string
+          format: date
+          nullable: true
+        max_installations:
+          type: integer
+        current_installations:
+          type: integer
+        cost:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        vendor:
+          type: integer
+          nullable: true
+      required:
+      - created_at
+      - id
+      - license_type
+      - name
+      - updated_at
+      - vendor_name
+      - version
+    SupportRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        requester_name:
+          type: string
+          readOnly: true
+        assigned_to_name:
+          type: string
+          readOnly: true
+        category_name:
+          type: string
+          readOnly: true
+        equipment_name:
+          type: string
+          readOnly: true
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestComment'
+          readOnly: true
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestAttachment'
+          readOnly: true
+        ticket_number:
+          type: string
+          maxLength: 20
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        priority:
+          $ref: '#/components/schemas/ImpactEnum'
+        status:
+          $ref: '#/components/schemas/SupportRequestStatusEnum'
+        channel:
+          $ref: '#/components/schemas/ChannelEnum'
+        requester_phone:
+          type: string
+          maxLength: 20
+        requester_department:
+          type: string
+          maxLength: 100
+        requester_location:
+          type: string
+          maxLength: 200
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        assigned_at:
+          type: string
+          format: date-time
+          nullable: true
+        resolved_at:
+          type: string
+          format: date-time
+          nullable: true
+        closed_at:
+          type: string
+          format: date-time
+          nullable: true
+        response_due:
+          type: string
+          format: date-time
+          nullable: true
+        resolution_due:
+          type: string
+          format: date-time
+          nullable: true
+        first_response_at:
+          type: string
+          format: date-time
+          nullable: true
+        sla_breached:
+          type: boolean
+        urgency:
+          $ref: '#/components/schemas/ImpactEnum'
+        impact:
+          $ref: '#/components/schemas/ImpactEnum'
+        business_justification:
+          type: string
+          description: Business reason for this request
+        estimated_hours:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+        actual_hours:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+        requires_approval:
+          type: boolean
+        approved_at:
+          type: string
+          format: date-time
+          nullable: true
+        approval_notes:
+          type: string
+        resolution_notes:
+          type: string
+        resolution_time_minutes:
+          type: integer
+          nullable: true
+        category:
+          type: integer
+        requester:
+          type: integer
+        assigned_to:
+          type: integer
+          nullable: true
+        related_equipment:
+          type: integer
+          nullable: true
+        approved_by:
+          type: integer
+          nullable: true
+      required:
+      - assigned_to_name
+      - attachments
+      - category
+      - category_name
+      - comments
+      - created_at
+      - description
+      - equipment_name
+      - id
+      - requester
+      - requester_department
+      - requester_location
+      - requester_name
+      - ticket_number
+      - title
+      - updated_at
+    SupportRequestStatusEnum:
+      enum:
+      - open
+      - assigned
+      - in_progress
+      - pending_user
+      - pending_approval
+      - escalated
+      - resolved
+      - closed
+      - cancelled
+      type: string
+      description: |-
+        * `open` - Open
+        * `assigned` - Assigned
+        * `in_progress` - In Progress
+        * `pending_user` - Pending User Response
+        * `pending_approval` - Pending Approval
+        * `escalated` - Escalated
+        * `resolved` - Resolved
+        * `closed` - Closed
+        * `cancelled` - Cancelled
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        assigned_to_name:
+          type: string
+          readOnly: true
+        request_ticket:
+          type: string
+          readOnly: true
+        request_title:
+          type: string
+          readOnly: true
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskComment'
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        priority:
+          $ref: '#/components/schemas/PriorityD90Enum'
+        status:
+          $ref: '#/components/schemas/TaskStatusEnum'
+        estimated_hours:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+        actual_hours:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        assigned_at:
+          type: string
+          format: date-time
+          nullable: true
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        due_date:
+          type: string
+          format: date-time
+          nullable: true
+        notes:
+          type: string
+        completion_notes:
+          type: string
+        related_request:
+          type: integer
+        assigned_to:
+          type: integer
+          nullable: true
+      required:
+      - assigned_to_name
+      - comments
+      - created_at
+      - description
+      - id
+      - related_request
+      - request_ticket
+      - request_title
+      - title
+    TaskAssignmentRule:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        rule_type:
+          $ref: '#/components/schemas/RuleTypeEnum'
+        conditions:
+          description: JSON object defining rule conditions
+        is_active:
+          type: boolean
+        priority:
+          type: integer
+          description: Higher number = higher priority
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - rule_type
+    TaskComment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        author_name:
+          type: string
+          readOnly: true
+        comment:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        task:
+          type: integer
+        author:
+          type: integer
+      required:
+      - author
+      - author_name
+      - comment
+      - created_at
+      - id
+      - task
+    TaskStatusEnum:
+      enum:
+      - pending
+      - assigned
+      - in_progress
+      - completed
+      - cancelled
+      type: string
+      description: |-
+        * `pending` - Pending Assignment
+        * `assigned` - Assigned
+        * `in_progress` - In Progress
+        * `completed` - Completed
+        * `cancelled` - Cancelled
+    Vendor:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        contact_email:
+          type: string
+          format: email
+          maxLength: 254
+        contact_phone:
+          type: string
+          maxLength: 20
+        address:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - address
+      - contact_email
+      - contact_phone
+      - created_at
+      - id
+      - name
+    WorkflowStep:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        step_number:
+          type: integer
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        estimated_hours:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        required_skills:
+          type: string
+          description: Comma-separated list of required skills
+        template:
+          type: integer
+      required:
+      - description
+      - id
+      - step_number
+      - template
+      - title
+    WorkflowTemplate:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowStep'
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        category:
+          type: string
+          maxLength: 100
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - category
+      - created_at
+      - description
+      - id
+      - name
+      - steps
+  securitySchemes:
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"

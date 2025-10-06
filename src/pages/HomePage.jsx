@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"
+import { Link, Navigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
 import { useAuth } from "../contexts/AuthContext";
@@ -18,17 +18,29 @@ import {
 } from "@heroicons/react/24/outline"
 import { useState } from "react"
 
-const HomePage = () => {
-  const { user } = useAuth()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+import { Link, Navigate } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { useAuth } from "../contexts/AuthContext";
+import { 
+  WrenchScrewdriverIcon,
+  ShieldCheckIcon,
+  UsersIcon,
+  ComputerDesktopIcon,
+  ChartBarIcon,
+  CogIcon,
+  ArrowRightIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  ClipboardDocumentListIcon
+} from "@heroicons/react/24/outline";
 
-  const navigation = [
-    { name: 'Home', href: '/' },
-    { name: 'Features', href: '/features' },
-    { name: 'About', href: '/about' },
-    { name: 'Pricing', href: '/pricing' },
-    { name: 'Contact', href: '/contact' },
-  ]
+const HomePage = () => {
+  const { user } = useAuth();
+
+  if (user) {
+    return <Navigate to="/app/dashboard" replace />;
+  }
 
   const features = [
     {
@@ -160,11 +172,9 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation */}
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center h-16">
-            {/* Logo */}
             <Link to="/" className="flex items-center gap-2">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <WrenchScrewdriverIcon className="w-5 h-5 text-white" />
@@ -172,92 +182,15 @@ const HomePage = () => {
               <span className="font-bold text-lg text-blue-900">Ghana Health IT Portal</span>
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className="text-gray-600 hover:text-[#2F327D] font-medium transition-colors duration-200"
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </div>
-
-            {/* Desktop Auth Buttons */}
-            <div className="hidden md:flex items-center gap-4">
-              {user ? (
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-gray-600">Welcome, {user.first_name || user.username}</span>
-                  <Link to="/dashboard">
-                    <Button size="sm">Dashboard</Button>
-                  </Link>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <Link to="/login">
-                    <Button variant="ghost" size="sm">Sign In</Button>
-                  </Link>
-                  <Link to="/register">
-                    <Button size="sm">Get Started</Button>
-                  </Link>
-                </div>
-              )}
-            </div>
-
-            {/* Mobile menu button */}
-            <div className="md:hidden">
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="text-gray-600 hover:text-gray-900 p-2"
-              >
-                {mobileMenuOpen ? (
-                  <XMarkIcon className="w-6 h-6" />
-                ) : (
-                  <Bars3Icon className="w-6 h-6" />
-                )}
-              </button>
+            <div className="flex items-center gap-3">
+              <Link to="/login">
+                <Button variant="ghost" size="sm">Sign In</Button>
+              </Link>
+              <Link to="/register">
+                <Button size="sm">Get Started</Button>
+              </Link>
             </div>
           </div>
-
-          {/* Mobile Navigation */}
-          {mobileMenuOpen && (
-            <div className="md:hidden border-t border-gray-200 py-4">
-              <div className="flex flex-col space-y-4">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className="text-gray-600 hover:text-[#2F327D] font-medium transition-colors duration-200 px-2 py-1"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
-                
-                <div className="border-t border-gray-200 pt-4 mt-4">
-                  {user ? (
-                    <div className="flex flex-col gap-3">
-                      <span className="text-sm text-gray-600 px-2">Welcome, {user.first_name || user.username}</span>
-                      <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                        <Button className="w-full">Dashboard</Button>
-                      </Link>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col gap-3">
-                      <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                        <Button variant="ghost" className="w-full">Sign In</Button>
-                      </Link>
-                      <Link to="/register" onClick={() => setMobileMenuOpen(false)}>
-                        <Button className="w-full">Get Started</Button>
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </nav>
 
@@ -285,7 +218,7 @@ const HomePage = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               {user ? (
-                <Link to="/dashboard">
+                <Link to="/app/dashboard">
                   <Button size="lg" className="w-full sm:w-auto">
                     Go to Dashboard
                     <ArrowRightIcon className="w-5 h-5 ml-2" />

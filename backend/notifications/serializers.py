@@ -44,6 +44,7 @@ class NotificationPreferenceSerializer(serializers.ModelSerializer):
         fields = [
             'system_notifications', 'request_notifications',
             'task_notifications', 'maintenance_notifications',
+            'equipment_alerts_enabled',
             'quiet_hours_start', 'quiet_hours_end',
             'email_digest_frequency'
         ]

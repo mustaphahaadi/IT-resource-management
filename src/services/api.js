@@ -368,40 +368,80 @@ class ApiService {
   async getDepartmentAnalytics(params = {}) {
     return this.get("/analytics/departments/", { params })
   }
-
   async getPerformanceMetrics(params = {}) {
     return this.get("/analytics/performance/", { params })
   }
 
   async getSystemHealth() {
-    return this.get("/analytics/system-health/");
+    return this.get("/admin/health/")
   }
 
   async getRecentActivity(params = {}) {
     return this.get("/analytics/recent-activity/", { params })
   }
 
+  async globalSearch(params = {}) {
+    return this.get("/core/search/", { params })
+  }
+
+  // Knowledge Base
+  async getKnowledgeBaseArticles(params = {}) {
+    return this.get("/knowledge-base/articles/", { params });
+  }
+
+  async getKnowledgeBaseArticle(id) {
+    return this.get(`/knowledge-base/articles/${id}/`);
+  }
+
+  async createKnowledgeBaseArticle(data) {
+    return this.post("/knowledge-base/articles/", data);
+  }
+
+  async updateKnowledgeBaseArticle(id, data) {
+    return this.put(`/knowledge-base/articles/${id}/`, data);
+  }
+
+  async deleteKnowledgeBaseArticle(id) {
+    return this.delete(`/knowledge-base/articles/${id}/`);
+  }
+
+  async getKnowledgeBaseCategories() {
+    return this.get("/knowledge-base/categories/");
+  }
+
+  async createKnowledgeBaseCategory(data) {
+    return this.post("/knowledge-base/categories/", data)
+  }
+
+  async updateKnowledgeBaseCategory(id, data) {
+    return this.patch(`/knowledge-base/categories/${id}/`, data)
+  }
+
+  async deleteKnowledgeBaseCategory(id) {
+    return this.delete(`/knowledge-base/categories/${id}/`)
+  }
+
   // Reports API methods
   async generateReport(reportType, params = {}) {
-    return this.post("/reports/generate/", { report_type: reportType, ...params })
+    return this.post("/reports/generate/", { report_type: reportType, ...params });
   }
 
   async getReportHistory(params = {}) {
-    return this.get("/reports/history/", { params })
+    return this.get("/reports/history/", { params });
   }
 
   async downloadReport(reportId, format = 'pdf') {
-    return this.get(`/reports/${reportId}/download/`, { responseType: 'blob', params: { format } })
+    return this.get(`/reports/${reportId}/download/?format=${format}`, { responseType: 'blob' });
   }
 
-  async scheduleReport(reportConfig) {
-    return this.post("/reports/schedule/", reportConfig)
+  async scheduleReport(scheduleData) {
+    return this.post("/reports/schedule/", scheduleData);
   }
 
   // Categories & Taxonomy API methods
   async getCategories(type = null) {
-    const params = type ? { type } : {}
-    return this.get("/inventory/categories/", { params })
+    const params = type ? { type } : {};
+    return this.get("/inventory/categories/", { params });
   }
 
   async getRequestCategories(params = {}) {

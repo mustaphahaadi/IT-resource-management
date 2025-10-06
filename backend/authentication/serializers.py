@@ -131,27 +131,50 @@ class UserLoginSerializer(serializers.Serializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    """Serializer for user profile"""
+    """Serializer for user profile, consolidating all user-related data for API responses."""
     permissions = serializers.SerializerMethodField()
     full_name = serializers.SerializerMethodField()
-    
+    role = serializers.SerializerMethodField()
+    is_superuser = serializers.BooleanField(read_only=True)
+    is_staff = serializers.BooleanField(read_only=True)
+
     class Meta:
         model = CustomUser
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name', 'full_name',
             'role', 'department', 'phone_number', 'employee_id',
-            'is_email_verified', 'is_approved', 'created_at', 'last_login',
-            'permissions'
+            'is_email_verified', 'is_approved', 'is_staff', 'is_superuser',
+            'created_at', 'last_login', 'permissions'
         ]
-        read_only_fields = ['id', 'username', 'created_at', 'last_login', 'is_approved']
-    
+        read_only_fields = [
+            'id', 'username', 'created_at', 'last_login', 'is_approved',
+            'is_staff', 'is_superuser'
+        ]
+
     def get_permissions(self, obj):
-        """Get user permissions"""
-        return list(obj.user_permissions.values_list('codename', flat=True))
-    
+        """Get all user permissions, including from groups."""
+        if obj.is_superuser:
+            return ['superuser']
+        return list(obj.get_all_permissions())
+
     def get_full_name(self, obj):
-        """Get user's full name"""
+        """Get user's full name."""
         return obj.get_full_name()
+
+    def get_role(self, obj):
+        """Determine user role based on attributes and group membership."""
+        if hasattr(obj, 'role') and obj.role:
+            return obj.role
+        if obj.is_superuser:
+            return 'admin'
+        if obj.is_staff:
+            return 'staff'
+        # Fallback based on group name if direct role attribute is missing
+        if obj.groups.filter(name='IT Staff').exists():
+            return 'staff'
+        if obj.groups.filter(name='Technicians').exists():
+            return 'technician'
+        return 'user'
 
 
 class PasswordChangeSerializer(serializers.Serializer):

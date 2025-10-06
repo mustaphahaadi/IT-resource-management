@@ -88,6 +88,7 @@ class NotificationPreference(models.Model):
     request_notifications = models.CharField(max_length=10, choices=DELIVERY_CHOICES, default='both')
     task_notifications = models.CharField(max_length=10, choices=DELIVERY_CHOICES, default='both')
     maintenance_notifications = models.CharField(max_length=10, choices=DELIVERY_CHOICES, default='web')
+    equipment_alerts_enabled = models.BooleanField(default=True)
     
     # Timing preferences
     quiet_hours_start = models.TimeField(null=True, blank=True, help_text="Start of quiet hours (no notifications)")

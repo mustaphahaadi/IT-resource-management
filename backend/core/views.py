@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -14,6 +14,7 @@ from requests_system.models import SupportRequest
 from tasks.models import Task
 from inventory.models import Equipment
 from authentication.permissions import RoleBasedPermission
+from .serializers import ActivityLogSerializer
 import json
 import logging
 
@@ -23,6 +24,7 @@ logger = logging.getLogger(__name__)
 class BulkOperationViewSet(viewsets.ViewSet):
     """ViewSet for bulk operations"""
     permission_classes = [RoleBasedPermission]
+    serializer_class = serializers.Serializer
     
     @action(detail=False, methods=['post'])
     def bulk_assign_requests(self, request):
@@ -320,6 +322,7 @@ class ReportingViewSet(viewsets.ViewSet):
 class ActivityLogViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for activity logs"""
     queryset = ActivityLog.objects.all()
+    serializer_class = ActivityLogSerializer
     permission_classes = [RoleBasedPermission]
     
     def get_queryset(self):
