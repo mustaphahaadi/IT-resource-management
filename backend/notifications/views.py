@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.db.models import Q
 from .models import Notification, NotificationPreference
 from .serializers import (
-    NotificationSerializer, 
+    NotificationSerializer,
     NotificationPreferenceSerializer,
     NotificationCreateSerializer
 )

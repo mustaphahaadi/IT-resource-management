@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
+import { Button } from "../components/ui/button"
 import { apiService } from "../services/api"
 import DashboardCharts from "../components/Dashboard/DashboardCharts"
 
@@ -34,6 +35,16 @@ const Analytics = () => {
         </div>
       </div>
       <div className="container mx-auto px-4 py-8 space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <p className="text-sm text-gray-500">
+              {loading ? "Refreshing analytics data..." : "Latest analytics snapshot"}
+            </p>
+          </div>
+          <Button variant="outline" onClick={fetchAnalytics} disabled={loading}>
+            {loading ? "Refreshing..." : "Refresh Data"}
+          </Button>
+        </div>
         {error && (
           <div className="p-3 bg-red-50 border border-red-200 rounded-md">
             <p className="text-sm text-red-600">{error}</p>

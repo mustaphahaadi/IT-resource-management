@@ -29,6 +29,7 @@ import AdminSettings from "./pages/AdminSettings"
 import Assignment from "./pages/Assignment"
 import TeamManagement from "./pages/TeamManagement"
 import KnowledgeBase from "./pages/KnowledgeBase"
+import KnowledgeBaseArticle from "./pages/KnowledgeBaseArticle"
 import KnowledgeBaseAdmin from "./pages/KnowledgeBaseAdmin"
 import SelfService from "./pages/SelfService"
 import { AuthProvider } from "./contexts/AuthContext"
@@ -94,6 +95,7 @@ function App() {
               <Route path="self-service" element={<SelfService />} />
               <Route path="knowledge-base" element={<KnowledgeBase />} />
               <Route path="knowledge-base/:articleId" element={<KnowledgeBaseArticle />} />
+              <Route path="dashboard" element={<Dashboard />} />
 
               {/* Admin Routes */}
               <Route path="admin" element={<RoleBasedRoute requiredRoles={["system_admin"]}><Outlet /></RoleBasedRoute>} >

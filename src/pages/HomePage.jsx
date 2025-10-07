@@ -18,23 +18,6 @@ import {
 } from "@heroicons/react/24/outline"
 import { useState } from "react"
 
-import { Link, Navigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { useAuth } from "../contexts/AuthContext";
-import { 
-  WrenchScrewdriverIcon,
-  ShieldCheckIcon,
-  UsersIcon,
-  ComputerDesktopIcon,
-  ChartBarIcon,
-  CogIcon,
-  ArrowRightIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  ClipboardDocumentListIcon
-} from "@heroicons/react/24/outline";
-
 const HomePage = () => {
   const { user } = useAuth();
 

@@ -17,6 +17,9 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: PORT,
+      watch: {
+        ignored: ['**/backend/venv/**']
+      },
       proxy: {
         '/api': {
           target: BACKEND_URL,
@@ -42,6 +45,9 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist',
       sourcemap: true,
+    },
+    optimizeDeps: {
+      entries: ['index.html', 'src/main.jsx']
     },
   }
 })

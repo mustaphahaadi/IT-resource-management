@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import {
@@ -18,11 +18,52 @@ import {
   ComputerDesktopIcon,
   ClipboardDocumentListIcon
 } from '@heroicons/react/24/outline'
+import { apiService } from '../services/api'
 
 const Help = () => {
   const [activeSection, setActiveSection] = useState('getting-started')
   const [searchTerm, setSearchTerm] = useState('')
   const [expandedFAQ, setExpandedFAQ] = useState(null)
+  const [searchResults, setSearchResults] = useState([])
+  const [searchLoading, setSearchLoading] = useState(false)
+  const [searchError, setSearchError] = useState('')
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const fetchResults = async () => {
+      const query = searchTerm.trim()
+      if (query.length < 2) {
+        setSearchResults([])
+        setSearchLoading(false)
+        setSearchError('')
+        return
+      }
+
+      setSearchLoading(true)
+      setSearchError('')
+
+      try {
+        const response = await apiService.globalSearch({ q: query, limit: 8, signal: controller.signal })
+        setSearchResults(response.data?.results || [])
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          console.error('Global search failed', error)
+          setSearchError('Unable to fetch search results.')
+        }
+        setSearchResults([])
+      } finally {
+        setSearchLoading(false)
+      }
+    }
+
+    const handler = setTimeout(fetchResults, 350)
+
+    return () => {
+      clearTimeout(handler)
+      controller.abort()
+    }
+  }, [searchTerm])
 
   const sections = [
     {
@@ -275,6 +316,49 @@ const Help = () => {
           </div>
         </CardContent>
       </Card>
+
+      {searchTerm.trim().length >= 2 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>Search Results</span>
+              <span className="text-xs text-gray-500">{searchLoading ? 'Searching…' : `${searchResults.length} results`}</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {searchError && (
+              <div className="p-2 bg-red-50 border border-red-200 rounded text-sm text-red-600">{searchError}</div>
+            )}
+            {!searchError && !searchLoading && searchResults.length === 0 && (
+              <p className="text-sm text-gray-600">No matches found. Try a different search term.</p>
+            )}
+            {!searchError && searchResults.length > 0 && (
+              <div className="space-y-3">
+                {searchResults.map((result) => (
+                  <div key={`${result.type}_${result.id}`} className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold text-gray-900">{result.title}</h3>
+                      <span className="text-xs uppercase tracking-wide text-blue-600">{result.type}</span>
+                    </div>
+                    {result.metadata && (
+                      <p className="text-xs text-gray-600 mt-1">
+                        {Object.entries(result.metadata)
+                          .map(([key, value]) => `${key}: ${value}`)
+                          .join(' • ')}
+                      </p>
+                    )}
+                    {result.url && (
+                      <Button asChild size="sm" variant="outline" className="mt-3">
+                        <a href={result.url}>Open</a>
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar Navigation */}

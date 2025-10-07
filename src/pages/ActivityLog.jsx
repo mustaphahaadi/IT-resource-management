@@ -48,24 +48,35 @@ const ActivityLog = () => {
       setLoading(true)
       setError("")
       const params = {
-        ...filters,
-        page: pagination.page,
-        limit: pagination.limit
+        limit: pagination.limit,
       }
-      
-      // Remove empty filters
-      Object.keys(params).forEach(key => {
-        if (!params[key]) delete params[key]
-      })
 
-      // Use available analytics endpoint for recent activity
-      const response = await apiService.getRecentActivity({ limit: pagination.limit })
+      if (filters.action_type) {
+        params.action_type = filters.action_type
+      }
+      if (filters.resource_type) {
+        params.resource_type = filters.resource_type
+      }
+      if (filters.search) {
+        params.search = filters.search
+      }
+      if (filters.date_from) {
+        params.date_from = filters.date_from
+      }
+      if (filters.date_to) {
+        params.date_to = filters.date_to
+      }
+      if (filters.user) {
+        params.user = filters.user
+      }
+
+      const response = await apiService.getRecentActivity(params)
       const list = response.data?.activities || response.data?.results || response.data || []
       setActivities(Array.isArray(list) ? list : [])
       setPagination(prev => ({
         ...prev,
         total: Array.isArray(list) ? list.length : 0,
-        pages: 1,
+        pages: Math.max(1, Math.ceil((Array.isArray(list) ? list.length : 0) / prev.limit)),
       }))
     } catch (error) {
       console.error('Error fetching activity log:', error)
