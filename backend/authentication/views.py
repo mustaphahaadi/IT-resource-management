@@ -7,6 +7,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
 from django.db import transaction
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 from .models import CustomUser, EmailVerificationToken, PasswordResetToken, LoginAttempt
 from .serializers import (
     UserRegistrationSerializer, UserLoginSerializer, UserProfileSerializer,
@@ -43,6 +45,17 @@ def log_login_attempt(request, user=None, success=False, attempted_username=''):
 
 # In-memory user preferences store (stub). Replace with a proper model in production.
 USER_PREFERENCES_STORE = {}
+
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def test_endpoint(request):
+    """Simple test endpoint to check if API is working"""
+    return Response({
+        'status': 'success',
+        'message': 'API is working',
+        'timestamp': timezone.now().isoformat()
+    })
 
 
 @api_view(['POST'])
@@ -691,3 +704,58 @@ def bulk_approve_users(request):
     except Exception as e:
         logger.error(f"bulk_approve_users failed: {e}")
         return Response({'error': 'Failed to bulk approve users'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def get_current_user(request):
+    """Get current user profile information"""
+    try:
+        serializer = UserProfileSerializer(request.user)
+        return Response(serializer.data)
+    except Exception as e:
+        logger.error(f"Error getting current user: {e}")
+        return Response(
+            {'error': 'Failed to get user profile'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def get_assignable_users(request):
+    """Get users that can be assigned to tasks/requests"""
+    try:
+        # Get users with technician role or higher
+        users = CustomUser.objects.filter(
+            is_active=True,
+            is_approved=True,
+            role__in=['technician', 'senior_technician', 'it_manager', 'system_admin']
+        ).values('id', 'first_name', 'last_name', 'email', 'role', 'department')
+        
+        return Response({'results': list(users)})
+    except Exception as e:
+        logger.error(f"Error getting assignable users: {e}")
+        return Response(
+            {'error': 'Failed to get assignable users'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def get_active_users(request):
+    """Get all active users for dropdowns"""
+    try:
+        users = CustomUser.objects.filter(
+            is_active=True,
+            is_approved=True
+        ).values('id', 'first_name', 'last_name', 'email', 'role', 'department')
+        
+        return Response({'results': list(users)})
+    except Exception as e:
+        logger.error(f"Error getting active users: {e}")
+        return Response(
+            {'error': 'Failed to get active users'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

@@ -2,6 +2,9 @@ from django.urls import path
 from . import views, admin_views
 
 urlpatterns = [
+    # Test endpoint
+    path('test/', views.test_endpoint, name='test'),
+    
     # Authentication endpoints
     path('register/', views.register_user, name='register'),
     path('login/', views.login_user, name='login'),
@@ -28,6 +31,11 @@ urlpatterns = [
     path('users/<int:user_id>/approve/', views.approve_user, name='approve_user'),
     path('users/<int:user_id>/reject/', views.reject_user, name='reject_user'),
     path('users/bulk-approve/', views.bulk_approve_users, name='bulk_approve_users'),
+    
+    # Additional user endpoints expected by frontend
+    path('user/', views.get_current_user, name='current_user'),
+    path('users/assignable/', views.get_assignable_users, name='assignable_users'),
+    path('users/active/', views.get_active_users, name='active_users'),
     
     # Admin endpoints
     path('admin/users/', admin_views.get_users, name='admin_get_users'),

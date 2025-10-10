@@ -32,6 +32,13 @@ import KnowledgeBase from "./pages/KnowledgeBase"
 import KnowledgeBaseArticle from "./pages/KnowledgeBaseArticle"
 import KnowledgeBaseAdmin from "./pages/KnowledgeBaseAdmin"
 import SelfService from "./pages/SelfService"
+import About from "./pages/About"
+import Contact from "./pages/Contact"
+import Features from "./pages/Features"
+import Pricing from "./pages/Pricing"
+import Documentation from "./pages/Documentation"
+import SecurityAudit from "./pages/SecurityAudit"
+import SystemHealth from "./pages/SystemHealth"
 import { AuthProvider } from "./contexts/AuthContext"
 import { PermissionsProvider } from "./contexts/PermissionsContext"
 import ProtectedRoute from "./components/Auth/ProtectedRoute";
@@ -57,6 +64,11 @@ function App() {
             <Route path="/server-error" element={<ServerError />} />
             
             {/* Public pages */}
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/features" element={<Features />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/documentation" element={<Documentation />} />
             
             {/* Protected routes with nested layout */}
             <Route
@@ -104,7 +116,8 @@ function App() {
                 <Route path="backup" element={<BackupExport />} />
                 <Route path="settings" element={<AdminSettings />} />
                 <Route path="activity-log" element={<ActivityLog />} />
-                <Route path="health" element={<SystemStatus />} />
+                <Route path="health" element={<SystemHealth />} />
+                <Route path="security" element={<SecurityAudit />} />
                 <Route path="api-docs" element={<ApiDocs />} />
                 <Route path="knowledge-base" element={<KnowledgeBaseAdmin />} />
               </Route>

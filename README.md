@@ -197,91 +197,6 @@ src/
 
 ### Dashboard
 - System performance metrics
-- Equipment status overview
-- Recent activity feed
-- Quick action buttons
-- Real-time updates
-
-### Inventory Management
-- Equipment tracking and status
-- Maintenance scheduling
-- Asset categorization
-- Search and filtering
-- Bulk operations
-
-### Support Requests
-- Ticket creation and tracking
-- Priority management
-- Assignment workflows
-- SLA monitoring
-- Communication history
-
-### Task Management
-- Task assignment and tracking
-- Personnel workload management
-- Progress monitoring
-- Due date tracking
-- Status updates
-
-### Analytics & Reporting
-- Performance dashboards
-- Custom report generation
-- Data export capabilities
-- Trend analysis
-- Department breakdowns
-
-## 🔐 Security Features
-
-- **JWT Token Authentication** - Secure API access
-- **Role-based Access Control** - Granular permissions
-- **Input Validation** - XSS and injection prevention
-- **CSRF Protection** - Cross-site request forgery protection
-- **Rate Limiting** - API abuse prevention
-- **Audit Logging** - Activity tracking
-
-## 🚀 Deployment
-
-### Production Build
-```bash
-# Build frontend
-npm run build
-
-# Serve static files
-npm run preview
-```
-
-### Docker Deployment
-```bash
-# Build and run with Docker Compose
-docker-compose up --build
-```
-
-### Environment Setup
-- Configure production database
-- Set up SSL certificates
-- Configure reverse proxy (Nginx)
-- Set up monitoring and logging
-
-## 🧪 Testing
-
-```bash
-# Run frontend tests
-npm test
-
-# Run backend tests
-cd backend
-python manage.py test
-```
-
-## 📈 Performance
-
-- **Code Splitting** - Lazy loading of routes
-- **Optimized Builds** - Minified production builds
-- **Caching Strategy** - API response caching
-- **Image Optimization** - Compressed assets
-- **Bundle Analysis** - Performance monitoring
-
-## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -289,16 +204,10 @@ python manage.py test
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
-
-For support and questions:
-- Create an issue on GitHub
-- Contact the development team
-- Check the documentation wiki
 
 ## 🗺 Roadmap
 

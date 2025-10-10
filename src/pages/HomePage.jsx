@@ -11,10 +11,16 @@ import {
   CogIcon,
   ArrowRightIcon,
   CheckCircleIcon,
-  Bars3Icon,
-  XMarkIcon,
   ExclamationTriangleIcon,
-  ClipboardDocumentListIcon
+  ClipboardDocumentListIcon,
+  ServerIcon,
+  BoltIcon,
+  ClockIcon,
+  GlobeAltIcon,
+  StarIcon,
+  PhoneIcon,
+  EnvelopeIcon,
+  MapPinIcon
 } from "@heroicons/react/24/outline"
 import { useState } from "react"
 
@@ -27,40 +33,46 @@ const HomePage = () => {
 
   const features = [
     {
-      name: 'IT Support Requests',
-      description: 'Submit and track IT support tickets for hardware, software, and network issues.',
+      name: 'IT Support Tickets',
+      description: 'Submit and track IT support requests with intelligent routing and SLA management.',
       icon: ExclamationTriangleIcon,
-      color: 'text-blue-600'
+      bgColor: 'bg-blue-600',
+      textColor: 'text-blue-600'
     },
     {
-      name: 'Equipment Management',
-      description: 'Manage IT assets, track maintenance schedules, and monitor equipment status.',
+      name: 'Asset Management',
+      description: 'Complete IT asset lifecycle management with maintenance tracking and reporting.',
       icon: ComputerDesktopIcon,
-      color: 'text-green-600'
+      bgColor: 'bg-green-600',
+      textColor: 'text-green-600'
     },
     {
-      name: 'Task Assignment',
-      description: 'Intelligent task routing and workload management for IT technicians.',
-      icon: ClipboardDocumentListIcon,
-      color: 'text-purple-600'
+      name: 'Task Automation',
+      description: 'Intelligent task assignment with workload balancing and skill-based routing.',
+      icon: BoltIcon,
+      bgColor: 'bg-purple-600',
+      textColor: 'text-purple-600'
     },
     {
-      name: 'User Management',
-      description: 'Role-based access control with approval workflows for system security.',
+      name: 'Team Management',
+      description: 'Role-based access control with approval workflows and team collaboration.',
       icon: UsersIcon,
-      color: 'text-orange-600'
+      bgColor: 'bg-orange-600',
+      textColor: 'text-orange-600'
     },
     {
-      name: 'Analytics & Reporting',
-      description: 'Comprehensive reporting on SLA compliance, performance metrics, and trends.',
+      name: 'Real-time Analytics',
+      description: 'Comprehensive dashboards with performance metrics and trend analysis.',
       icon: ChartBarIcon,
-      color: 'text-indigo-600'
+      bgColor: 'bg-indigo-600',
+      textColor: 'text-indigo-600'
     },
     {
-      name: 'System Administration',
-      description: 'Complete system configuration, monitoring, and security management.',
+      name: 'Enterprise Security',
+      description: 'Advanced security features with audit trails and compliance monitoring.',
       icon: ShieldCheckIcon,
-      color: 'text-red-600'
+      bgColor: 'bg-red-600',
+      textColor: 'text-red-600'
     }
   ]
 
@@ -124,10 +136,10 @@ const HomePage = () => {
   ]
 
   const stats = [
-    { number: '5,000+', label: 'IT Assets Managed' },
-    { number: '25+', label: 'Ghana Health Facilities' },
-    { number: '99.5%', label: 'System Uptime' },
-    { number: '24/7', label: 'Support Available' }
+    { number: '10,000+', label: 'IT Assets Managed', icon: ComputerDesktopIcon, bgColor: 'bg-blue-600' },
+    { number: '500+', label: 'Healthcare Facilities', icon: GlobeAltIcon, bgColor: 'bg-green-600' },
+    { number: '99.9%', label: 'System Uptime', icon: ServerIcon, bgColor: 'bg-purple-600' },
+    { number: '24/7', label: 'Expert Support', icon: ClockIcon, bgColor: 'bg-orange-600' }
   ]
 
   const workflowSteps = [
@@ -178,25 +190,26 @@ const HomePage = () => {
       </nav>
 
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800">
-        <div className="relative container mx-auto px-4 py-16">
-          <div className="text-center max-w-4xl mx-auto">
-            <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                <WrenchScrewdriverIcon className="w-10 h-10 text-blue-600" />
+      <div className="relative overflow-hidden bg-blue-600">
+        <div className="absolute inset-0 bg-blue-700 opacity-20"></div>
+        <div className="relative container mx-auto px-4 py-20">
+          <div className="text-center max-w-5xl mx-auto">
+            <div className="flex justify-center mb-8">
+              <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center shadow-lg">
+                <WrenchScrewdriverIcon className="w-12 h-12 text-blue-600" />
               </div>
             </div>
             
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-              Ghana Healthcare IT
-              <span className="text-blue-200">
-                {" "}Management System
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
+              Professional IT
+              <span className="block text-blue-100">
+                Support Platform
               </span>
             </h1>
             
-            <p className="text-xl text-white/90 mb-8 leading-relaxed">
-              Revolutionize Ghana's healthcare IT infrastructure with intelligent automation, comprehensive asset management, 
-              and role-based workflows. Built specifically for Ghana's healthcare system with enterprise-grade security and local compliance.
+            <p className="text-xl md:text-2xl text-blue-100 mb-12 leading-relaxed max-w-3xl mx-auto">
+              Enterprise-grade IT service management platform designed for healthcare organizations. 
+              Streamline support requests, manage assets, and optimize team performance with intelligent automation.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -238,17 +251,17 @@ const HomePage = () => {
           </p>
         </div>
   
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <Card key={index} className="border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-300 hover:border-[#2F327D]">
-              <CardHeader className="text-center pb-4">
-                <div className="w-12 h-12 rounded-lg bg-[#2F327D] text-white flex items-center justify-center mx-auto mb-4">
-                  <feature.icon className="w-6 h-6" />
+            <Card key={index} className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 bg-white">
+              <CardHeader className="text-center pb-6">
+                <div className={`w-16 h-16 rounded-2xl ${feature.bgColor} text-white flex items-center justify-center mx-auto mb-6 shadow-lg`}>
+                  <feature.icon className="w-8 h-8" />
                 </div>
-                <CardTitle className="text-lg text-[#2F327D]">{feature.name}</CardTitle>
+                <CardTitle className="text-xl font-bold text-gray-900 mb-2">{feature.name}</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 text-center text-sm leading-relaxed">
+              <CardContent className="px-6 pb-8">
+                <p className="text-gray-600 text-center leading-relaxed">
                   {feature.description}
                 </p>
               </CardContent>
@@ -258,32 +271,35 @@ const HomePage = () => {
       </div>
 
       {/* How It Works Section */}
-      <div className="bg-gray-50 py-16">
+      <div className="bg-gray-900 py-20">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-[#2F327D] mb-4">
-              How Our IT Helpdesk Works
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-white mb-6">
+              How Our Platform Works
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Streamlined workflows designed for healthcare IT environments with intelligent automation and role-based access.
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              Streamlined workflows designed for enterprise IT environments with intelligent automation and role-based access control.
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {workflowSteps.map((step, index) => (
-              <div key={index} className="text-center">
-                <div className="relative mb-6">
-                  <div className="w-16 h-16 bg-[#2F327D] text-white rounded-full flex items-center justify-center mx-auto text-xl font-bold">
-                    {step.step}
+            {workflowSteps.map((step, index) => {
+              const colors = ['bg-blue-600', 'bg-green-600', 'bg-purple-600', 'bg-orange-600'];
+              return (
+                <div key={index} className="text-center">
+                  <div className="relative mb-8">
+                    <div className={`w-20 h-20 ${colors[index]} text-white rounded-2xl flex items-center justify-center mx-auto text-2xl font-bold shadow-lg`}>
+                      {step.step}
+                    </div>
+                    {index < workflowSteps.length - 1 && (
+                      <div className="hidden lg:block absolute top-10 left-full w-full h-0.5 bg-gray-700 -translate-y-0.5"></div>
+                    )}
                   </div>
-                  {index < workflowSteps.length - 1 && (
-                    <div className="hidden lg:block absolute top-8 left-full w-full h-0.5 bg-gray-300 -translate-y-0.5"></div>
-                  )}
+                  <h3 className="text-xl font-bold text-white mb-4">{step.title}</h3>
+                  <p className="text-gray-300 leading-relaxed">{step.description}</p>
                 </div>
-                <h3 className="text-lg font-semibold text-[#2F327D] mb-3">{step.title}</h3>
-                <p className="text-gray-600 text-sm">{step.description}</p>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </div>
@@ -300,11 +316,14 @@ const HomePage = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-4xl font-bold text-[#2F327D] mb-2">{stat.number}</div>
-                <div className="text-gray-600">{stat.label}</div>
+              <div key={index} className="text-center bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
+                <div className={`w-16 h-16 ${stat.bgColor} rounded-2xl flex items-center justify-center mx-auto mb-6`}>
+                  <stat.icon className="w-8 h-8 text-white" />
+                </div>
+                <div className="text-4xl font-bold text-gray-900 mb-2">{stat.number}</div>
+                <div className="text-gray-600 font-medium">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -403,62 +422,118 @@ const HomePage = () => {
         </div>
       </div>
 
+      {/* Contact Section */}
+      <div className="bg-blue-600 py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-white mb-6">
+              Ready to Transform Your IT Operations?
+            </h2>
+            <p className="text-xl text-blue-100 max-w-3xl mx-auto mb-8">
+              Join thousands of healthcare organizations worldwide who trust our platform for their IT service management needs.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/register">
+                <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 w-full sm:w-auto">
+                  Start Free Trial
+                  <ArrowRightIcon className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+              <Link to="/contact">
+                <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-blue-600 w-full sm:w-auto">
+                  Contact Sales
+                </Button>
+              </Link>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div className="bg-blue-700 rounded-2xl p-8">
+              <PhoneIcon className="w-12 h-12 text-white mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">Call Us</h3>
+              <p className="text-blue-100">+1 (555) 123-4567</p>
+            </div>
+            <div className="bg-blue-700 rounded-2xl p-8">
+              <EnvelopeIcon className="w-12 h-12 text-white mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">Email Us</h3>
+              <p className="text-blue-100">support@itsupport.com</p>
+            </div>
+            <div className="bg-blue-700 rounded-2xl p-8">
+              <MapPinIcon className="w-12 h-12 text-white mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">Visit Us</h3>
+              <p className="text-blue-100">123 Healthcare Ave, Suite 100</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Footer */}
-      <footer className="bg-[#2F327D] text-white py-12">
+      <footer className="bg-gray-900 text-white py-16">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <WrenchScrewdriverIcon className="w-6 h-6 text-white" />
-                <span className="font-semibold text-lg">IT Support Portal</span>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
+                  <WrenchScrewdriverIcon className="w-6 h-6 text-white" />
+                </div>
+                <span className="font-bold text-xl">IT Support Pro</span>
               </div>
-              <p className="text-gray-400 text-sm">
-                Comprehensive IT management solution for healthcare environments.
+              <p className="text-gray-400 leading-relaxed mb-6">
+                Enterprise-grade IT service management platform designed for healthcare organizations worldwide.
               </p>
+              <div className="flex space-x-4">
+                <div className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer">
+                  <span className="text-sm font-bold">f</span>
+                </div>
+                <div className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer">
+                  <span className="text-sm font-bold">t</span>
+                </div>
+                <div className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer">
+                  <span className="text-sm font-bold">in</span>
+                </div>
+              </div>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Platform</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link to="/dashboard" className="hover:text-white transition-colors">Dashboard</Link></li>
-                <li><Link to="/inventory" className="hover:text-white transition-colors">Inventory</Link></li>
-                <li><Link to="/reports" className="hover:text-white transition-colors">Reports</Link></li>
-                <li><Link to="/analytics" className="hover:text-white transition-colors">Analytics</Link></li>
+              <h4 className="font-bold text-lg mb-6">Platform</h4>
+              <ul className="space-y-3 text-gray-400">
+                <li><Link to="/features" className="hover:text-white transition-colors">Features</Link></li>
+                <li><Link to="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
+                <li><Link to="/integrations" className="hover:text-white transition-colors">Integrations</Link></li>
+                <li><Link to="/security" className="hover:text-white transition-colors">Security</Link></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Account</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                {user ? (
-                  <>
-                    <li><Link to="/settings" className="hover:text-white transition-colors">Settings</Link></li>
-                    <li><Link to="/profile" className="hover:text-white transition-colors">Profile</Link></li>
-                  </>
-                ) : (
-                  <>
-                    <li><Link to="/login" className="hover:text-white transition-colors">Sign In</Link></li>
-                    <li><Link to="/register" className="hover:text-white transition-colors">Register</Link></li>
-                  </>
-                )}
+              <h4 className="font-bold text-lg mb-6">Resources</h4>
+              <ul className="space-y-3 text-gray-400">
+                <li><Link to="/documentation" className="hover:text-white transition-colors">Documentation</Link></li>
+                <li><Link to="/help" className="hover:text-white transition-colors">Help Center</Link></li>
+                <li><Link to="/blog" className="hover:text-white transition-colors">Blog</Link></li>
+                <li><Link to="/status" className="hover:text-white transition-colors">System Status</Link></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Status</a></li>
+              <h4 className="font-bold text-lg mb-6">Company</h4>
+              <ul className="space-y-3 text-gray-400">
+                <li><Link to="/about" className="hover:text-white transition-colors">About Us</Link></li>
+                <li><Link to="/careers" className="hover:text-white transition-colors">Careers</Link></li>
+                <li><Link to="/contact" className="hover:text-white transition-colors">Contact</Link></li>
+                <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
               </ul>
             </div>
           </div>
           
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center">
+          <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              © 2024 Hospital IT Management System. All rights reserved.
+              © 2024 IT Support Pro. All rights reserved.
             </p>
+            <div className="flex space-x-6 mt-4 md:mt-0">
+              <Link to="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">Terms of Service</Link>
+              <Link to="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</Link>
+              <Link to="/cookies" className="text-gray-400 hover:text-white text-sm transition-colors">Cookie Policy</Link>
+            </div>
           </div>
         </div>
       </footer>

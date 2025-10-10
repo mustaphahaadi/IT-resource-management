@@ -349,10 +349,6 @@ class ApiService {
     return this.get("/analytics/dashboard/");
   }
 
-  async getTechnicianDashboard() {
-    return this.get("/tasks/my_dashboard/");
-  }
-
   async getManagerDashboard() {
     return this.get("/analytics/manager_dashboard/");
   }

@@ -15,4 +15,7 @@ urlpatterns = [
 
     # Audit Logs
     path('audit-logs/', views.audit_logs, name='admin_audit_logs'),
+    
+    # System Health
+    path('health/', views.system_health, name='admin_system_health'),
 ]
