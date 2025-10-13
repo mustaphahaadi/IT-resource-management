@@ -3,6 +3,7 @@ import { apiService } from '../../services/api';
 import { usePermissions } from '../../contexts/PermissionsContext';
 import { Button } from '../ui/button';
 import { NativeSelect } from '../ui/native-select';
+import AsyncSelect from '../ui/AsyncSelect';
 import UserSelect from '../ui/user-select';
 import StatusBadge from '../ui/status-badge';
 import { XMarkIcon, PencilIcon, ArrowUpOnSquareIcon, TicketIcon } from '@heroicons/react/24/outline';
@@ -138,17 +139,18 @@ const RequestDetailsSidebar = ({ request, onClose, onUpdate, onAssign }) => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Update Status</label>
                     {hasPermission('requests.update') ? (
-                      <NativeSelect
+                      <AsyncSelect
                         value={request.status}
                         onChange={(e) => handleStatusUpdate(e.target.value)}
-                      >
-                        <option value="open">Open</option>
-                        <option value="assigned">Assigned</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="pending">Pending</option>
-                        <option value="resolved">Resolved</option>
-                        <option value="closed">Closed</option>
-                      </NativeSelect>
+                        options={[
+                          { value: 'open', label: 'Open' },
+                          { value: 'assigned', label: 'Assigned' },
+                          { value: 'in_progress', label: 'In Progress' },
+                          { value: 'pending', label: 'Pending' },
+                          { value: 'resolved', label: 'Resolved' },
+                          { value: 'closed', label: 'Closed' },
+                        ]}
+                      />
                     ) : (
                       <div className="px-3 py-2 bg-gray-100 rounded text-sm text-gray-700">
                         {request.status?.replace('_', ' ')}

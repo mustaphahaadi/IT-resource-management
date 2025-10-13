@@ -16,6 +16,7 @@ import {
   BuildingOfficeIcon,
   ChartBarIcon
 } from '@heroicons/react/24/outline'
+import AsyncSelect from '../components/ui/AsyncSelect'
 
 const Profile = () => {
   const { user, updateProfile } = useAuth()
@@ -309,20 +310,19 @@ const Profile = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="timezone">Timezone</Label>
-                    <select
-                      id="timezone"
-                      name="timezone"
-                      value={profileData.timezone}
-                      onChange={handleInputChange}
-                      disabled={!editing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-700 read-only:bg-gray-100 read-only:text-gray-700"
-                    >
-                      <option value="UTC">UTC</option>
-                      <option value="America/New_York">Eastern Time</option>
-                      <option value="America/Chicago">Central Time</option>
-                      <option value="America/Denver">Mountain Time</option>
-                      <option value="America/Los_Angeles">Pacific Time</option>
-                    </select>
+                      <AsyncSelect
+                        options={[
+                          { value: 'UTC', label: 'UTC' },
+                          { value: 'America/New_York', label: 'Eastern Time' },
+                          { value: 'America/Chicago', label: 'Central Time' },
+                          { value: 'America/Denver', label: 'Mountain Time' },
+                          { value: 'America/Los_Angeles', label: 'Pacific Time' }
+                        ]}
+                        value={profileData.timezone}
+                        onChange={(e) => handleInputChange({ target: { name: 'timezone', value: e.value } })}
+                        disabled={!editing}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-700 read-only:bg-gray-100 read-only:text-gray-700"
+                      />
                   </div>
                 </div>
 

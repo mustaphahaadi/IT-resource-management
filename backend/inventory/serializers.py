@@ -44,6 +44,7 @@ class EquipmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Equipment
         fields = '__all__'
+        read_only_fields = ('id',)
     
     def get_is_overdue_maintenance(self, obj):
         return obj.is_overdue_maintenance()

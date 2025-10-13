@@ -423,7 +423,10 @@ def get_roles(request):
             }
             for name, display in role_choices
         ]
-        return Response({'roles': roles})
+        # Also expose department choices if available
+        dept_choices = getattr(CustomUser, 'DEPARTMENT_CHOICES', [])
+        departments = [{'name': k, 'display_name': v} for k, v in dept_choices]
+        return Response({'roles': roles, 'departments': departments})
     except Exception as e:
         logger.error(f"Error fetching roles: {e}")
         return Response({'roles': []})

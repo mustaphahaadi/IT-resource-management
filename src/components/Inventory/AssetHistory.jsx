@@ -139,7 +139,7 @@ const AssetHistory = ({ equipment, onClose }) => {
                 {/* Timeline line */}
                 <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-200"></div>
                 
-                {history.map((record, _) => (
+                {history.map((record) => (
                   <div key={record.id} className="relative flex items-start space-x-4 p-6 hover:bg-gray-50">
                     {/* Timeline dot */}
                     <div className="relative z-10 flex items-center justify-center w-8 h-8 bg-white border-2 border-gray-200 rounded-full">

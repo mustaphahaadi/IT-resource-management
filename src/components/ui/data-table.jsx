@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Button } from './button'
 import { Input } from './input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
@@ -140,8 +140,18 @@ const DataTable = ({
   const renderCell = (row, column) => {
     const value = row[column.key]
     
+    // If a custom render is provided, use it. If it returns a plain object
+    // (not a React element), stringify it to avoid React errors.
     if (column.render) {
-      return column.render(value, row)
+      const rendered = column.render(value, row)
+      if (rendered && typeof rendered === 'object' && !React.isValidElement(rendered)) {
+        try {
+          return <pre className="whitespace-pre-wrap text-sm">{JSON.stringify(rendered)}</pre>
+        } catch (e) {
+          return String(rendered)
+        }
+      }
+      return rendered
     }
     
     if (column.type === 'status') {
@@ -160,6 +170,15 @@ const DataTable = ({
       return value ? new Date(value).toLocaleString() : '-'
     }
     
+    // Guard against rendering plain objects directly
+    if (value && typeof value === 'object' && !React.isValidElement(value)) {
+      try {
+        return <pre className="whitespace-pre-wrap text-sm">{JSON.stringify(value)}</pre>
+      } catch (e) {
+        return String(value)
+      }
+    }
+
     return value || '-'
   }
 

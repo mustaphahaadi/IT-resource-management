@@ -15,8 +15,8 @@ export const validationRules = {
   
   phone: (value, message = 'Please enter a valid phone number') => {
     if (!value) return null
-  const phoneRegex = /^\+?1?\d{9,15}$/
-    return !phoneRegex.test(value.replace(/[\s\-\(\)]/g, '')) ? message : null
+    const phoneRegex = /^\+?1?\d{9,15}$/
+    return !phoneRegex.test(value.replace(/[\s\-()]/g, '')) ? message : null
   },
   
   minLength: (minLength, message) => (value) => {
@@ -31,8 +31,8 @@ export const validationRules = {
   
   password: (value, message = 'Password must contain at least 8 characters with uppercase, lowercase, and number') => {
     if (!value) return null
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
-    return !passwordRegex.test(value) ? message : null
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
+      return !passwordRegex.test(value) ? message : null
   },
   
   confirmPassword: (originalPassword, message = 'Passwords do not match') => (value) => {

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { WrenchScrewdriverIcon, ShieldCheckIcon, ChartBarIcon, HeartIcon } from "@heroicons/react/24/outline";
+import { WrenchScrewdriverIcon, ShieldCheckIcon, ChartBarIcon, HeartIcon, CheckCircleIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 
 const About = () => {
   const values = [

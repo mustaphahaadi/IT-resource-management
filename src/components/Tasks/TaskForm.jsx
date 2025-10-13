@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { apiService } from "../../services/api"
 import { NativeSelect } from "../ui/native-select"
+import AsyncSelect from "../ui/AsyncSelect"
 import { Textarea } from "../ui/textarea"
 import UserSelect from "../ui/user-select"
 import { usePermissions } from "../../contexts/PermissionsContext"
@@ -17,8 +18,6 @@ const TaskForm = ({ task, onSubmit, onClose }) => {
     related_request: "",
   })
   const [requests, setRequests] = useState([])
-  // loading state kept for potential UI use, but currently not necessary
-  const [loading, setLoading] = useState(false)
   const { hasPermission } = usePermissions()
 
   useEffect(() => {
@@ -39,7 +38,6 @@ const TaskForm = ({ task, onSubmit, onClose }) => {
   useEffect(() => {
     // Load support requests for selection
     const fetchRequests = async () => {
-      setLoading(true)
       try {
         const res = await apiService.getSupportRequests({ page_size: 100 })
         const data = res.data.results || res.data
@@ -47,8 +45,6 @@ const TaskForm = ({ task, onSubmit, onClose }) => {
       } catch (e) {
         console.error("Error fetching support requests:", e)
         setRequests([])
-      } finally {
-        setLoading(false)
       }
     }
     fetchRequests()
@@ -113,32 +109,29 @@ const TaskForm = ({ task, onSubmit, onClose }) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
-              <NativeSelect
+              <AsyncSelect
                 name="priority"
                 value={formData.priority}
                 onChange={handleChange}
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="critical">Critical</option>
-              </NativeSelect>
+                options={[
+                  { value: 'low', label: 'Low' },
+                  { value: 'medium', label: 'Medium' },
+                  { value: 'high', label: 'High' },
+                  { value: 'critical', label: 'Critical' },
+                ]}
+                className="w-full"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Related Support Request</label>
-              <NativeSelect
+              <AsyncSelect
                 name="related_request"
                 value={formData.related_request}
                 onChange={handleChange}
-                required
-              >
-                <option value="">Select Request</option>
-                {requests.map((req) => (
-                  <option key={req.id} value={req.id}>
-                    {req.ticket_number} - {req.title}
-                  </option>
-                ))}
-              </NativeSelect>
+                options={requests.map(r => ({ value: r.id, label: `${r.ticket_number} - ${r.title}` }))}
+                className="w-full"
+                placeholder="Select Request"
+              />
             </div>
           </div>
 
@@ -163,17 +156,19 @@ const TaskForm = ({ task, onSubmit, onClose }) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-              <NativeSelect
+              <AsyncSelect
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
-              >
-                <option value="pending">Pending</option>
-                <option value="assigned">Assigned</option>
-                <option value="in_progress">In Progress</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-              </NativeSelect>
+                options={[
+                  { value: 'pending', label: 'Pending' },
+                  { value: 'assigned', label: 'Assigned' },
+                  { value: 'in_progress', label: 'In Progress' },
+                  { value: 'completed', label: 'Completed' },
+                  { value: 'cancelled', label: 'Cancelled' },
+                ]}
+                className="w-full"
+              />
             </div>
           </div>
 

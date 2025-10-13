@@ -2,6 +2,8 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 import { Button } from "../ui/button"
 import { NativeSelect } from "../ui/native-select"
+import AsyncSelect from "../ui/AsyncSelect"
+import useOptions from "../../hooks/useOptions"
 import { Textarea } from "../ui/textarea"
 import { XMarkIcon } from "@heroicons/react/24/outline"
 import { apiService } from "../../services/api"
@@ -12,19 +14,19 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
     description: "",
     category: "",
     priority: "medium",
-    channel: "web",
+    channel: "web_portal",
     requester_phone: "",
     requester_department: "",
     requester_location: "",
     related_equipment: "",
   })
-  const [categories, setCategories] = useState([])
-  const [equipment, setEquipment] = useState([])
+  // categories and equipment options fetched from backend
+  const { options: categories, loading: loadingCategories, error: categoriesError } = useOptions('/requests/categories/', (c) => ({ value: c.id, label: c.name }))
+  const { options: equipment, loading: loadingEquipment, error: equipmentError } = useOptions('/inventory/equipment/', (e) => ({ value: e.id, label: `${e.name} (${e.asset_tag || ''})` }))
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
   useEffect(() => {
-    fetchFormData()
     if (request) {
       setFormData({
         ...request,
@@ -34,33 +36,80 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
     }
   }, [request])
 
-  const fetchFormData = async () => {
-    try {
-      const [categoriesRes, equipmentRes] = await Promise.all([
-        apiService.get("/requests/categories/"),
-        apiService.get("/inventory/equipment/"),
-      ])
-      setCategories(categoriesRes.data.results || categoriesRes.data)
-      setEquipment(equipmentRes.data.results || equipmentRes.data)
-    } catch (error) {
-      console.error("Error fetching form data:", error)
-    }
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError("")
 
+    // Client-side validation: required fields
+    const requiredFields = [
+      { key: 'title', label: 'Title' },
+      { key: 'description', label: 'Description' },
+      { key: 'category', label: 'Category' },
+      { key: 'requester_department', label: 'Department' },
+      { key: 'requester_location', label: 'Location' },
+    ]
+
+    for (const field of requiredFields) {
+      const value = formData[field.key]
+      if (value === null || value === undefined || value === '') {
+        setError(`${field.label} is required.`)
+        setLoading(false)
+        return
+      }
+    }
+
     try {
+      // Prepare payload to match backend expectations:
+      // - category and related_equipment: send as integer or null
+      const payload = { ...formData }
+
+      // Ensure category is integer (frontend sends id from select) or null
+      payload.category = payload.category ? Number(payload.category) : null
+
+      // Ensure related_equipment is integer or null
+      payload.related_equipment = payload.related_equipment ? Number(payload.related_equipment) : null
+
       if (request) {
-        await apiService.updateSupportRequest(request.id, formData)
+        await apiService.updateSupportRequest(request.id, payload)
       } else {
-        await apiService.createSupportRequest(formData)
+        await apiService.createSupportRequest(payload)
       }
       onSuccess()
     } catch (error) {
-      setError(error.response?.data?.message || "An error occurred")
+      // Log full response for debugging and show friendly message
+      console.error('Create/Update support request error:', error.response || error)
+      const serverData = error.response?.data || null
+
+      // Helper: convert server error payload to user-friendly string
+      const formatServerError = (data) => {
+        if (!data) return error.message || 'An error occurred'
+        // If backend sends { message: '...' }
+        if (typeof data === 'string') return data
+        if (data.message) return data.message
+        // If backend sends a dict of field errors, join them
+        if (typeof data === 'object') {
+          try {
+            const parts = []
+            for (const [k, v] of Object.entries(data)) {
+              // v can be array of messages or nested object
+              if (Array.isArray(v)) {
+                parts.push(`${k}: ${v.join('; ')}`)
+              } else if (typeof v === 'object') {
+                parts.push(`${k}: ${JSON.stringify(v)}`)
+              } else {
+                parts.push(`${k}: ${v}`)
+              }
+            }
+            return parts.join(' | ')
+          } catch (e) {
+            return JSON.stringify(data)
+          }
+        }
+        return String(data)
+      }
+
+      setError(formatServerError(serverData))
     } finally {
       setLoading(false)
     }
@@ -118,66 +167,68 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
-                <NativeSelect
-                  name="category"
-                  required
-                  value={formData.category}
-                  onChange={handleChange}
-                >
-                  <option value="">Select Category</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </NativeSelect>
-              </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
+                  <AsyncSelect
+                    name="category"
+                    required
+                    value={formData.category}
+                    onChange={handleChange}
+                    options={categories}
+                    loading={loadingCategories}
+                    error={categoriesError}
+                    placeholder="Select Category"
+                    className="w-full"
+                  />
+                </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-                <NativeSelect
+                <AsyncSelect
                   name="priority"
                   value={formData.priority}
                   onChange={handleChange}
-                >
-                  <option value="low">Low - Enhancement/Non-urgent</option>
-                  <option value="medium">Medium - Standard Request</option>
-                  <option value="high">High - Operations Impact</option>
-                  <option value="critical">Critical - Patient Care Impact</option>
-                </NativeSelect>
+                  options={[
+                    { value: 'low', label: 'Low - Enhancement/Non-urgent' },
+                    { value: 'medium', label: 'Medium - Standard Request' },
+                    { value: 'high', label: 'High - Operations Impact' },
+                    { value: 'critical', label: 'Critical - Patient Care Impact' },
+                  ]}
+                  className="w-full"
+                />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Request Channel</label>
-                <NativeSelect
+                <AsyncSelect
                   name="channel"
                   value={formData.channel}
                   onChange={handleChange}
-                >
-                  <option value="web">Web Portal</option>
-                  <option value="mobile">Mobile App</option>
-                  <option value="phone">Phone</option>
-                  <option value="email">Email</option>
-                  <option value="walk_in">Walk-in</option>
-                </NativeSelect>
+                  options={[
+                    { value: 'web_portal', label: 'Web Portal' },
+                    { value: 'mobile_app', label: 'Mobile App' },
+                    { value: 'phone', label: 'Phone' },
+                    { value: 'email', label: 'Email' },
+                    { value: 'walk_in', label: 'Walk-in' },
+                    { value: 'chat', label: 'Live Chat' },
+                    { value: 'self_service', label: 'Self-Service' },
+                  ]}
+                  className="w-full"
+                />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Related Equipment</label>
-                <NativeSelect
+                <AsyncSelect
                   name="related_equipment"
                   value={formData.related_equipment}
                   onChange={handleChange}
-                >
-                  <option value="">Select Equipment (Optional)</option>
-                  {equipment.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name} ({item.asset_tag})
-                    </option>
-                  ))}
-                </NativeSelect>
+                  options={equipment}
+                  loading={loadingEquipment}
+                  error={equipmentError}
+                  placeholder="Select Equipment (Optional)"
+                  className="w-full"
+                />
               </div>
             </div>
 

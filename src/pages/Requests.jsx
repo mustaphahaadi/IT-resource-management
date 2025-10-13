@@ -23,6 +23,7 @@ import DataTable from "../components/ui/data-table";
 import RequestDetailsSidebar from "../components/Requests/RequestDetailsSidebar";
 import AlertsPanel from "../components/Requests/AlertsPanel"
 import RequestForm from "../components/Requests/RequestForm"
+import RequestFilters from "../components/Requests/RequestFilters"
 
 const Requests = () => {
   const { hasPermission, userRole, user } = usePermissions()

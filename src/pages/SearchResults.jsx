@@ -13,6 +13,7 @@ import {
   XMarkIcon
 } from '@heroicons/react/24/outline'
 import { apiService } from '../services/api'
+import AsyncSelect from '../components/ui/AsyncSelect'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 
 const SearchResults = () => {
@@ -224,55 +225,59 @@ const SearchResults = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <select
+            <AsyncSelect
               value={filters.category}
               onChange={(e) => handleFilterChange('category', e.target.value)}
+              options={[
+                { value: 'all', label: 'All Categories' },
+                { value: 'equipment', label: 'Equipment' },
+                { value: 'requests', label: 'Requests' },
+                { value: 'tasks', label: 'Tasks' },
+                { value: 'users', label: 'Users' },
+                { value: 'documents', label: 'Documents' }
+              ]}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">All Categories</option>
-              <option value="equipment">Equipment</option>
-              <option value="requests">Requests</option>
-              <option value="tasks">Tasks</option>
-              <option value="users">Users</option>
-              <option value="documents">Documents</option>
-            </select>
+            />
 
-            <select
+            <AsyncSelect
               value={filters.status}
               onChange={(e) => handleFilterChange('status', e.target.value)}
+              options={[
+                { value: '', label: 'All Status' },
+                { value: 'active', label: 'Active' },
+                { value: 'inactive', label: 'Inactive' },
+                { value: 'pending', label: 'Pending' },
+                { value: 'completed', label: 'Completed' },
+                { value: 'resolved', label: 'Resolved' }
+              ]}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="pending">Pending</option>
-              <option value="completed">Completed</option>
-              <option value="resolved">Resolved</option>
-            </select>
+            />
 
-            <select
+            <AsyncSelect
               value={filters.priority}
               onChange={(e) => handleFilterChange('priority', e.target.value)}
+              options={[
+                { value: '', label: 'All Priorities' },
+                { value: 'critical', label: 'Critical' },
+                { value: 'high', label: 'High' },
+                { value: 'medium', label: 'Medium' },
+                { value: 'low', label: 'Low' }
+              ]}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">All Priorities</option>
-              <option value="critical">Critical</option>
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
-            </select>
+            />
 
-            <select
+            <AsyncSelect
               value={filters.dateRange}
               onChange={(e) => handleFilterChange('dateRange', e.target.value)}
+              options={[
+                { value: '', label: 'Any Time' },
+                { value: 'today', label: 'Today' },
+                { value: 'week', label: 'This Week' },
+                { value: 'month', label: 'This Month' },
+                { value: 'year', label: 'This Year' }
+              ]}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">Any Time</option>
-              <option value="today">Today</option>
-              <option value="week">This Week</option>
-              <option value="month">This Month</option>
-              <option value="year">This Year</option>
-            </select>
+            />
           </div>
         </CardContent>
       </Card>

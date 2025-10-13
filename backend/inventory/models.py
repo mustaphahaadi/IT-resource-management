@@ -129,14 +129,40 @@ class Equipment(models.Model):
         return f"{self.name} ({self.asset_tag})"
     
     def save(self, *args, **kwargs):
-        # Generate QR code if not exists
+        """Save equipment. For new instances we must first save to obtain a primary key
+        before generating and saving related file fields (QR code). This avoids
+        attempting to insert a model with an explicit id which can trigger UNIQUE
+        constraint failures when clients or code inadvertently supply an id.
+        """
+        is_new = self.pk is None
+
+        # If new record: save first to get pk, then generate QR and save again.
+        if is_new:
+            # Calculate current value if possible (safe before initial save)
+            if self.purchase_cost and self.purchase_date:
+                self.calculate_current_value()
+
+            # Initial save to obtain an id
+            super().save(*args, **kwargs)
+
+            # Now that we have a pk, generate QR code if missing and persist it
+            if not self.qr_code:
+                self.generate_qr_code()
+                # Save only the qr_code field to avoid overwriting other fields
+                try:
+                    super().save(update_fields=['qr_code'])
+                except TypeError:
+                    # Some Django versions may not accept update_fields here; fallback
+                    super().save()
+            return
+
+        # Existing instance: update computed values and ensure QR exists
         if not self.qr_code:
             self.generate_qr_code()
-        
-        # Calculate current value based on depreciation
+
         if self.purchase_cost and self.purchase_date:
             self.calculate_current_value()
-        
+
         super().save(*args, **kwargs)
     
     def generate_qr_code(self):

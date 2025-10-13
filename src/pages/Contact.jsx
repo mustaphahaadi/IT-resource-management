@@ -14,6 +14,7 @@ import {
   CogIcon
 } from "@heroicons/react/24/outline";
 import { useState } from "react";
+import AsyncSelect from '../components/ui/AsyncSelect'
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -239,18 +240,18 @@ const Contact = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Inquiry Type
                   </label>
-                  <select
-                    name="inquiryType"
+                  <AsyncSelect
+                    options={[
+                      { value: 'general', label: 'General Inquiry' },
+                      { value: 'sales', label: 'Sales & Pricing' },
+                      { value: 'support', label: 'Technical Support' },
+                      { value: 'partnership', label: 'Partnership' },
+                      { value: 'demo', label: 'Request Demo' }
+                    ]}
                     value={formData.inquiryType}
-                    onChange={handleChange}
+                    onChange={(e) => setFormData({ ...formData, inquiryType: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="general">General Inquiry</option>
-                    <option value="sales">Sales & Pricing</option>
-                    <option value="support">Technical Support</option>
-                    <option value="partnership">Partnership</option>
-                    <option value="demo">Request Demo</option>
-                  </select>
+                  />
                 </div>
 
                 <div>

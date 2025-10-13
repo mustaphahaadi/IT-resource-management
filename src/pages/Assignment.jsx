@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
+import AsyncSelect from "../components/ui/AsyncSelect"
+import useOptions from "../hooks/useOptions"
 import { Input } from "../components/ui/input"
 import { Label } from "../components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
@@ -40,6 +42,12 @@ const Assignment = () => {
     } finally {
       setLoadingTasks(false)
     }
+  }
+
+  const searchPendingTasks = async (q) => {
+    const res = await apiService.getTasks({ status: 'pending', search: q, page: 1 })
+    const list = res.data?.results || res.data || []
+    return list.map(t => ({ value: String(t.id), label: `${t.title || t.request_title || `Task #${t.id}`} (${t.priority})` }))
   }
 
   const fetchSuggestions = async (taskId) => {

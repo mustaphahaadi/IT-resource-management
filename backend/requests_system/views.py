@@ -1,6 +1,7 @@
 from rest_framework import viewsets, filters, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils import timezone
 from .models import SupportRequest, RequestCategory, RequestComment, Alert
@@ -172,3 +173,21 @@ class AlertViewSet(viewsets.ModelViewSet):
         alert.save()
         
         return Response({'message': 'Alert acknowledged successfully'})
+
+
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def choices(request):
+    """Return choice lists for SupportRequest dropdowns (priority, status, channel)."""
+    try:
+        priorities = [{'value': k, 'label': v} for k, v in SupportRequest.PRIORITY_CHOICES]
+        statuses = [{'value': k, 'label': v} for k, v in SupportRequest.STATUS_CHOICES]
+        channels = [{'value': k, 'label': v} for k, v in SupportRequest.CHANNEL_CHOICES]
+        return Response({
+            'priorities': priorities,
+            'statuses': statuses,
+            'channels': channels,
+        })
+    except Exception as e:
+        return Response({'error': 'Failed to load choices', 'details': str(e)}, status=500)

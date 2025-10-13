@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { formatServerError } from "../lib/formatError"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
@@ -8,6 +9,7 @@ import { Alert, AlertDescription } from "../components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
 import { useAuth } from "../contexts/AuthContext"
 import { apiService } from "../services/api"
+import useOptions from "../hooks/useOptions"
 import { 
   UserIcon, 
   KeyIcon, 
@@ -23,129 +25,7 @@ const Settings = () => {
   const { user, updateProfile, changePassword } = useAuth()
   const [activeTab, setActiveTab] = useState("profile")
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState("")
-  const [error, setError] = useState("")
-  
-  // Profile form data
-  const [profileData, setProfileData] = useState({
-    first_name: "",
-    last_name: "",
-    email: "",
-    phone_number: "",
-    department: "",
-    employee_id: ""
-  })
-  
-  // Password change form
-  const [passwordData, setPasswordData] = useState({
-    current_password: "",
-    new_password: "",
-    confirm_password: ""
-  })
-  const [showPasswords, setShowPasswords] = useState({
-    current: false,
-    new: false,
-    confirm: false
-  })
-  
-  // Notification preferences
-  const [notifications, setNotifications] = useState({
-    email_notifications: true,
-    push_notifications: true,
-    security_alerts: true,
-    system_updates: false
-  })
-  
-  const [departments, setDepartments] = useState([])
-  const [loadingDepartments, setLoadingDepartments] = useState(true)
-
-  useEffect(() => {
-    if (user) {
-      setProfileData({
-        first_name: user.first_name || "",
-        last_name: user.last_name || "",
-        email: user.email || "",
-        phone_number: user.phone_number || "",
-        department: user.department || "",
-        employee_id: user.employee_id || ""
-      })
-    }
-  }, [user])
-
-  useEffect(() => {
-    const fetchNotificationPreferences = async () => {
-      try {
-        const response = await apiService.getNotificationPreferences()
-        setNotifications(response.data)
-      } catch (error) {
-        console.error("Error fetching notification preferences:", error)
-        setError("Failed to load notification preferences.")
-      }
-    }
-    if (activeTab === 'notifications') {
-      fetchNotificationPreferences()
-    }
-  }, [activeTab])
-
-  // Fetch departments from API with IT help desk fallback
-  useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        setLoadingDepartments(true)
-        const response = await apiService.getDepartments()
-        const list = response.data?.results || response.data || []
-        const formatted = (Array.isArray(list) ? list : []).map(d => ({
-          value: d.code || d.slug || (d.name ? d.name.toLowerCase().replace(/\s+/g, '_') : 'other'),
-          label: d.name || d.display_name || d.title || 'Department'
-        }))
-        if (formatted.length) {
-          setDepartments(formatted)
-        } else {
-          setDepartments([
-            { value: "it", label: "IT Service Desk" },
-            { value: "it", label: "Desktop Support" },
-            { value: "it", label: "Field Services" },
-            { value: "it", label: "Network & Infrastructure" },
-            { value: "it", label: "Systems Administration" },
-            { value: "it", label: "Security Operations" },
-            { value: "it", label: "Applications Support" },
-            { value: "it", label: "EHR/EMR Support" },
-            { value: "it", label: "Clinical Engineering (Biomedical)" },
-            { value: "it", label: "Imaging/Radiology IT" },
-            { value: "it", label: "Telecommunications/VoIP" },
-            { value: "it", label: "Identity & Access Management" },
-            { value: "it", label: "Database & Reporting" },
-            { value: "it", label: "DevOps/Platform" },
-            { value: "it", label: "IT Management/PMO" },
-            { value: "other", label: "Other" },
-          ])
-        }
-      } catch (e) {
-        console.warn('Falling back to default departments:', e)
-        setDepartments([
-          { value: "it", label: "IT Service Desk" },
-          { value: "it", label: "Desktop Support" },
-          { value: "it", label: "Field Services" },
-          { value: "it", label: "Network & Infrastructure" },
-          { value: "it", label: "Systems Administration" },
-          { value: "it", label: "Security Operations" },
-          { value: "it", label: "Applications Support" },
-          { value: "it", label: "EHR/EMR Support" },
-          { value: "it", label: "Clinical Engineering (Biomedical)" },
-          { value: "it", label: "Imaging/Radiology IT" },
-          { value: "it", label: "Telecommunications/VoIP" },
-          { value: "it", label: "Identity & Access Management" },
-          { value: "it", label: "Database & Reporting" },
-          { value: "it", label: "DevOps/Platform" },
-          { value: "it", label: "IT Management/PMO" },
-          { value: "other", label: "Other" },
-        ])
-      } finally {
-        setLoadingDepartments(false)
-      }
-    }
-    fetchDepartments()
-  }, [])
+  const { options: departments, loading: loadingDepartments } = useOptions('/inventory/departments/', (d) => ({ value: d.code || d.slug || d.name, label: d.name || d.display_name || d.title }), [/* once */])
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target
@@ -225,7 +105,7 @@ const Settings = () => {
         updateProfile(response.data)
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to update profile")
+  setError(formatServerError(err.response?.data, 'Failed to update profile'))
     } finally {
       setLoading(false)
     }

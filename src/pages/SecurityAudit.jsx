@@ -14,7 +14,8 @@ import {
   ArrowDownTrayIcon,
   MagnifyingGlassIcon,
   FunnelIcon
-} from "@heroicons/react/24/outline";
+} from "@heroicons/react/24/outline"
+import AsyncSelect from "../components/ui/AsyncSelect"
 import { usePermissions, PermissionGate } from "../contexts/PermissionsContext";
 
 const SecurityAudit = () => {
@@ -318,16 +319,17 @@ const SecurityAudit = () => {
                   className="pl-10 w-64"
                 />
               </div>
-              <select
+              <AsyncSelect
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
+                options={[
+                  { value: 'all', label: 'All Status' },
+                  { value: 'success', label: 'Success' },
+                  { value: 'failed', label: 'Failed' },
+                  { value: 'warning', label: 'Warning' }
+                ]}
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">All Status</option>
-                <option value="success">Success</option>
-                <option value="failed">Failed</option>
-                <option value="warning">Warning</option>
-              </select>
+              />
             </div>
           </div>
         </CardHeader>

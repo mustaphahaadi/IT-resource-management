@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { formatServerError } from "../lib/formatError"
 import { useAuth } from "../contexts/AuthContext"
 import { usePermissions, getRoleDisplayName, getRoleColor } from "../contexts/PermissionsContext"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
@@ -7,12 +8,15 @@ import { apiService } from "../services/api"
 import UserForm from "../components/Auth/UserForm"
 import RolePermissions from "../components/Auth/RolePermissions"
 import { UserGroupIcon, PlusIcon, PencilIcon, TrashIcon, ShieldCheckIcon } from "@heroicons/react/24/outline"
+import AsyncSelect from "../components/ui/AsyncSelect"
+import useOptions from "../hooks/useOptions"
 
 const UserManagement = () => {
   const { user } = useAuth()
   const { hasPermission } = usePermissions()
   const [users, setUsers] = useState([])
-  const [roles, setRoles] = useState([])
+  // load roles from server (cached)
+  const { options: roles, loading: rolesLoading } = useOptions('/auth/roles/', (r) => ({ value: r.name, label: r.display_name || r.name }), [/* runs once */])
   const [loading, setLoading] = useState(true)
   const [showUserForm, setShowUserForm] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
@@ -31,8 +35,8 @@ const UserManagement = () => {
       setError("")
       setSuccess("")
       fetchUsers()
-      fetchRoles()
     }
+    // roles are loaded via useOptions
   }, [filters])
 
   const fetchUsers = async () => {
@@ -55,15 +59,7 @@ const UserManagement = () => {
     }
   }
 
-  const fetchRoles = async () => {
-    try {
-      const response = await apiService.get("/auth/roles/")
-      const list = response.data?.roles || response.data || []
-      setRoles(list)
-    } catch (error) {
-      console.error("Error fetching roles:", error)
-    }
-  }
+  // fetchRoles removed; roles come from useOptions
 
   const handleUserSubmit = async (userData) => {
     try {
@@ -91,7 +87,7 @@ const UserManagement = () => {
       setSuccess("User saved successfully")
     } catch (error) {
       console.error("Error saving user:", error)
-      setError(error?.response?.data?.error || "Failed to save user")
+  setError(formatServerError(error?.response?.data, 'Failed to save user'))
     }
   }
 
@@ -214,18 +210,14 @@ const UserManagement = () => {
               />
             </div>
             <div>
-              <select
+              <AsyncSelect
                 value={filters.role}
                 onChange={(e) => setFilters((prev) => ({ ...prev, role: e.target.value }))}
+                options={roles}
+                loading={rolesLoading}
                 className="px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                <option value="">All Roles</option>
-                {roles.map((role) => (
-                  <option key={role.name || role.id || role.display_name} value={role.name}>
-                    {role.display_name}
-                  </option>
-                ))}
-              </select>
+                placeholder="All Roles"
+              />
             </div>
             <div>
               <select

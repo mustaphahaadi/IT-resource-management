@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import {
   BellIcon,
   XMarkIcon,
-  CheckIcon,
   ExclamationTriangleIcon,
   InformationCircleIcon,
   CheckCircleIcon

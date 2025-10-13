@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react"
 import { apiService } from "../../services/api"
+import AsyncSelect from "../ui/AsyncSelect"
+import useOptions from "../../hooks/useOptions"
 
 const UserForm = ({ user, roles, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
@@ -36,6 +38,12 @@ const UserForm = ({ user, roles, onSubmit, onClose }) => {
       })
     }
   }, [user])
+
+  // Fetch roles from backend; fall back to `roles` prop when available
+  const { options: fetchedRoles, loading: loadingRoles, error: rolesError } = useOptions('/auth/roles/', (r) => ({ value: r.name, label: r.display_name || r.name }))
+  const roleOptions = (Array.isArray(fetchedRoles) && fetchedRoles.length > 0)
+    ? fetchedRoles
+    : (Array.isArray(roles) ? roles.map(r => ({ value: r.name || r.id, label: r.display_name || r.name || r.id })) : [])
 
   useEffect(() => {
     const fetchDepartments = async () => {
@@ -213,21 +221,18 @@ const UserForm = ({ user, roles, onSubmit, onClose }) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Role *</label>
-              <select
+              <AsyncSelect
                 name="role"
                 value={formData.role}
                 onChange={handleChange}
+                options={roleOptions}
+                loading={loadingRoles}
+                error={rolesError}
+                placeholder="Select Role"
                 className={`w-full px-3 py-2 bg-white border rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                   errors.role ? "border-destructive" : "border-gray-300"
                 }`}
-              >
-                <option value="">Select Role</option>
-                {roles.map((role) => (
-                  <option key={role.name || role.id || role.display_name} value={role.name}>
-                    {role.display_name}
-                  </option>
-                ))}
-              </select>
+              />
               {errors.role && <p className="text-sm text-destructive mt-1">{errors.role}</p>}
             </div>
 

@@ -3,6 +3,7 @@ import { apiService } from "../../services/api";
 import { usePermissions } from "../../contexts/PermissionsContext";
 import { Button } from "../ui/button";
 import { NativeSelect } from "../ui/native-select";
+import AsyncSelect from "../ui/AsyncSelect";
 import UserSelect from "../ui/user-select";
 import StatusBadge from "../ui/status-badge";
 import { XMarkIcon, PencilIcon, ArrowUpOnSquareIcon } from "@heroicons/react/24/outline";
@@ -131,16 +132,17 @@ const TaskDetailsSidebar = ({ task, onClose, onEdit, onAssign, onStatusUpdate })
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Update Status</label>
                 {hasPermission('tasks.update') ? (
-                  <NativeSelect
+                  <AsyncSelect
                     value={task.status}
                     onChange={(e) => onStatusUpdate(task.id, e.target.value)}
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="assigned">Assigned</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                  </NativeSelect>
+                    options={[
+                      { value: 'pending', label: 'Pending' },
+                      { value: 'assigned', label: 'Assigned' },
+                      { value: 'in_progress', label: 'In Progress' },
+                      { value: 'completed', label: 'Completed' },
+                      { value: 'cancelled', label: 'Cancelled' },
+                    ]}
+                  />
                 ) : (
                   <div className="px-3 py-2 bg-gray-100 rounded text-sm text-gray-700">
                     {task.status?.replace("_", " ")}

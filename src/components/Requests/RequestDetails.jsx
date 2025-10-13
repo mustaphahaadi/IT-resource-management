@@ -144,7 +144,21 @@ const RequestDetails = ({ request, onClose, onUpdate, onAssign }) => {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-700">Channel</p>
-                  <p className="text-gray-900">{request.channel}</p>
+                  {/* Map backend channel codes to friendly labels */}
+                  <p className="text-gray-900">{
+                    (() => {
+                      const map = {
+                        web_portal: 'Web Portal',
+                        mobile_app: 'Mobile App',
+                        phone: 'Phone',
+                        email: 'Email',
+                        walk_in: 'Walk-in',
+                        chat: 'Live Chat',
+                        self_service: 'Self-Service',
+                      }
+                      return map[request.channel] || request.channel
+                    })()
+                  }</p>
                 </div>
                 {request.equipment_name && (
                   <div>

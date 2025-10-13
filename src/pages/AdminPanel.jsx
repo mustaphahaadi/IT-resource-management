@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog"
 import { useAuth } from "../contexts/AuthContext";
 import { apiService } from "../services/api"
+import useOptions from "../hooks/useOptions"
 import { 
   UsersIcon, 
   ShieldCheckIcon, 
@@ -40,6 +41,9 @@ const AdminPanel = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [roleFilter, setRoleFilter] = useState("all")
   const [departmentFilter, setDepartmentFilter] = useState("all")
+
+  const { options: roleOptions } = useOptions('/auth/roles/', (r) => ({ value: r.name, label: r.display_name || r.name }), [/* run once */])
+  const { options: departmentOptions } = useOptions('/inventory/departments/', (d) => ({ value: d.code || d.slug || d.name, label: d.name || d.display_name || d.title }), [/* run once */])
   const [statusFilter, setStatusFilter] = useState("all")
   
   // Pagination
@@ -275,11 +279,9 @@ const AdminPanel = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All roles</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="manager">Manager</SelectItem>
-                      <SelectItem value="staff">Staff</SelectItem>
-                      <SelectItem value="technician">Technician</SelectItem>
-                      <SelectItem value="user">User</SelectItem>
+                      {(roleOptions || []).map((r) => (
+                        <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -292,16 +294,9 @@ const AdminPanel = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All departments</SelectItem>
-                      <SelectItem value="it">IT</SelectItem>
-                      <SelectItem value="admin">Administration</SelectItem>
-                      <SelectItem value="medical">Medical</SelectItem>
-                      <SelectItem value="nursing">Nursing</SelectItem>
-                      <SelectItem value="pharmacy">Pharmacy</SelectItem>
-                      <SelectItem value="laboratory">Laboratory</SelectItem>
-                      <SelectItem value="radiology">Radiology</SelectItem>
-                      <SelectItem value="maintenance">Maintenance</SelectItem>
-                      <SelectItem value="security">Security</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      {(departmentOptions || []).map((d) => (
+                        <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>

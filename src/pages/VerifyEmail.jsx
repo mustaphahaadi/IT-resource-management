@@ -33,7 +33,7 @@ const VerifyEmail = () => {
       setSuccess(true)
     } catch (err) {
       if (err.response?.data?.message) {
-        setError(err.response.data.message)
+        setError(formatServerError(err.response?.data, 'Invalid verification link'))
       } else {
         setError("Email verification failed. The link may be invalid or expired.")
       }

@@ -18,6 +18,7 @@ import {
   MagnifyingGlassIcon
 } from '@heroicons/react/24/outline'
 import LoadingSpinner from '../components/common/LoadingSpinner'
+import AsyncSelect from '../components/ui/AsyncSelect'
 
 const ActivityLog = () => {
   const { user, hasPermission } = useAuth()
@@ -257,32 +258,34 @@ const ActivityLog = () => {
               />
             </div>
 
-            <select
+            <AsyncSelect
+              options={[
+                { value: '', label: 'All Actions' },
+                { value: 'create', label: 'Create' },
+                { value: 'update', label: 'Update' },
+                { value: 'delete', label: 'Delete' },
+                { value: 'login', label: 'Login' },
+                { value: 'logout', label: 'Logout' },
+                { value: 'backup', label: 'Backup' }
+              ]}
               value={filters.action_type}
               onChange={(e) => setFilters({ ...filters, action_type: e.target.value })}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">All Actions</option>
-              <option value="create">Create</option>
-              <option value="update">Update</option>
-              <option value="delete">Delete</option>
-              <option value="login">Login</option>
-              <option value="logout">Logout</option>
-              <option value="backup">Backup</option>
-            </select>
+            />
 
-            <select
+            <AsyncSelect
+              options={[
+                { value: '', label: 'All Resources' },
+                { value: 'equipment', label: 'Equipment' },
+                { value: 'request', label: 'Requests' },
+                { value: 'task', label: 'Tasks' },
+                { value: 'user', label: 'Users' },
+                { value: 'system', label: 'System' }
+              ]}
               value={filters.resource_type}
               onChange={(e) => setFilters({ ...filters, resource_type: e.target.value })}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">All Resources</option>
-              <option value="equipment">Equipment</option>
-              <option value="request">Requests</option>
-              <option value="task">Tasks</option>
-              <option value="user">Users</option>
-              <option value="system">System</option>
-            </select>
+            />
 
             <input
               type="date"

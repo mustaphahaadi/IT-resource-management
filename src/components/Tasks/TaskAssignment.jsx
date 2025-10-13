@@ -9,11 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
 import { usePermissions } from "../../contexts/PermissionsContext"
 import { apiService } from "../../services/api"
+import useOptions from "../../hooks/useOptions"
+import AsyncSelect from "../ui/AsyncSelect"
 import {
   UserGroupIcon,
   ClipboardDocumentListIcon,
   ExclamationTriangleIcon,
-  CheckCircleIcon,
   ArrowPathIcon,
   PlusIcon,
   UserIcon,
@@ -75,6 +76,18 @@ const TaskAssignment = ({ onTaskUpdate }) => {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Load priority options from server choices endpoint (if available)
+  const { options: priorityOptions } = useOptions('/requests/choices/', (p) => {
+    // expect each priority to be like {value, label} or {code, label}
+    return { value: p.value ?? p.code ?? p[0], label: p.label ?? p.name ?? String(p) }
+  }, [/* once */])
+
+  const searchAssignableUsers = async (q) => {
+    const res = await apiService.getUsersForAssignment({ search: q, page: 1 })
+    const list = res.data?.results || res.data || []
+    return list.map(u => ({ value: u.id, label: u.full_name || `${u.first_name} ${u.last_name}` }))
   }
 
   const handleAssignTask = async (task, technicianId) => {
@@ -161,7 +174,7 @@ const TaskAssignment = ({ onTaskUpdate }) => {
     return (
       <Card>
         <CardContent className="p-6 text-center">
-          <p className="text-gray-500">You don't have permission to assign tasks.</p>
+          <p className="text-gray-500">You do not have permission to assign tasks.</p>
         </CardContent>
       </Card>
     )
@@ -245,10 +258,18 @@ const TaskAssignment = ({ onTaskUpdate }) => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="low">Low</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
-                        <SelectItem value="critical">Critical</SelectItem>
+                        {(priorityOptions && priorityOptions.length > 0) ? (
+                          priorityOptions.map(opt => (
+                            <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                          ))
+                        ) : (
+                          <>
+                            <SelectItem value="low">Low</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="high">High</SelectItem>
+                            <SelectItem value="critical">Critical</SelectItem>
+                          </>
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -395,28 +416,13 @@ const TaskAssignment = ({ onTaskUpdate }) => {
                                 
                                 <div>
                                   <Label>Select Technician</Label>
-                                  <Select value={selectedTechnician} onValueChange={setSelectedTechnician}>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Choose a technician" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {availableTechnicians.map((tech) => (
-                                        <SelectItem key={tech.id} value={tech.id.toString()}>
-                                          <div className="flex items-center justify-between w-full">
-                                            <span>{tech.user.first_name} {tech.user.last_name}</span>
-                                            <div className="flex items-center gap-2 ml-2">
-                                              <Badge variant="outline" className="text-xs">
-                                                {tech.skill_level}
-                                              </Badge>
-                                              <span className={`text-xs ${getWorkloadColor(tech.workload.utilization_percentage)}`}>
-                                                {Math.round(tech.workload.utilization_percentage)}%
-                                              </span>
-                                            </div>
-                                          </div>
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
+                                  <AsyncSelect
+                                    searchable
+                                    onSearch={searchAssignableUsers}
+                                    value={selectedTechnician}
+                                    onChange={(e) => setSelectedTechnician(e.target.value)}
+                                    placeholder="Search users by name or email"
+                                  />
                                 </div>
                                 
                                 <div className="flex justify-end gap-2">

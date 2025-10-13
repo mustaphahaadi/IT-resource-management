@@ -6,6 +6,7 @@ from .views import (
     MaintenanceScheduleViewSet, AssetHistoryViewSet, AssetCheckoutViewSet,
     AssetAuditViewSet, AssetAuditItemViewSet, AssetAlertViewSet, AssetTagViewSet
 )
+from . import views as _views
 
 router = DefaultRouter()
 router.register(r'equipment', EquipmentViewSet)
@@ -24,4 +25,5 @@ router.register(r'asset-tags', AssetTagViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('choices/', _views.choices, name='inventory_choices'),
 ]

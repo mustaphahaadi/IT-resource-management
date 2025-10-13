@@ -12,7 +12,7 @@ import {
   ArrowPathIcon
 } from "@heroicons/react/24/outline";
 import PageHeader from "../components/common/PageHeader";
-import { NativeSelect } from "../components/ui/native-select";
+import AsyncSelect from '../components/ui/AsyncSelect'
 import { Input } from "../components/ui/input";
 import DataTable from "../components/ui/data-table";
 import { apiService } from "../services/api"
@@ -174,16 +174,18 @@ const Reports = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <NativeSelect
+            <AsyncSelect
+              options={[
+                { value: 'overview', label: 'System Overview' },
+                { value: 'equipment', label: 'Equipment Report' },
+                { value: 'requests', label: 'Support Requests' },
+                { value: 'performance', label: 'Performance Metrics' },
+                { value: 'department', label: 'Department Analysis' }
+              ]}
               value={reportType}
               onChange={(e) => setReportType(e.target.value)}
-            >
-              <option value="overview">System Overview</option>
-              <option value="equipment">Equipment Report</option>
-              <option value="requests">Support Requests</option>
-              <option value="performance">Performance Metrics</option>
-              <option value="department">Department Analysis</option>
-            </NativeSelect>
+              className="px-3 py-2"
+            />
             <Input
               type="date"
               value={dateRange.startDate}

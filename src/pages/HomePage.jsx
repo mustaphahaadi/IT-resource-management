@@ -13,6 +13,13 @@ import {
   BoltIcon,
   ClockIcon,
   GlobeAltIcon
+  ,
+  ArrowRightIcon,
+  CheckCircleIcon,
+  CogIcon,
+  PhoneIcon,
+  EnvelopeIcon,
+  MapPinIcon
 } from "@heroicons/react/24/outline"
 
 const HomePage = () => {

@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Badge } from "../components/ui/badge"
 import { useToast } from "../components/ui/use-toast"
 import { apiService } from "../services/api"
+import useOptions from "../hooks/useOptions"
 
 const emptyArticle = {
   title: "",
@@ -19,7 +20,7 @@ const emptyArticle = {
 const KnowledgeBaseAdmin = () => {
   const { toast } = useToast()
   const [articles, setArticles] = useState([])
-  const [categories, setCategories] = useState([])
+  const { options: categories } = useOptions('/knowledge-base/categories/', (c) => ({ value: c.id || c.name, label: c.name }), [/* once */])
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("all")
@@ -35,12 +36,8 @@ const KnowledgeBaseAdmin = () => {
   const fetchInitialData = async () => {
     try {
       setLoading(true)
-      const [articleRes, categoryRes] = await Promise.all([
-        apiService.getKnowledgeBaseArticles(),
-        apiService.getKnowledgeBaseCategories(),
-      ])
+      const articleRes = await apiService.getKnowledgeBaseArticles()
       setArticles(articleRes.data.results || articleRes.data)
-      setCategories(categoryRes.data.results || categoryRes.data)
     } catch (error) {
       console.error("Failed to load knowledge base data", error)
       toast({

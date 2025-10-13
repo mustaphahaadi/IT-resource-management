@@ -18,6 +18,9 @@ from .serializers import (
     AssetAuditSerializer, AssetAuditItemSerializer, AssetAlertSerializer, AssetTagSerializer
 )
 from authentication.permissions import IsStaffOrReadOnly, IsAdminOrStaff, DepartmentBasedPermission, RoleBasedPermission
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework import permissions
+from rest_framework.response import Response
 
 class EquipmentViewSet(viewsets.ModelViewSet):
     queryset = Equipment.objects.all()
@@ -284,6 +287,33 @@ class EquipmentViewSet(viewsets.ModelViewSet):
                 notes=f'Updated by {self.request.user.get_full_name()}',
                 ip_address=self.request.META.get('REMOTE_ADDR')
             )
+
+
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def choices(request):
+    """Return choice lists for equipment dropdowns (status, condition, priority, maintenance freq, audit types)."""
+    try:
+        from .models import Equipment, MaintenanceSchedule, AssetAudit, AssetAuditItem
+
+        status_opts = [{'value': k, 'label': v} for k, v in Equipment.STATUS_CHOICES]
+        condition_opts = [{'value': k, 'label': v} for k, v in Equipment.CONDITION_CHOICES]
+        priority_opts = [{'value': k, 'label': v} for k, v in Equipment.PRIORITY_CHOICES]
+        freq_opts = [{'value': k, 'label': v} for k, v in MaintenanceSchedule.FREQUENCY_CHOICES]
+        audit_type_opts = [{'value': k, 'label': v} for k, v in AssetAudit.AUDIT_TYPE_CHOICES]
+        audit_status_opts = [{'value': k, 'label': v} for k, v in AssetAudit.AUDIT_STATUS_CHOICES]
+
+        return Response({
+            'equipment_status': status_opts,
+            'equipment_condition': condition_opts,
+            'equipment_priority': priority_opts,
+            'maintenance_frequency': freq_opts,
+            'audit_types': audit_type_opts,
+            'audit_statuses': audit_status_opts,
+        })
+    except Exception as e:
+        return Response({'error': 'Failed to load inventory choices', 'details': str(e)}, status=500)
 
 class SoftwareViewSet(viewsets.ModelViewSet):
     queryset = Software.objects.all()

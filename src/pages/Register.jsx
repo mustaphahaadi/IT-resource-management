@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Alert, AlertDescription } from "../components/ui/alert"
 import { useAuth } from "../contexts/AuthContext";
 import { apiService } from "../services/api"
+import useOptions from "../hooks/useOptions"
 import { 
   UserPlusIcon, 
   EyeIcon, 
@@ -42,107 +43,8 @@ const Register = () => {
     return <Navigate to="/" replace />
   }
 
-  const [departments, setDepartments] = useState([])
-  const [loadingDepartments, setLoadingDepartments] = useState(true)
-
-  useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        setLoadingDepartments(true)
-        const response = await apiService.getDepartments()
-        const list = response.data?.results || response.data || []
-
-        const ALLOWED = new Set([
-          'it','administration','human_resources','finance','operations','marketing','sales','customer_service','legal','facilities','other'
-        ])
-
-        const mapToAllowed = (raw, label) => {
-          const norm = String(raw || label || '')
-            .toLowerCase()
-            .replace(/&/g, 'and')
-            .replace(/\s+/g, '_')
-            .replace(/[^a-z_]/g, '')
-          // common synonyms
-          if (/(information_technology|it|tech|i_t)/.test(norm)) return 'it'
-          if (/(human_resources|hr)/.test(norm)) return 'human_resources'
-          if (/(customer_service|support|helpdesk)/.test(norm)) return 'customer_service'
-          if (/(ops|operations)/.test(norm)) return 'operations'
-          if (/(finance|accounting)/.test(norm)) return 'finance'
-          if (/(legal)/.test(norm)) return 'legal'
-          if (/(facilities|facility|maintenance)/.test(norm)) return 'facilities'
-          if (/(marketing)/.test(norm)) return 'marketing'
-          if (/(sales)/.test(norm)) return 'sales'
-          if (ALLOWED.has(norm)) return norm
-          return 'other'
-        }
-
-        const formattedRaw = (Array.isArray(list) ? list : []).map(d => {
-          const label = d.name || d.display_name || d.title || 'Department'
-          const raw = d.code || d.slug || (d.name ? d.name : 'other')
-          const value = mapToAllowed(raw, label)
-          return { value, label }
-        })
-
-        // Dedupe by value, keep first label
-        const seen = new Set()
-        const formatted = []
-        for (const item of formattedRaw) {
-          if (!seen.has(item.value)) {
-            seen.add(item.value)
-            formatted.push(item)
-          }
-        }
-
-        // Sort by label
-        formatted.sort((a, b) => a.label.localeCompare(b.label))
-        if (formatted.length) {
-          setDepartments(formatted)
-        } else {
-          setDepartments([
-            { value: "it", label: "IT Service Desk" },
-            { value: "it", label: "Desktop Support" },
-            { value: "it", label: "Field Services" },
-            { value: "it", label: "Network & Infrastructure" },
-            { value: "it", label: "Systems Administration" },
-            { value: "it", label: "Security Operations" },
-            { value: "it", label: "Applications Support" },
-            { value: "it", label: "EHR/EMR Support" },
-            { value: "it", label: "Clinical Engineering (Biomedical)" },
-            { value: "it", label: "Imaging/Radiology IT" },
-            { value: "it", label: "Telecommunications/VoIP" },
-            { value: "it", label: "Identity & Access Management" },
-            { value: "it", label: "Database & Reporting" },
-            { value: "it", label: "DevOps/Platform" },
-            { value: "it", label: "IT Management/PMO" },
-            { value: "other", label: "Other" },
-          ])
-        }
-      } catch (e) {
-        console.warn('Falling back to default departments:', e)
-        setDepartments([
-          { value: "it", label: "IT Service Desk" },
-          { value: "it", label: "Desktop Support" },
-          { value: "it", label: "Field Services" },
-          { value: "it", label: "Network & Infrastructure" },
-          { value: "it", label: "Systems Administration" },
-          { value: "it", label: "Security Operations" },
-          { value: "it", label: "Applications Support" },
-          { value: "it", label: "EHR/EMR Support" },
-          { value: "it", label: "Clinical Engineering (Biomedical)" },
-          { value: "it", label: "Imaging/Radiology IT" },
-          { value: "it", label: "Telecommunications/VoIP" },
-          { value: "it", label: "Identity & Access Management" },
-          { value: "it", label: "Database & Reporting" },
-          { value: "it", label: "DevOps/Platform" },
-          { value: "it", label: "IT Management/PMO" },
-          { value: "other", label: "Other" },
-        ])
-      } finally {
-        setLoadingDepartments(false)
-      }
-    }
-    fetchDepartments()
-  }, [])
+  // Use server-provided departments; map to {value,label}
+  const { options: departments, loading: loadingDepartments } = useOptions('/inventory/departments/', (d) => ({ value: d.code || d.slug || d.name, label: d.name || d.display_name || d.title }), [/* run once */])
 
   const validateForm = () => {
     const newErrors = {}

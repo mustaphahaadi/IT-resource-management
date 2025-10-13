@@ -1,6 +1,7 @@
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Input } from "../ui/input";
 import { NativeSelect } from "../ui/native-select";
+import AsyncSelect from "../ui/AsyncSelect"
 import { Button } from "../ui/button";
 
 const TaskFilters = ({ filters, onFiltersChange, personnel }) => {
@@ -34,40 +35,36 @@ const TaskFilters = ({ filters, onFiltersChange, personnel }) => {
           />
         </div>
 
-        <NativeSelect
+        <AsyncSelect
           value={filters.status}
           onChange={(e) => handleFilterChange("status", e.target.value)}
-        >
-          <option value="">All Statuses</option>
-          <option value="pending">Pending</option>
-          <option value="in_progress">In Progress</option>
-          <option value="completed">Completed</option>
-          <option value="on_hold">On Hold</option>
-        </NativeSelect>
+          options={[
+            { value: '', label: 'All Statuses' },
+            { value: 'pending', label: 'Pending' },
+            { value: 'in_progress', label: 'In Progress' },
+            { value: 'completed', label: 'Completed' },
+            { value: 'on_hold', label: 'On Hold' },
+          ]}
+          className=""
+        />
 
-        <NativeSelect
+        <AsyncSelect
           value={filters.priority}
           onChange={(e) => handleFilterChange("priority", e.target.value)}
-        >
-          <option value="">All Priorities</option>
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-          <option value="critical">Critical</option>
-        </NativeSelect>
+          options={[
+            { value: '', label: 'All Priorities' },
+            { value: 'low', label: 'Low' },
+            { value: 'medium', label: 'Medium' },
+            { value: 'high', label: 'High' },
+            { value: 'critical', label: 'Critical' },
+          ]}
+        />
 
-        <NativeSelect
+        <AsyncSelect
           value={filters.assignee}
           onChange={(e) => handleFilterChange("assignee", e.target.value)}
-        >
-          <option value="">All Assignees</option>
-          <option value="unassigned">Unassigned</option>
-          {personnel.map((person) => (
-            <option key={person.id} value={person.id}>
-              {person.name}
-            </option>
-          ))}
-        </NativeSelect>
+          options={[{ value: '', label: 'All Assignees' }, { value: 'unassigned', label: 'Unassigned' }, ...personnel.map(p => ({ value: p.id, label: p.name }))]}
+        />
       </div>
       <div className="mt-4 flex justify-end">
         <Button onClick={clearFilters} variant="ghost">

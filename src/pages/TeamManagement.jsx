@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
+import AsyncSelect from "../components/ui/AsyncSelect"
 import { Switch } from "../components/ui/switch"
 import { Badge } from "../components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table"
@@ -12,6 +13,7 @@ import { Textarea } from "../components/ui/textarea"
 import { useToast } from "../components/ui/use-toast"
 import { apiService } from "../services/api"
 import { usePermissions } from "../contexts/PermissionsContext"
+import useOptions from "../hooks/useOptions"
 
 const DEFAULT_FORM = {
   user: null,
@@ -55,6 +57,8 @@ const TeamManagement = () => {
     }
   }, [])
 
+  const { options: departmentOptions } = useOptions('/inventory/departments/', (d) => ({ value: d.code || d.slug || d.name, label: d.name || d.display_name || d.title }), [/* once */])
+
   const fetchUsers = async () => {
     try {
       const response = await apiService.getActiveUsers()
@@ -62,6 +66,13 @@ const TeamManagement = () => {
     } catch (error) {
       console.error("Failed to load users", error)
     }
+  }
+
+  // Remote search handler for linked-user AsyncSelect
+  const searchAssignableUsers = async (q) => {
+    const res = await apiService.getUsersForAssignment({ search: q, page: 1 })
+    const list = res.data?.results || res.data || []
+    return list.map(u => ({ value: u.id, label: u.full_name || `${u.first_name} ${u.last_name}` }))
   }
 
   const fetchPersonnel = async () => {
@@ -220,22 +231,9 @@ const TeamManagement = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All departments</SelectItem>
-              <SelectItem value="it">IT Department</SelectItem>
-              <SelectItem value="service desk">Service Desk</SelectItem>
-              <SelectItem value="desktop support">Desktop Support</SelectItem>
-              <SelectItem value="field services">Field Services</SelectItem>
-              <SelectItem value="network & infrastructure">Network & Infrastructure</SelectItem>
-              <SelectItem value="systems administration">Systems Administration</SelectItem>
-              <SelectItem value="security operations">Security Operations</SelectItem>
-              <SelectItem value="applications support">Applications Support</SelectItem>
-              <SelectItem value="ehr support">EHR Support</SelectItem>
-              <SelectItem value="clinical engineering">Clinical Engineering</SelectItem>
-              <SelectItem value="imaging it">Imaging IT</SelectItem>
-              <SelectItem value="telecom/voip">Telecom/VoIP</SelectItem>
-              <SelectItem value="identity & access">Identity & Access</SelectItem>
-              <SelectItem value="database & reporting">Database & Reporting</SelectItem>
-              <SelectItem value="devops/platform">DevOps/Platform</SelectItem>
-              <SelectItem value="it management/pmo">IT Management/PMO</SelectItem>
+              {(departmentOptions || []).map((d) => (
+                <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <Select value={skillFilter} onValueChange={setSkillFilter}>
@@ -348,22 +346,15 @@ const TeamManagement = () => {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Linked User</label>
-                <Select
-                  disabled={!!editingId}
+                {/* Use searchable AsyncSelect to locate assignable users (calls server) */}
+                <AsyncSelect
+                  searchable
+                  onSearch={searchAssignableUsers}
                   value={formData.user ? String(formData.user) : ""}
-                  onValueChange={(value) => setFormData((prev) => ({ ...prev, user: Number(value) }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select user" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {users.map((user) => (
-                      <SelectItem key={user.id} value={String(user.id)}>
-                        {user.full_name || `${user.first_name} ${user.last_name}`} ({user.email})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onChange={(e) => setFormData((prev) => ({ ...prev, user: e.target.value ? Number(e.target.value) : null }))}
+                  placeholder={editingId ? "Locked (already linked)" : "Search users by name or email"}
+                  disabled={!!editingId}
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Employee ID</label>

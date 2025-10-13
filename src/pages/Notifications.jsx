@@ -18,6 +18,7 @@ import {
   Cog6ToothIcon
 } from '@heroicons/react/24/outline'
 import LoadingSpinner from '../components/common/LoadingSpinner'
+import AsyncSelect from '../components/ui/AsyncSelect'
 
 const Notifications = () => {
   const { user, markNotificationRead, markAllNotificationsRead } = useAuth()
@@ -356,7 +357,7 @@ const Notifications = () => {
       {/* Filters */}
       <Card>
         <CardContent className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div className="relative">
               <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
@@ -368,39 +369,42 @@ const Notifications = () => {
               />
             </div>
             
-            <select
+            <AsyncSelect
+              options={[
+                { value: 'all', label: 'All Status' },
+                { value: 'unread', label: 'Unread' },
+                { value: 'read', label: 'Read' }
+              ]}
               value={filters.status}
               onChange={(e) => setFilters({ ...filters, status: e.target.value })}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">All Status</option>
-              <option value="unread">Unread</option>
-              <option value="read">Read</option>
-            </select>
+            />
 
-            <select
+            <AsyncSelect
+              options={[
+                { value: 'all', label: 'All Types' },
+                { value: 'system', label: 'System' },
+                { value: 'request', label: 'Requests' },
+                { value: 'task', label: 'Tasks' },
+                { value: 'equipment', label: 'Equipment' }
+              ]}
               value={filters.type}
               onChange={(e) => setFilters({ ...filters, type: e.target.value })}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">All Types</option>
-              <option value="system">System</option>
-              <option value="request">Requests</option>
-              <option value="task">Tasks</option>
-              <option value="equipment">Equipment</option>
-            </select>
+            />
 
-            <select
+            <AsyncSelect
+              options={[
+                { value: 'all', label: 'All Priorities' },
+                { value: 'critical', label: 'Critical' },
+                { value: 'high', label: 'High' },
+                { value: 'medium', label: 'Medium' },
+                { value: 'low', label: 'Low' }
+              ]}
               value={filters.priority}
               onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">All Priorities</option>
-              <option value="critical">Critical</option>
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
-            </select>
+            />
 
             <div className="flex space-x-2">
               {selectedNotifications.length > 0 && (
