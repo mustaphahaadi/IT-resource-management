@@ -8,21 +8,12 @@ import {
   UsersIcon,
   ComputerDesktopIcon,
   ChartBarIcon,
-  CogIcon,
-  ArrowRightIcon,
-  CheckCircleIcon,
   ExclamationTriangleIcon,
-  ClipboardDocumentListIcon,
   ServerIcon,
   BoltIcon,
   ClockIcon,
-  GlobeAltIcon,
-  StarIcon,
-  PhoneIcon,
-  EnvelopeIcon,
-  MapPinIcon
+  GlobeAltIcon
 } from "@heroicons/react/24/outline"
-import { useState } from "react"
 
 const HomePage = () => {
   const { user } = useAuth();
@@ -76,64 +67,6 @@ const HomePage = () => {
     }
   ]
 
-  const oldFeatures = [
-    {
-      icon: ComputerDesktopIcon,
-      title: "IT Asset Management",
-      description: "Track and manage all hospital IT equipment, from computers to medical devices.",
-      color: "bg-blue-50 text-blue-600"
-    },
-    {
-      icon: UsersIcon,
-      title: "User Management",
-      description: "Comprehensive user registration, role assignment, and access control.",
-      color: "bg-green-50 text-green-600"
-    },
-    {
-      icon: ShieldCheckIcon,
-      title: "Security & Compliance",
-      description: "Advanced security features with audit trails and compliance reporting.",
-      color: "bg-purple-50 text-purple-600"
-    },
-    {
-      icon: ChartBarIcon,
-      title: "Analytics & Reporting",
-      description: "Real-time dashboards and comprehensive reporting for informed decisions.",
-      color: "bg-orange-50 text-orange-600"
-    }
-  ]
-
-  const benefits = [
-    "Streamlined IT resource allocation",
-    "Enhanced security and compliance",
-    "Reduced operational costs",
-    "Improved staff productivity",
-    "Comprehensive audit trails"
-  ]
-
-  const testimonials = [
-    {
-      name: 'Dr. Kwame Asante',
-      role: 'Chief Medical Officer',
-      hospital: 'Korle-Bu Teaching Hospital',
-      content: 'This platform has revolutionized our IT operations. The automated ticketing and role-based access have improved our response times by 60%.',
-      avatar: 'KA'
-    },
-    {
-      name: 'Akosua Mensah',
-      role: 'IT Director',
-      hospital: 'Komfo Anokye Teaching Hospital',
-      content: 'The asset management features are incredible. We can track every piece of equipment across our entire network with real-time updates.',
-      avatar: 'AM'
-    },
-    {
-      name: 'Kofi Osei',
-      role: 'System Administrator',
-      hospital: 'Tamale Teaching Hospital',
-      content: 'User approval workflows and role-based access give us the security we need in healthcare. Couldn\'t operate without it.',
-      avatar: 'KO'
-    }
-  ]
 
   const stats = [
     { number: '10,000+', label: 'IT Assets Managed', icon: ComputerDesktopIcon, bgColor: 'bg-blue-600' },
@@ -142,28 +75,15 @@ const HomePage = () => {
     { number: '24/7', label: 'Expert Support', icon: ClockIcon, bgColor: 'bg-orange-600' }
   ]
 
-  const workflowSteps = [
-    {
-      step: '1',
-      title: 'Submit Request',
-      description: 'Users submit IT support requests through an intuitive interface with automatic categorization.'
-    },
-    {
-      step: '2',
-      title: 'Smart Routing',
-      description: 'AI-powered routing assigns tickets to the right technician based on skills and workload.'
-    },
-    {
-      step: '3',
-      title: 'Resolution & Tracking',
-      description: 'Real-time updates, SLA monitoring, and comprehensive audit trails for every request.'
-    },
-    {
-      step: '4',
-      title: 'Analytics & Improvement',
-      description: 'Detailed reporting helps optimize processes and improve service delivery.'
-    }
+  const benefits = [
+    "Streamlined IT resource allocation",
+    "Enhanced security and compliance", 
+    "Reduced operational costs",
+    "Improved staff productivity",
+    "Comprehensive audit trails",
+    "Real-time system monitoring"
   ]
+
 
   return (
     <div className="min-h-screen bg-white">
@@ -270,100 +190,8 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* How It Works Section */}
-      <div className="bg-gray-900 py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-6">
-              How Our Platform Works
-            </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Streamlined workflows designed for enterprise IT environments with intelligent automation and role-based access control.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {workflowSteps.map((step, index) => {
-              const colors = ['bg-blue-600', 'bg-green-600', 'bg-purple-600', 'bg-orange-600'];
-              return (
-                <div key={index} className="text-center">
-                  <div className="relative mb-8">
-                    <div className={`w-20 h-20 ${colors[index]} text-white rounded-2xl flex items-center justify-center mx-auto text-2xl font-bold shadow-lg`}>
-                      {step.step}
-                    </div>
-                    {index < workflowSteps.length - 1 && (
-                      <div className="hidden lg:block absolute top-10 left-full w-full h-0.5 bg-gray-700 -translate-y-0.5"></div>
-                    )}
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-4">{step.title}</h3>
-                  <p className="text-gray-300 leading-relaxed">{step.description}</p>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Statistics Section */}
-      <div className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-[#2F327D] mb-4">
-              Trusted by Healthcare Organizations Worldwide
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Join thousands of healthcare professionals who rely on our platform for their IT management needs.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
-                <div className={`w-16 h-16 ${stat.bgColor} rounded-2xl flex items-center justify-center mx-auto mb-6`}>
-                  <stat.icon className="w-8 h-8 text-white" />
-                </div>
-                <div className="text-4xl font-bold text-gray-900 mb-2">{stat.number}</div>
-                <div className="text-gray-600 font-medium">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Testimonials Section */}
-      <div className="bg-gray-50 py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-[#2F327D] mb-4">
-              Trusted by Healthcare Professionals
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              See what healthcare IT professionals are saying about our platform.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="bg-white border border-gray-200 shadow-lg">
-                <CardContent className="p-6">
-                  <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 bg-[#2F327D] text-white rounded-full flex items-center justify-center font-semibold">
-                      {testimonial.avatar}
-                    </div>
-                    <div className="ml-4">
-                      <div className="font-semibold text-[#2F327D]">{testimonial.name}</div>
-                      <div className="text-sm text-gray-600">{testimonial.role}</div>
-                      <div className="text-xs text-gray-500">{testimonial.hospital}</div>
-                    </div>
-                  </div>
-                  <p className="text-gray-600 text-sm italic">"{testimonial.content}"</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
-
+      
+      
       {/* Benefits Section */}
       <div id="about" className="py-16">
         <div className="container mx-auto px-4">

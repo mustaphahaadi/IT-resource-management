@@ -17,11 +17,26 @@ const PERMISSIONS = {
   // Equipment permissions
   'equipment.view_all': ['system_admin', 'it_manager'],
   'equipment.view_department': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
-  'equipment.view_basic': ['system_admin', 'it_manager', 'senior_technician', 'technician', 'end_user'],
+  'equipment.view_basic': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
   'equipment.create': ['system_admin', 'it_manager', 'senior_technician'],
-  'equipment.update': ['system_admin', 'it_manager', 'senior_technician'],
+  'equipment.edit': ['system_admin', 'it_manager', 'senior_technician'],
   'equipment.delete': ['system_admin', 'it_manager'],
   'equipment.manage': ['system_admin', 'it_manager', 'senior_technician'],
+  'equipment.checkout': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
+  'equipment.scan': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
+  'equipment.history': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
+  'equipment.audit': ['system_admin', 'it_manager', 'senior_technician'],
+  
+  // Asset Management permissions
+  'assets.view_audits': ['system_admin', 'it_manager', 'senior_technician'],
+  'assets.create_audit': ['system_admin', 'it_manager', 'senior_technician'],
+  'assets.manage_audits': ['system_admin', 'it_manager', 'senior_technician'],
+  'assets.view_alerts': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
+  'assets.manage_alerts': ['system_admin', 'it_manager', 'senior_technician'],
+  'assets.view_checkouts': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
+  'assets.manage_checkouts': ['system_admin', 'it_manager', 'senior_technician'],
+  'assets.view_history': ['system_admin', 'it_manager', 'senior_technician', 'technician'],
+  'assets.generate_reports': ['system_admin', 'it_manager', 'senior_technician'],
   
   // Request permissions
   'requests.view_all': ['system_admin', 'it_manager'],
@@ -99,77 +114,80 @@ export function PermissionsProvider({ children }) {
     const userDepartment = user.department || ''
     const isApproved = user.is_approved || user.role === 'system_admin'
 
+    // Define helpers first to avoid referencing `permissions` while it's being constructed
+    const hasPermission = (permission) => {
+      if (!isApproved && userRole !== 'system_admin') return false
+      const allowedRoles = PERMISSIONS[permission] || []
+      return allowedRoles.includes(userRole)
+    }
+
+    const hasAnyPermission = (permissionList) => {
+      if (!Array.isArray(permissionList)) return false
+      return permissionList.some(p => hasPermission(p))
+    }
+
+    const hasAllPermissions = (permissionList) => {
+      if (!Array.isArray(permissionList)) return false
+      return permissionList.every(p => hasPermission(p))
+    }
+
+    const hasRoleOrHigher = (requiredRole) => {
+      const userLevel = ROLE_HIERARCHY[userRole] || 0
+      const requiredLevel = ROLE_HIERARCHY[requiredRole] || 0
+      return userLevel >= requiredLevel
+    }
+
+    const canViewScope = (scope) => {
+      if (!isApproved && userRole !== 'system_admin') return false
+
+      switch (scope) {
+        case 'all':
+          return ['system_admin', 'it_manager'].includes(userRole)
+        case 'department':
+          return ['system_admin', 'it_manager', 'senior_technician', 'technician'].includes(userRole)
+        case 'own':
+          return true
+        default:
+          return false
+      }
+    }
+
+    const canEditScope = (scope) => {
+      if (!isApproved && userRole !== 'system_admin') return false
+
+      switch (scope) {
+        case 'all':
+          return ['system_admin', 'it_manager'].includes(userRole)
+        case 'department':
+          return ['system_admin', 'it_manager', 'senior_technician'].includes(userRole)
+        case 'own':
+          return ['system_admin', 'it_manager', 'senior_technician', 'technician', 'end_user'].includes(userRole)
+        default:
+          return false
+      }
+    }
+
+    const canAccessDepartment = (targetDepartment) => {
+      if (!isApproved && userRole !== 'system_admin') return false
+      if (['system_admin', 'it_manager'].includes(userRole)) return true
+      if (['senior_technician', 'technician'].includes(userRole)) {
+        return targetDepartment?.toLowerCase() === userDepartment?.toLowerCase() ||
+               targetDepartment?.toLowerCase() === 'it'
+      }
+      return targetDepartment?.toLowerCase() === userDepartment?.toLowerCase()
+    }
+
     return {
-      // Check if user has a specific permission
-      hasPermission: (permission) => {
-        if (!isApproved && userRole !== 'system_admin') return false
-        const allowedRoles = PERMISSIONS[permission] || []
-        return allowedRoles.includes(userRole)
-      },
+      // Permission checks
+      hasPermission,
+      hasAnyPermission,
+      hasAllPermissions,
 
-      // Check if user has any of the permissions
-      hasAnyPermission: (permissionList) => {
-        return permissionList.some(permission => 
-          permissions.hasPermission(permission)
-        )
-      },
-
-      // Check if user has all permissions
-      hasAllPermissions: (permissionList) => {
-        return permissionList.every(permission => 
-          permissions.hasPermission(permission)
-        )
-      },
-
-      // Check role hierarchy
-      hasRoleOrHigher: (requiredRole) => {
-        const userLevel = ROLE_HIERARCHY[userRole] || 0
-        const requiredLevel = ROLE_HIERARCHY[requiredRole] || 0
-        return userLevel >= requiredLevel
-      },
-
-      // Check if user can view data scope
-      canViewScope: (scope) => {
-        if (!isApproved && userRole !== 'system_admin') return false
-        
-        switch (scope) {
-          case 'all':
-            return ['system_admin', 'it_manager'].includes(userRole)
-          case 'department':
-            return ['system_admin', 'it_manager', 'senior_technician', 'technician'].includes(userRole)
-          case 'own':
-            return true
-          default:
-            return false
-        }
-      },
-
-      // Check if user can edit data scope
-      canEditScope: (scope) => {
-        if (!isApproved && userRole !== 'system_admin') return false
-        
-        switch (scope) {
-          case 'all':
-            return ['system_admin', 'it_manager'].includes(userRole)
-          case 'department':
-            return ['system_admin', 'it_manager', 'senior_technician'].includes(userRole)
-          case 'own':
-            return ['system_admin', 'it_manager', 'senior_technician', 'technician', 'end_user'].includes(userRole)
-          default:
-            return false
-        }
-      },
-
-      // Department-based checks
-      canAccessDepartment: (targetDepartment) => {
-        if (!isApproved && userRole !== 'system_admin') return false
-        if (['system_admin', 'it_manager'].includes(userRole)) return true
-        if (['senior_technician', 'technician'].includes(userRole)) {
-          return targetDepartment?.toLowerCase() === userDepartment?.toLowerCase() || 
-                 targetDepartment?.toLowerCase() === 'it'
-        }
-        return targetDepartment?.toLowerCase() === userDepartment?.toLowerCase()
-      },
+      // Role & scope checks
+      hasRoleOrHigher,
+      canViewScope,
+      canEditScope,
+      canAccessDepartment,
 
       // User info
       user,

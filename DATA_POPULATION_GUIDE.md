@@ -189,7 +189,7 @@ After running the population command:
    ```
 
 2. **Access the system**:
-   - **Frontend**: http://localhost:3002
+   - **Frontend**: http://localhost:3000
    - **Backend API**: http://localhost:8000
    - **Admin Panel**: http://localhost:8000/admin
 

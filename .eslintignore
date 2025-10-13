@@ -1,0 +1,10 @@
+node_modules/
+dist/
+build/
+backend/
+*.min.js
+*.map
+.venv/
+env/
+venv/
+*.sqlite3

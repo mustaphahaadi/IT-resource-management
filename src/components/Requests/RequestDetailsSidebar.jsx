@@ -5,7 +5,7 @@ import { Button } from '../ui/button';
 import { NativeSelect } from '../ui/native-select';
 import UserSelect from '../ui/user-select';
 import StatusBadge from '../ui/status-badge';
-import { XMarkIcon, PencilIcon, ArrowUpOnSquareIcon, PaperClipIcon, TicketIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, PencilIcon, ArrowUpOnSquareIcon, TicketIcon } from '@heroicons/react/24/outline';
 
 const RequestDetailsSidebar = ({ request, onClose, onUpdate, onAssign }) => {
   const [comments, setComments] = useState([]);

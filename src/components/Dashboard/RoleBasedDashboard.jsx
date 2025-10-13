@@ -3,20 +3,19 @@ import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import StatusBadge from '../ui/status-badge'
-import { usePermissions, PermissionGate } from '../../contexts/PermissionsContext'
+import { usePermissions } from '../../contexts/PermissionsContext'
 import { apiService } from '../../services/api';
 import EndUserDashboard from './EndUserDashboard';
 import TechnicianDashboard from './TechnicianDashboard';
 import ManagerDashboard from './ManagerDashboard';
 import {
-  PlusIcon,
   ArrowTopRightOnSquareIcon,
   ExclamationTriangleIcon,
   ComputerDesktopIcon,
   ClipboardDocumentListIcon,
   UserGroupIcon,
   ChartBarIcon,
-  WrenchScrewdriverIcon
+  
 } from '@heroicons/react/24/outline'
 
 const RoleBasedDashboard = () => {

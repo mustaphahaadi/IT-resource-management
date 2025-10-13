@@ -4,7 +4,7 @@ import { NativeSelect } from "../ui/native-select"
 import UserSelect from "../ui/user-select"
 import { usePermissions } from "../../contexts/PermissionsContext"
 
-const TaskDetails = ({ task, personnel, onClose, onEdit, onAssign, onStatusUpdate }) => {
+const TaskDetails = ({ task, onClose, onEdit, onAssign, onStatusUpdate }) => {
   const [comments, setComments] = useState([])
   const [newComment, setNewComment] = useState("")
   const { hasPermission } = usePermissions()

@@ -16,16 +16,12 @@ class ApiService {
     this.client.interceptors.request.use(
       (config) => {
         const token = localStorage.getItem("authToken")
-        console.log('API Request:', config.url, 'Token exists:', !!token)
         if (token) {
           config.headers.Authorization = `Token ${token}`
-        } else {
-          console.warn('No auth token found in localStorage')
         }
         return config
       },
       (error) => {
-        console.error('Request interceptor error:', error)
         return Promise.reject(error)
       },
     )
@@ -192,6 +188,90 @@ class ApiService {
   async getEquipmentStats() {
     return this.get("/inventory/equipment/dashboard_stats/")
   }
+
+  // Enhanced Equipment Tracking Methods
+  async checkOutEquipment(id, data) {
+    return this.post(`/inventory/equipment/${id}/check_out/`, data)
+  }
+
+  async checkInEquipment(id, data) {
+    return this.post(`/inventory/equipment/${id}/check_in/`, data)
+  }
+
+  async getEquipmentHistory(id) {
+    return this.get(`/inventory/equipment/${id}/history/`)
+  }
+
+  async getEquipmentQRCode(id) {
+    return this.get(`/inventory/equipment/${id}/qr_code/`)
+  }
+
+  async scanEquipment(data) {
+    return this.post("/inventory/equipment/scan/", data)
+  }
+
+  async getEquipmentAlerts() {
+    return this.get("/inventory/equipment/alerts/")
+  }
+
+  // Asset Management API methods
+  async getAssetAudits(params = {}) {
+    return this.get("/inventory/asset-audits/", { params })
+  }
+
+  async createAssetAudit(data) {
+    return this.post("/inventory/asset-audits/", data)
+  }
+
+  async updateAssetAudit(id, data) {
+    return this.patch(`/inventory/asset-audits/${id}/`, data)
+  }
+
+  async deleteAssetAudit(id) {
+    return this.delete(`/inventory/asset-audits/${id}/`)
+  }
+
+  async getAssetCheckouts(params = {}) {
+    return this.get("/inventory/asset-checkouts/", { params })
+  }
+
+  async getOverdueCheckouts() {
+    return this.get("/inventory/asset-checkouts/", { 
+      params: { 
+        overdue: true,
+        status: 'checked_out'
+      }
+    })
+  }
+
+  async getAssetHistory(params = {}) {
+    return this.get("/inventory/asset-history/", { params })
+  }
+
+  async getAssetAlerts(params = {}) {
+    return this.get("/inventory/asset-alerts/", { params })
+  }
+
+  async createAssetAlert(data) {
+    return this.post("/inventory/asset-alerts/", data)
+  }
+
+  async updateAssetAlert(id, data) {
+    return this.patch(`/inventory/asset-alerts/${id}/`, data)
+  }
+
+  async dismissAssetAlert(id) {
+    return this.patch(`/inventory/asset-alerts/${id}/`, { is_active: false })
+  }
+
+  async getAssetTags(params = {}) {
+    return this.get("/inventory/asset-tags/", { params })
+  }
+
+  async createAssetTag(data) {
+    return this.post("/inventory/asset-tags/", data)
+  }
+  // (Duplicates removed above - canonical implementations retained)
 
   // Support Requests API methods
   async getSupportRequests(params = {}) {
@@ -494,10 +574,6 @@ class ApiService {
     })
   }
 
-  // Search methods
-  async globalSearch(query, filters = {}) {
-    return this.get("/search/", { params: { q: query, ...filters } })
-  }
 
   // User profile methods
   async getCurrentUser() {

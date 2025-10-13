@@ -130,7 +130,7 @@ const UserApproval = () => {
         <div className="text-center">
           <ShieldCheckIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Access Denied</h2>
-          <p className="text-gray-600">You don't have permission to approve users.</p>
+          <p className="text-gray-600">You do not have permission to approve users.</p>
         </div>
       </div>
     )
@@ -314,7 +314,7 @@ const UserApproval = () => {
               <div className="text-sm text-blue-800">
                 <p className="font-medium mb-1">Approval Guidelines:</p>
                 <ul className="space-y-1 text-xs">
-                  <li>• Verify that the user's email domain matches your organization</li>
+                  <li>• Verify that the email domain matches your organization</li>
                   <li>• Ensure the requested role is appropriate for their department</li>
                   <li>• Check that employee ID matches your HR records (if provided)</li>
                   <li>• Review business justification for elevated roles</li>

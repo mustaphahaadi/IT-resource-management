@@ -130,17 +130,7 @@ const TaskAssignment = ({ onTaskUpdate }) => {
     }
   }
 
-  const getAssignmentSuggestions = async (task) => {
-    try {
-      const response = await apiService.getAssignmentSuggestions(task.id)
-      if (response?.data?.suggestions) {
-        return response.data.suggestions
-      }
-    } catch (error) {
-      console.error('Error getting assignment suggestions:', error)
-    }
-    return []
-  }
+  // NOTE: getAssignmentSuggestions is not used in current UI. Keep implementation in apiService; re-enable when needed.
 
   const getPriorityColor = (priority) => {
     switch (priority) {

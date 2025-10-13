@@ -4,3 +4,4 @@ django-cors-headers
 django-filter
 Pillow
 python-decouple
+qrcode

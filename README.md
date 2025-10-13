@@ -5,6 +5,7 @@ A comprehensive IT resource management system designed specifically for hospital
 ## 🚀 Features
 
 ### Core Functionality
+
 - **Real-time Dashboard** - Live monitoring of IT infrastructure and operations
 - **Equipment Inventory** - Complete asset management with status tracking
 - **Support Request System** - Ticketing system for IT support requests
@@ -13,6 +14,7 @@ A comprehensive IT resource management system designed specifically for hospital
 - **User Management** - Role-based access control and user administration
 
 ### Advanced Features
+
 - **Real-time Notifications** - WebSocket-powered live updates
 - **Advanced Filtering** - Sophisticated search and filter capabilities
 - **Offline Support** - Works offline with data synchronization
@@ -23,6 +25,7 @@ A comprehensive IT resource management system designed specifically for hospital
 ## 🛠 Technology Stack
 
 ### Frontend
+
 - **React 18** - Modern React with hooks and context
 - **React Router v6** - Client-side routing
 - **Tailwind CSS** - Utility-first CSS framework
@@ -30,12 +33,14 @@ A comprehensive IT resource management system designed specifically for hospital
 - **Axios** - HTTP client for API calls
 
 ### Backend Integration
+
 - **Django REST Framework** - Python backend API
 - **WebSocket Support** - Real-time communication
 - **Token Authentication** - Secure API access
 - **PostgreSQL** - Production database
 
 ### Development Tools
+
 - **Vite** - Fast build tool and dev server
 - **ESLint** - Code linting
 - **Prettier** - Code formatting
@@ -43,11 +48,13 @@ A comprehensive IT resource management system designed specifically for hospital
 ## 📦 Installation
 
 ### Prerequisites
+
 - Node.js 18+ and npm
 - Python 3.9+ (for backend)
 - PostgreSQL (for production)
 
 ### Frontend Setup
+
 ```bash
 # Clone the repository
 git clone https://github.com/mustaphahaadi/IT-resource-management.git
@@ -61,6 +68,7 @@ npm run dev
 ```
 
 ### Backend Setup
+
 ```bash
 # Navigate to backend directory
 cd backend
@@ -85,11 +93,14 @@ python manage.py runserver
 ## 🚦 Getting Started
 
 ### Default Login Credentials
+
 For development/demo purposes:
+
 - **Admin User**: admin / admin123
 - **Regular User**: user / user123
 
 ### First Steps
+
 1. Start both frontend and backend servers
 2. Navigate to `http://localhost:5173`
 3. Login with the credentials above
@@ -98,6 +109,7 @@ For development/demo purposes:
 ## 📱 Application Structure
 
 ### Public Routes
+
 - `/` - Homepage with system overview
 - `/login` - User authentication
 - `/register` - New user registration
@@ -105,6 +117,7 @@ For development/demo purposes:
 - `/analytics` - Public analytics demo
 
 ### Protected Routes (requires authentication)
+
 - `/app/dashboard` - Main dashboard
 - `/app/inventory` - Equipment management
 - `/app/requests` - Support tickets
@@ -116,23 +129,26 @@ For development/demo purposes:
 ## 🔧 Configuration
 
 ### Environment Variables
+
 Create a `.env` file in the root directory:
 
 ```env
-# API Configuration
-REACT_APP_API_BASE_URL=http://localhost:8000/api
-REACT_APP_WS_BASE_URL=ws://localhost:8000/ws
+# API Configuration (Vite env variables)
+VITE_API_BASE_URL=http://localhost:8000/api
+VITE_WS_URL=ws://localhost:8000/ws
+VITE_WS_ENABLED=false
 
 # Development Settings
-REACT_APP_ENV=development
-REACT_APP_DEBUG=true
+VITE_ENV=development
+VITE_DEBUG=true
 
 # Feature Flags
-REACT_APP_ENABLE_ANALYTICS=true
-REACT_APP_ENABLE_NOTIFICATIONS=true
+VITE_ENABLE_ANALYTICS=true
+VITE_ENABLE_NOTIFICATIONS=true
 ```
 
 ### Backend Configuration
+
 Configure `backend/hospital_it/settings.py`:
 
 ```python
@@ -158,6 +174,7 @@ CORS_ALLOWED_ORIGINS = [
 ## 🏗 Architecture
 
 ### Frontend Architecture
+
 ```
 src/
 ├── components/          # Reusable UI components
@@ -179,16 +196,19 @@ src/
 ### Key Components
 
 #### Authentication System
+
 - **AuthContext** - Global authentication state
 - **ProtectedRoute** - Route protection wrapper
 - **Login/Register** - Authentication forms
 
 #### Real-time Features
+
 - **WebSocket Service** - Real-time communication
 - **NotificationCenter** - Live notifications
 - **useRealTimeData** - Real-time data hook
 
 #### Data Management
+
 - **API Service** - Centralized API calls
 - **Error Boundaries** - Error handling
 - **Loading States** - User feedback
@@ -196,6 +216,7 @@ src/
 ## 📊 Features Overview
 
 ### Dashboard
+
 - System performance metrics
 
 1. Fork the repository
@@ -208,10 +229,10 @@ src/
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-
 ## 🗺 Roadmap
 
 ### Upcoming Features
+
 - [ ] Mobile app (React Native)
 - [ ] Advanced analytics with AI insights
 - [ ] Integration with hospital systems (EMR)
@@ -220,6 +241,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] Advanced reporting with custom dashboards
 
 ### Version History
+
 - **v1.0.0** - Initial release with core features
 - **v1.1.0** - Real-time notifications and WebSocket support
 - **v1.2.0** - Advanced filtering and analytics

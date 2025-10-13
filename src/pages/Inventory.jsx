@@ -12,11 +12,18 @@ import {
   TrashIcon,
   EyeIcon,
   WrenchScrewdriverIcon,
+  QrCodeIcon,
+  ClockIcon,
+  ArrowRightIcon,
+  ArrowLeftIcon,
 } from "@heroicons/react/24/outline"
 import { apiService } from "../services/api"
 import EquipmentFilters from "../components/Inventory/EquipmentFilters"
 import EquipmentForm from "../components/Inventory/EquipmentForm"
 import EquipmentDetails from "../components/Inventory/EquipmentDetails"
+import AssetScanner from "../components/Inventory/AssetScanner"
+import AssetHistory from "../components/Inventory/AssetHistory"
+import AssetCheckout from "../components/Inventory/AssetCheckout"
 
 const Inventory = () => {
   const [equipment, setEquipment] = useState([])
@@ -24,6 +31,9 @@ const Inventory = () => {
   const [showForm, setShowForm] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
+  const [showScanner, setShowScanner] = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
+  const [showCheckout, setShowCheckout] = useState(false)
   const [selectedEquipment, setSelectedEquipment] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [filters, setFilters] = useState({
@@ -138,6 +148,27 @@ const Inventory = () => {
     fetchEquipment()
   }
 
+  const handleScanSuccess = (equipment) => {
+    setSelectedEquipment(equipment)
+    setShowScanner(false)
+    setShowDetails(true)
+  }
+
+  const handleShowHistory = (item) => {
+    setSelectedEquipment(item)
+    setShowHistory(true)
+  }
+
+  const handleShowCheckout = (item) => {
+    setSelectedEquipment(item)
+    setShowCheckout(true)
+  }
+
+  const handleCheckoutSuccess = () => {
+    setShowCheckout(false)
+    fetchEquipment()
+  }
+
   const getStatusColor = (status) => {
     switch (status) {
       case "active":
@@ -175,12 +206,20 @@ const Inventory = () => {
           <h1 className="text-3xl font-bold text-gray-900">IT Inventory</h1>
           <p className="text-gray-600 mt-1">Manage hospital IT equipment and assets</p>
         </div>
-        <PermissionGate permissions="equipment.create">
-          <Button onClick={handleAddEquipment} className="flex items-center space-x-2">
-            <PlusIcon className="w-4 h-4" />
-            <span>Add Equipment</span>
-          </Button>
-        </PermissionGate>
+        <div className="flex items-center space-x-2">
+          <PermissionGate permissions="equipment.scan">
+            <Button onClick={() => setShowScanner(true)} variant="outline" className="flex items-center space-x-2">
+              <QrCodeIcon className="w-4 h-4" />
+              <span>Scan Asset</span>
+            </Button>
+          </PermissionGate>
+          <PermissionGate permissions="equipment.create">
+            <Button onClick={handleAddEquipment} className="flex items-center space-x-2">
+              <PlusIcon className="w-4 h-4" />
+              <span>Add Equipment</span>
+            </Button>
+          </PermissionGate>
+        </div>
       </div>
 
       {/* Search and Filters */}
@@ -274,7 +313,7 @@ const Inventory = () => {
                         </span>
                       </td>
                       <td className="py-4 px-4">
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-1">
                           <button
                             onClick={() => handleViewEquipment(item)}
                             className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
@@ -282,6 +321,28 @@ const Inventory = () => {
                           >
                             <EyeIcon className="w-4 h-4" />
                           </button>
+                          <PermissionGate permissions="equipment.history">
+                            <button
+                              onClick={() => handleShowHistory(item)}
+                              className="p-1 text-gray-400 hover:text-purple-600 transition-colors"
+                              title="View History"
+                            >
+                              <ClockIcon className="w-4 h-4" />
+                            </button>
+                          </PermissionGate>
+                          <PermissionGate permissions="equipment.checkout">
+                            <button
+                              onClick={() => handleShowCheckout(item)}
+                              className="p-1 text-gray-400 hover:text-orange-600 transition-colors"
+                              title={item.status === 'checked_out' ? 'Check In' : 'Check Out'}
+                            >
+                              {item.status === 'checked_out' ? (
+                                <ArrowLeftIcon className="w-4 h-4" />
+                              ) : (
+                                <ArrowRightIcon className="w-4 h-4" />
+                              )}
+                            </button>
+                          </PermissionGate>
                           <PermissionGate permissions="equipment.edit">
                             <button
                               onClick={() => handleEditEquipment(item)}
@@ -322,6 +383,25 @@ const Inventory = () => {
 
       {showDetails && selectedEquipment && (
         <EquipmentDetails equipment={selectedEquipment} onClose={() => navigate(getBasePath())} />
+      )}
+
+      {/* Asset Scanner Modal */}
+      {showScanner && (
+        <AssetScanner onClose={() => setShowScanner(false)} onScanSuccess={handleScanSuccess} />
+      )}
+
+      {/* Asset History Modal */}
+      {showHistory && selectedEquipment && (
+        <AssetHistory equipment={selectedEquipment} onClose={() => setShowHistory(false)} />
+      )}
+
+      {/* Asset Checkout Modal */}
+      {showCheckout && selectedEquipment && (
+        <AssetCheckout 
+          equipment={selectedEquipment} 
+          onClose={() => setShowCheckout(false)} 
+          onSuccess={handleCheckoutSuccess}
+        />
       )}
     </div>
   )

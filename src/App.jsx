@@ -18,7 +18,6 @@ import AdminPanel from "./pages/AdminPanel"
 import HomePage from "./pages/HomePage"
 import SearchResults from "./pages/SearchResults"
 import Help from "./pages/Help"
-import SystemStatus from "./pages/SystemStatus"
 import Profile from "./pages/Profile"
 import BackupExport from "./pages/BackupExport"
 import Notifications from "./pages/Notifications"
@@ -28,6 +27,7 @@ import UserManagement from "./pages/UserManagement"
 import AdminSettings from "./pages/AdminSettings"
 import Assignment from "./pages/Assignment"
 import TeamManagement from "./pages/TeamManagement"
+import AssetManagement from "./pages/AssetManagement"
 import KnowledgeBase from "./pages/KnowledgeBase"
 import KnowledgeBaseArticle from "./pages/KnowledgeBaseArticle"
 import KnowledgeBaseAdmin from "./pages/KnowledgeBaseAdmin"
@@ -98,6 +98,14 @@ function App() {
                 element={
                   <RoleBasedRoute requiredRoles={["system_admin", "it_manager", "senior_technician"]}>
                     <TeamManagement />
+                  </RoleBasedRoute>
+                }
+              />
+              <Route
+                path="asset-management"
+                element={
+                  <RoleBasedRoute requiredRoles={["system_admin", "it_manager", "senior_technician"]}>
+                    <AssetManagement />
                   </RoleBasedRoute>
                 }
               />

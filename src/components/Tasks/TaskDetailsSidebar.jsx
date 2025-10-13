@@ -7,7 +7,7 @@ import UserSelect from "../ui/user-select";
 import StatusBadge from "../ui/status-badge";
 import { XMarkIcon, PencilIcon, ArrowUpOnSquareIcon } from "@heroicons/react/24/outline";
 
-const TaskDetailsSidebar = ({ task, personnel, onClose, onEdit, onAssign, onStatusUpdate }) => {
+const TaskDetailsSidebar = ({ task, onClose, onEdit, onAssign, onStatusUpdate }) => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const { hasPermission } = usePermissions();

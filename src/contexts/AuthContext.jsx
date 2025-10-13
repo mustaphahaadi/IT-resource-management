@@ -62,9 +62,9 @@ export const AuthProvider = ({ children }) => {
       })
 
       return () => {
-        try { unsubNotif && unsubNotif() } catch {}
-        try { unsubConnected && unsubConnected() } catch {}
-        try { unsubDisconnected && unsubDisconnected() } catch {}
+        try { unsubNotif && unsubNotif() } catch (e) { console.debug('unsubNotif cleanup error', e) }
+        try { unsubConnected && unsubConnected() } catch (e) { console.debug('unsubConnected cleanup error', e) }
+        try { unsubDisconnected && unsubDisconnected() } catch (e) { console.debug('unsubDisconnected cleanup error', e) }
         websocketService.stopHeartbeat()
         websocketService.disconnect()
       }
@@ -189,7 +189,7 @@ export const AuthProvider = ({ children }) => {
 
   const updateProfile = async (profileData) => {
     try {
-      const response = await apiService.put("/auth/profile/", profileData)
+      const response = await apiService.updateProfile(profileData)
       setUser(response.data)
       return { success: true }
     } catch (error) {

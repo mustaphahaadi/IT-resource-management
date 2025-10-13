@@ -7,18 +7,13 @@ import { Alert, AlertDescription } from '../components/ui/alert'
 import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../services/api'
 import {
-  UserCircleIcon,
   CameraIcon,
   PencilIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
   ClockIcon,
   ShieldCheckIcon,
-  DevicePhoneMobileIcon,
-  EnvelopeIcon,
   BuildingOfficeIcon,
-  IdentificationIcon,
-  CalendarIcon,
   ChartBarIcon
 } from '@heroicons/react/24/outline'
 
@@ -92,7 +87,11 @@ const Profile = () => {
     setMessage('')
 
     try {
-      await apiService.updateProfile(profileData)
+      // Only send fields expected by the backend UserProfileSerializer
+      const allowedFields = ['first_name', 'last_name', 'email', 'phone_number', 'department', 'employee_id']
+      const payload = Object.fromEntries(Object.entries(profileData).filter(([k]) => allowedFields.includes(k)))
+
+      await apiService.updateProfile(payload)
       setMessage('Profile updated successfully!')
       setEditing(false)
       
@@ -101,7 +100,10 @@ const Profile = () => {
         updateProfile(profileData)
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update profile')
+      // serializer errors are often returned as an object; show a readable message when possible
+      const resp = err?.response?.data
+      const friendly = resp?.message || (resp && typeof resp === 'object' ? JSON.stringify(resp) : resp)
+      setError(friendly || 'Failed to update profile')
     } finally {
       setLoading(false)
     }

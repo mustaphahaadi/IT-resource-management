@@ -5,7 +5,7 @@ import { Textarea } from "../ui/textarea"
 import UserSelect from "../ui/user-select"
 import { usePermissions } from "../../contexts/PermissionsContext"
 
-const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
+const TaskForm = ({ task, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -17,6 +17,7 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
     related_request: "",
   })
   const [requests, setRequests] = useState([])
+  // loading state kept for potential UI use, but currently not necessary
   const [loading, setLoading] = useState(false)
   const { hasPermission } = usePermissions()
 
@@ -155,7 +156,7 @@ const TaskForm = ({ task, personnel, onSubmit, onClose }) => {
                 />
               ) : (
                 <div className="px-3 py-2 bg-gray-100 rounded text-sm text-gray-700">
-                  You don't have permission to assign tasks.
+                  You do not have permission to assign tasks.
                 </div>
               )}
             </div>

@@ -2,7 +2,6 @@ import { useState } from "react"
 import { MagnifyingGlassIcon, Bars3Icon, UserCircleIcon, ArrowRightOnRectangleIcon } from "@heroicons/react/24/outline"
 import { useAuth } from "../../contexts/AuthContext"
 import NotificationCenter from "../common/NotificationCenter"
-import { apiService } from "../../services/api"
 
 const Header = ({ onMenuClick }) => {
   const { user, logout, isOnline } = useAuth()

@@ -22,7 +22,7 @@ class WebSocketService {
     const enabled = String(import.meta?.env?.VITE_WS_ENABLED ?? 'false') === 'true'
     if (!enabled) {
       if (!this.firstErrorLogged) {
-        console.log('WebSocket disabled via VITE_WS_ENABLED=false. Real-time features are off.')
+        console.debug('WebSocket disabled via VITE_WS_ENABLED=false. Real-time features are off.')
         this.firstErrorLogged = true
       }
       return
@@ -33,7 +33,7 @@ class WebSocketService {
     if (this.disableUntil && now < this.disableUntil) {
       if (!this.firstErrorLogged) {
         const seconds = Math.ceil((this.disableUntil - now) / 1000)
-        console.log(`WebSocket temporarily disabled (${seconds}s remaining).`)
+        console.debug(`WebSocket temporarily disabled (${seconds}s remaining).`)
         this.firstErrorLogged = true
       }
       return
@@ -48,7 +48,7 @@ class WebSocketService {
       this.socket = new WebSocket(wsUrl)
       
       this.socket.onopen = () => {
-        console.log('WebSocket connected')
+        console.debug('WebSocket connected')
         this.isConnected = true
         this.reconnectAttempts = 0
         this.emit('connected')
@@ -107,7 +107,7 @@ class WebSocketService {
     
     // Only log reconnection attempts after the first few to reduce console spam
     if (this.reconnectAttempts <= 2) {
-      console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`)
+      console.debug(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`)
     }
     
     setTimeout(() => {
@@ -138,7 +138,7 @@ class WebSocketService {
         this.emit('userActivity', payload)
         break
       default:
-        console.log('Unknown message type:', type, payload)
+        console.debug('Unknown message type:', type, payload)
     }
   }
 

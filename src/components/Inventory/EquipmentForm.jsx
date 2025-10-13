@@ -35,14 +35,22 @@ const EquipmentForm = ({ equipment, onClose, onSuccess }) => {
     fetchFormData()
     if (equipment) {
       setFormData({
-        ...equipment,
+        // Coerce incoming equipment object to simple form values (ids / strings)
+        name: equipment.name || "",
+        asset_tag: equipment.asset_tag || "",
+        serial_number: equipment.serial_number || "",
+        model: equipment.model || "",
+        manufacturer: equipment.manufacturer || "",
+        category: equipment.category?.id || equipment.category || "",
+        location: equipment.location?.id || equipment.location || "",
+        vendor: equipment.vendor?.id || equipment.vendor || "",
+        status: equipment.status || "active",
+        priority: equipment.priority || "medium",
         purchase_date: equipment.purchase_date || "",
         warranty_expiry: equipment.warranty_expiry || "",
         purchase_cost: equipment.purchase_cost || "",
-        category: equipment.category || "",
-        location: equipment.location || "",
-        vendor: equipment.vendor || "",
-        assigned_to: equipment.assigned_to || "",
+        description: equipment.description || "",
+        assigned_to: equipment.assigned_to?.id || equipment.assigned_to || "",
       })
     }
   }, [equipment])
@@ -68,14 +76,56 @@ const EquipmentForm = ({ equipment, onClose, onSuccess }) => {
     setError("")
 
     try {
+      // Build a normalized payload that matches backend serializer expectations
+      const payload = {
+        name: formData.name,
+        asset_tag: formData.asset_tag,
+        serial_number: formData.serial_number || undefined,
+        model: formData.model,
+        manufacturer: formData.manufacturer,
+        // FK fields: send integers or null
+        category: formData.category ? parseInt(formData.category, 10) : null,
+        location: formData.location ? parseInt(formData.location, 10) : null,
+        vendor: formData.vendor ? parseInt(formData.vendor, 10) : null,
+        status: formData.status,
+        priority: formData.priority,
+        purchase_date: formData.purchase_date || null,
+        warranty_expiry: formData.warranty_expiry || null,
+        purchase_cost:
+          formData.purchase_cost !== undefined && formData.purchase_cost !== "" ? parseFloat(formData.purchase_cost) : null,
+        assigned_to: formData.assigned_to ? parseInt(formData.assigned_to, 10) : null,
+        description: formData.description || "",
+      }
+
       if (equipment) {
-        await apiService.updateEquipment(equipment.id, formData)
+        await apiService.updateEquipment(equipment.id, payload)
       } else {
-        await apiService.createEquipment(formData)
+        await apiService.createEquipment(payload)
       }
       onSuccess()
     } catch (error) {
-      setError(error.response?.data?.message || "An error occurred")
+      // DRF usually returns a dict of field errors; try to present a friendly message
+      const respData = error.response?.data
+      if (!respData) {
+        setError(error.message || "An error occurred")
+      } else if (typeof respData === 'string') {
+        setError(respData)
+      } else if (respData.detail) {
+        setError(respData.detail)
+      } else if (typeof respData === 'object') {
+        // Join field errors into a single string
+        try {
+          const parts = Object.entries(respData).flatMap(([key, val]) => {
+            if (Array.isArray(val)) return val.map((v) => `${key}: ${v}`)
+            return `${key}: ${val}`
+          })
+          setError(parts.join(' | '))
+        } catch (e) {
+          setError(JSON.stringify(respData))
+        }
+      } else {
+        setError('An error occurred')
+      }
     } finally {
       setLoading(false)
     }

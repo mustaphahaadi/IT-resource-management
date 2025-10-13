@@ -14,8 +14,7 @@ import {
   UserCircleIcon,
   CloudArrowDownIcon,
   ServerIcon,
-  QuestionMarkCircleIcon,
-  DocumentTextIcon,
+  
   BellIcon,
   ClipboardDocumentCheckIcon,
   BookOpenIcon,
@@ -25,7 +24,7 @@ import {
   AcademicCapIcon
 } from "@heroicons/react/24/outline"
 
-const Sidebar = ({ isOpen, onToggle }) => {
+const Sidebar = ({ isOpen }) => {
   const location = useLocation()
   const { user, logout } = useAuth()
   const { hasPermission, userRole, isApproved } = usePermissions()
@@ -46,11 +45,11 @@ const Sidebar = ({ isOpen, onToggle }) => {
       description: "IT support requests and tickets"
     },
     { 
-      name: "Equipment", 
+      name: "Asset Inventory", 
       href: "/app/inventory", 
       icon: ComputerDesktopIcon,
-      permission: "nav.equipment",
-      description: "IT assets and equipment"
+      permission: "equipment.view_basic",
+      description: "IT assets and equipment tracking"
     },
     { 
       name: "Tasks", 
@@ -89,6 +88,13 @@ const Sidebar = ({ isOpen, onToggle }) => {
       icon: WrenchScrewdriverIcon,
       permission: "ui.assign_tickets",
       description: "Assign and manage tickets"
+    },
+    { 
+      name: "Asset Management", 
+      href: "/app/asset-management", 
+      icon: ClipboardDocumentCheckIcon,
+      permission: "equipment.manage",
+      description: "Advanced asset tracking and audits"
     },
   ]
 
