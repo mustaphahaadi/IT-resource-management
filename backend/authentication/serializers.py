@@ -166,9 +166,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
         if hasattr(obj, 'role') and obj.role:
             return obj.role
         if obj.is_superuser:
-            return 'admin'
+            return 'system_admin'
         if obj.is_staff:
-            return 'staff'
+            return 'it_manager'
         # Fallback based on group name if direct role attribute is missing
         if obj.groups.filter(name='IT Staff').exists():
             return 'staff'

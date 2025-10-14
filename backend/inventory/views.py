@@ -421,6 +421,20 @@ class AssetCheckoutViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['equipment', 'checked_out_to', 'is_overdue']
     ordering = ['-checkout_date']
+
+    def get_queryset(self):
+        """Support frontend query params like overdue=true by mapping to is_overdue.
+        Also optionally respect status=checked_out for compatibility (filters out returned items).
+        """
+        qs = super().get_queryset()
+        params = getattr(self.request, 'query_params', {})
+        overdue_param = str(params.get('overdue', '')).lower()
+        if overdue_param in ('true', '1', 'yes'):
+            qs = qs.filter(is_overdue=True)
+        status_param = str(params.get('status', '')).lower()
+        if status_param == 'checked_out':
+            qs = qs.filter(actual_return_date__isnull=True)
+        return qs
     
     @action(detail=False, methods=['get'])
     def overdue(self, request):

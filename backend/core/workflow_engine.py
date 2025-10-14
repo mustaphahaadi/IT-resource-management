@@ -233,10 +233,11 @@ class WorkflowEngine:
         """Send notifications for new request"""
         try:
             # Notify requester
-            Notification.objects.create(
-                user=request.requester,
-                title=f"Support Request Created: {request.ticket_number}",
-                message=f"Your support request '{request.title}' has been created and will be processed soon.",
+            from core.notification_service import NotificationService
+            NotificationService.send_notification(
+                request.requester,
+                f"Support Request Created: {request.ticket_number}",
+                f"Your support request '{request.title}' has been created and will be processed soon.",
                 notification_type='request_created',
                 related_object_type='request',
                 related_object_id=request.id
@@ -244,11 +245,12 @@ class WorkflowEngine:
             
             # Notify assigned technician if assigned
             if request.assigned_to:
-                Notification.objects.create(
-                    user=request.assigned_to,
-                    title=f"New Request Assigned: {request.ticket_number}",
-                    message=f"You have been assigned a new {request.priority} priority request: {request.title}",
-                    notification_type='request_assigned',
+                from core.notification_service import NotificationService
+                NotificationService.send_notification(
+                    request.assigned_to,
+                    f"New Request Assigned: {request.ticket_number}",
+                    f"You have been assigned a new {request.priority} priority request: {request.title}",
+                    notification_type='request_update',
                     related_object_type='request',
                     related_object_id=request.id
                 )
@@ -267,10 +269,11 @@ class WorkflowEngine:
             if assigned_by:
                 message += f" by {assigned_by.get_full_name()}"
             
-            Notification.objects.create(
-                user=technician.user,
-                title=title,
-                message=message,
+            from core.notification_service import NotificationService
+            NotificationService.send_notification(
+                technician.user,
+                title,
+                message,
                 notification_type='task_assignment',
                 related_object_type='task',
                 related_object_id=task.id
@@ -278,10 +281,11 @@ class WorkflowEngine:
             
             # Notify requester if task has related request
             if task.related_request:
-                Notification.objects.create(
-                    user=task.related_request.requester,
-                    title=f"Your Request is Being Worked On",
-                    message=f"Your support request '{task.related_request.title}' has been assigned to {technician.user.get_full_name()}",
+                from core.notification_service import NotificationService
+                NotificationService.send_notification(
+                    task.related_request.requester,
+                    "Your Request is Being Worked On",
+                    f"Your support request '{task.related_request.title}' has been assigned to {technician.user.get_full_name()}",
                     notification_type='request_update',
                     related_object_type='request',
                     related_object_id=task.related_request.id
@@ -296,28 +300,30 @@ class WorkflowEngine:
         try:
             # Notify requester if task has related request
             if task.related_request:
-                Notification.objects.create(
-                    user=task.related_request.requester,
-                    title=f"Your Request Has Been Resolved",
-                    message=f"Your support request '{task.related_request.title}' has been completed. Please review the resolution.",
+                from core.notification_service import NotificationService
+                NotificationService.send_notification(
+                    task.related_request.requester,
+                    "Your Request Has Been Resolved",
+                    f"Your support request '{task.related_request.title}' has been completed. Please review the resolution.",
                     notification_type='request_resolved',
                     related_object_type='request',
                     related_object_id=task.related_request.id
                 )
             
             # Notify supervisor/manager
-            if task.assigned_to and task.assigned_to.user.role in ['technician']:
+            if task.assigned_to and task.assigned_to.user.role in ['technician', 'senior_technician']:
                 # Find managers in the same department
                 managers = User.objects.filter(
-                    role__in=['manager', 'staff'],
+                    role__in=['it_manager', 'system_admin'],
                     department=task.assigned_to.user.department
                 )
                 
+                from core.notification_service import NotificationService
                 for manager in managers:
-                    Notification.objects.create(
-                        user=manager,
-                        title=f"Task Completed by {task.assigned_to.user.get_full_name()}",
-                        message=f"Task '{task.title}' has been completed",
+                    NotificationService.send_notification(
+                        manager,
+                        f"Task Completed by {task.assigned_to.user.get_full_name()}",
+                        f"Task '{task.title}' has been completed",
                         notification_type='task_completed',
                         related_object_type='task',
                         related_object_id=task.id
@@ -396,15 +402,16 @@ class WorkflowEngine:
         try:
             # Find managers/supervisors
             supervisors = User.objects.filter(
-                role__in=['manager', 'staff', 'admin'],
+                role__in=['it_manager', 'system_admin'],
                 department=task.assigned_to.user.department if task.assigned_to else 'it'
             )
             
+            from core.notification_service import NotificationService
             for supervisor in supervisors:
-                Notification.objects.create(
-                    user=supervisor,
-                    title=f"Task Escalation: {task.title}",
-                    message=f"Task has been escalated due to: {reason}",
+                NotificationService.send_notification(
+                    supervisor,
+                    f"Task Escalation: {task.title}",
+                    f"Task has been escalated due to: {reason}",
                     notification_type='task_escalation',
                     related_object_type='task',
                     related_object_id=task.id
@@ -471,15 +478,16 @@ class SLAManager:
         try:
             # Escalate to managers
             managers = User.objects.filter(
-                role__in=['manager', 'staff', 'admin'],
+                role__in=['it_manager', 'system_admin'],
                 department=request.requester_department
             )
             
+            from core.notification_service import NotificationService
             for manager in managers:
-                Notification.objects.create(
-                    user=manager,
-                    title=f"SLA Violation: {request.ticket_number}",
-                    message=f"Request '{request.title}' has exceeded its SLA deadline",
+                NotificationService.send_notification(
+                    manager,
+                    f"SLA Violation: {request.ticket_number}",
+                    f"Request '{request.title}' has exceeded its SLA deadline",
                     notification_type='sla_violation',
                     related_object_type='request',
                     related_object_id=request.id
@@ -494,10 +502,11 @@ class SLAManager:
         try:
             # Notify assigned technician and supervisor
             if task.assigned_to:
-                Notification.objects.create(
-                    user=task.assigned_to.user,
-                    title=f"Overdue Task: {task.title}",
-                    message=f"Your task '{task.title}' is overdue. Please update the status.",
+                from core.notification_service import NotificationService
+                NotificationService.send_notification(
+                    task.assigned_to.user,
+                    f"Overdue Task: {task.title}",
+                    f"Your task '{task.title}' is overdue. Please update the status.",
                     notification_type='task_overdue',
                     related_object_type='task',
                     related_object_id=task.id

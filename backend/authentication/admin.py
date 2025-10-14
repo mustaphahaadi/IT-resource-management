@@ -7,6 +7,7 @@ from .models import (
     CustomUser, EmailVerificationToken, PasswordResetToken, 
     LoginAttempt, UserSession
 )
+from .role_permissions_models import Permission, RolePermission
 
 
 @admin.register(CustomUser)
@@ -142,3 +143,24 @@ class UserSessionAdmin(admin.ModelAdmin):
     
     def has_add_permission(self, request):
         return False
+
+
+@admin.register(Permission)
+class PermissionAdmin(admin.ModelAdmin):
+    """Admin interface for Permission"""
+    list_display = ['id', 'name', 'category', 'created_at']
+    list_filter = ['category']
+    search_fields = ['id', 'name', 'description']
+    ordering = ['category', 'name']
+    readonly_fields = ['created_at', 'updated_at']
+
+
+@admin.register(RolePermission)
+class RolePermissionAdmin(admin.ModelAdmin):
+    """Admin interface for RolePermission"""
+    list_display = ['role', 'permission', 'granted_by', 'granted_at']
+    list_filter = ['role', 'permission__category']
+    search_fields = ['role', 'permission__name']
+    ordering = ['role', 'permission']
+    raw_id_fields = ['granted_by']
+    readonly_fields = ['granted_at']

@@ -16,17 +16,31 @@ class NotificationService:
     """Enhanced notification service with multiple delivery channels"""
     
     @staticmethod
-    def send_notification(user, title, message, notification_type='general', 
+    def send_notification(user, title, message, notification_type='info', 
                          related_object_type=None, related_object_id=None,
                          priority='medium', channels=['in_app']):
         """Send notification through multiple channels"""
         try:
+            # Map arbitrary notification_type to model 'type' choices
+            type_map = {
+                'request_created': 'request',
+                'request_update': 'request',
+                'request_resolved': 'request',
+                'sla_violation': 'system',
+                'task_assignment': 'task',
+                'task_completed': 'task',
+                'task_escalation': 'task',
+                'workload_alert': 'task',
+                'equipment_failure': 'maintenance',
+                'system_alert': 'system',
+            }
+            model_type = type_map.get(str(notification_type), notification_type if notification_type in ['info','warning','error','success','system','request','task','maintenance'] else 'info')
             # Create in-app notification
             notification = Notification.objects.create(
-                user=user,
+                recipient=user,
                 title=title,
                 message=message,
-                notification_type=notification_type,
+                type=model_type,
                 related_object_type=related_object_type,
                 related_object_id=related_object_id,
                 priority=priority
@@ -73,7 +87,11 @@ class NotificationService:
     def _send_realtime_notification(user, notification):
         """Send real-time notification via WebSocket"""
         try:
-            channel_layer = get_channel_layer()
+            try:
+                from channels.layers import get_channel_layer
+            except Exception:
+                get_channel_layer = None
+            channel_layer = get_channel_layer() if get_channel_layer else None
             if channel_layer:
                 async_to_sync(channel_layer.group_send)(
                     f"user_{user.id}",
@@ -83,7 +101,7 @@ class NotificationService:
                             'id': notification.id,
                             'title': notification.title,
                             'message': notification.message,
-                            'type': notification.notification_type,
+                            'type': notification.type,
                             'priority': notification.priority,
                             'created_at': notification.created_at.isoformat(),
                         }
@@ -162,14 +180,14 @@ class NotificationService:
             roles_to_notify = []
             
             if alert.severity in ['critical', 'high']:
-                roles_to_notify.extend(['admin', 'staff'])
+                roles_to_notify.extend(['system_admin', 'it_manager'])
             
             if alert.alert_type == 'equipment_failure':
-                roles_to_notify.extend(['technician'])
+                roles_to_notify.extend(['technician', 'senior_technician'])
             elif alert.alert_type == 'sla_violation':
-                roles_to_notify.extend(['manager', 'staff'])
+                roles_to_notify.extend(['it_manager'])
             elif alert.alert_type == 'security_issue':
-                roles_to_notify = ['admin']
+                roles_to_notify = ['system_admin']
             
             if roles_to_notify:
                 users = User.objects.filter(role__in=roles_to_notify)
@@ -273,7 +291,7 @@ class WorkflowNotifications:
         # Notify supervisor/manager
         if task.assigned_to:
             supervisors = User.objects.filter(
-                role__in=['manager', 'staff'],
+                role__in=['it_manager', 'system_admin'],
                 department=task.assigned_to.user.department
             )
             
@@ -294,7 +312,7 @@ class WorkflowNotifications:
         
         # Notify managers and staff
         managers = User.objects.filter(
-            role__in=['manager', 'staff', 'admin'],
+            role__in=['it_manager', 'system_admin'],
             department__in=[
                 getattr(request_or_task, 'requester_department', 'it'),
                 'it'
@@ -317,13 +335,13 @@ class WorkflowNotifications:
         """Notifications for equipment failures"""
         # Notify IT technicians and staff
         it_users = User.objects.filter(
-            role__in=['technician', 'staff', 'admin'],
+            role__in=['technician', 'senior_technician', 'it_manager', 'system_admin'],
             department='it'
         )
         
         # Also notify users in the equipment's location department
         dept_users = User.objects.filter(
-            role__in=['manager', 'staff'],
+            role__in=['it_manager', 'system_admin'],
             department=equipment.location.department.name.lower() if equipment.location else 'it'
         )
         
@@ -345,7 +363,7 @@ class WorkflowNotifications:
         """Notifications for technician overload"""
         # Notify managers and staff
         managers = User.objects.filter(
-            role__in=['manager', 'staff', 'admin'],
+            role__in=['it_manager', 'system_admin'],
             department__in=[technician.user.department, 'it']
         )
         

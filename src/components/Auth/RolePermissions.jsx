@@ -115,8 +115,7 @@ const RolePermissions = ({ roles = [], onClose, onUpdate }) => {
                                     type="checkbox"
                                     checked={!!hasPerm}
                                     onChange={() => handlePermissionToggle(roleKey, permission.id, hasPerm)}
-                                    className="h-4 w-4 text-primary focus:ring-primary border-border rounded"
-                                    disabled
+                                    className="h-4 w-4 text-primary focus:ring-primary border-border rounded cursor-pointer"
                                   />
                                 </td>
                               )

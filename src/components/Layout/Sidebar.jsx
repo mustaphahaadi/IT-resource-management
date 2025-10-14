@@ -66,7 +66,7 @@ const Sidebar = ({ isOpen }) => {
       description: "Documentation and solutions"
     },
     { 
-      name: "Reports", 
+      name: "Analytics", 
       href: "/app/reports", 
       icon: ChartBarIcon,
       permission: "nav.reports",
@@ -101,7 +101,7 @@ const Sidebar = ({ isOpen }) => {
   const adminNavigation = [
     { 
       name: "User Management", 
-      href: "/app/users", 
+      href: "/app/admin/users", 
       icon: UsersIcon,
       permission: "nav.users",
       description: "Manage system users"
@@ -267,31 +267,35 @@ const Sidebar = ({ isOpen }) => {
           </PermissionGate>
 
           {/* Admin Navigation */}
-          <PermissionGate permissions={"system.settings"}>
-            {isOpen && <div className="px-2 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Administration</div>}
-            {adminNavigation.map((item) => {
-              const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + "/")
-              
-              if (item.permission && !hasPermission(item.permission)) {
-                return null
-              }
-              
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${
-                    isActive
-                      ? "bg-red-100 text-red-700 border-r-4 border-red-600"
-                      : "text-gray-700 hover:bg-red-50 hover:text-red-700"
-                  }`}
-                >
-                  <item.icon className="w-5 h-5 flex-shrink-0" />
-                  {isOpen && <span className="ml-3">{item.name}</span>}
-                </Link>
-              )
-            })}
-          </PermissionGate>
+          {(() => {
+            const showAdmin = adminNavigation.some((i) => !i.permission || hasPermission(i.permission))
+            if (!showAdmin) return null
+            return (
+              <>
+                {isOpen && <div className="px-2 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Administration</div>}
+                {adminNavigation.map((item) => {
+                  const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + "/")
+                  if (item.permission && !hasPermission(item.permission)) {
+                    return null
+                  }
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${
+                        isActive
+                          ? "bg-red-100 text-red-700 border-r-4 border-red-600"
+                          : "text-gray-700 hover:bg-red-50 hover:text-red-700"
+                      }`}
+                    >
+                      <item.icon className="w-5 h-5 flex-shrink-0" />
+                      {isOpen && <span className="ml-3">{item.name}</span>}
+                    </Link>
+                  )
+                })}
+              </>
+            )
+          })()}
 
           {/* User Navigation */}
           {isOpen && <div className="px-2 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Personal</div>}

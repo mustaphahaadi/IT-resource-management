@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views, admin_views
+from . import permissions_views
 
 urlpatterns = [
     # Test endpoint
@@ -50,4 +51,9 @@ urlpatterns = [
     path('admin/statistics/', admin_views.get_admin_statistics, name='admin_statistics'),
     path('admin/login-attempts/', admin_views.get_recent_login_attempts, name='admin_login_attempts'),
     path('roles/', admin_views.get_roles, name='roles'),
+
+    # Role/permission management for frontend UI
+    path('permissions/', permissions_views.list_permissions, name='list_permissions'),
+    path('role-permissions/', permissions_views.role_permissions, name='role_permissions'),
+    path('role-permissions/<str:role>/<str:permission>/', permissions_views.delete_role_permission, name='delete_role_permission'),
 ]

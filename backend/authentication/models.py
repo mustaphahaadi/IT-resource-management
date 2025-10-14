@@ -3,6 +3,9 @@ from django.db import models
 from django.utils import timezone
 import uuid
 
+# Import role-permission models
+from .role_permissions_models import Permission, RolePermission
+
 class CustomUser(AbstractUser):
     """Extended user model with additional fields for hospital IT system"""
     
