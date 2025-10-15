@@ -6,6 +6,7 @@ const PersonnelPanel = ({ personnel, onClose, onUpdate }) => {
     const [selectedPerson, setSelectedPerson] = useState(null)
     const [users, setUsers] = useState([])
     const [selectedUserId, setSelectedUserId] = useState("")
+    const [error, setError] = useState("")
     const [formData, setFormData] = useState({
         employee_id: "",
         department: "",
@@ -35,13 +36,14 @@ const PersonnelPanel = ({ personnel, onClose, onUpdate }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setError("")
         try {
             if (selectedPerson) {
                 await apiService.updatePersonnel(selectedPerson.id, formData)
             } else {
                 // Validate required fields for creation
                 if (!selectedUserId || !formData.employee_id || !formData.department) {
-                    alert("Please select a user and provide employee ID and department")
+                    setError("Please select a user and provide employee ID and department")
                     return
                 }
                 await apiService.createPersonnel({
@@ -103,6 +105,15 @@ const PersonnelPanel = ({ personnel, onClose, onUpdate }) => {
             <div className="bg-white border border-gray-200 rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold">Personnel Management</h2>
+                </div>
+
+                {error && (
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-800 rounded-md">
+                        {error}
+                    </div>
+                )}
+
+                <div className="flex justify-between items-center mb-6">
                     <div className="flex gap-2">
                         <button
                             onClick={() => setShowForm(true)}

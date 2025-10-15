@@ -25,7 +25,55 @@ const Settings = () => {
   const { user, updateProfile, changePassword } = useAuth()
   const [activeTab, setActiveTab] = useState("profile")
   const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState("")
+  const [error, setError] = useState("")
+  const [profileData, setProfileData] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone_number: "",
+    department: "",
+    employee_id: ""
+  })
+  const [passwordData, setPasswordData] = useState({
+    current_password: "",
+    new_password: "",
+    confirm_password: ""
+  })
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false
+  })
+  const [notifications, setNotifications] = useState({
+    email_notifications: true,
+    security_alerts: true,
+    system_updates: false
+  })
   const { options: departments, loading: loadingDepartments } = useOptions('/inventory/departments/', (d) => ({ value: d.code || d.slug || d.name, label: d.name || d.display_name || d.title }), [/* once */])
+
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        first_name: user.first_name || "",
+        last_name: user.last_name || "",
+        email: user.email || "",
+        phone_number: user.phone_number || "",
+        department: user.department || "",
+        employee_id: user.employee_id || ""
+      })
+    }
+    fetchNotificationPreferences()
+  }, [user])
+
+  const fetchNotificationPreferences = async () => {
+    try {
+      const response = await apiService.getNotificationPreferences()
+      setNotifications(response.data)
+    } catch (error) {
+      console.error('Error fetching notification preferences:', error)
+    }
+  }
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target

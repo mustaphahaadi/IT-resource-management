@@ -58,7 +58,7 @@ const Profile = () => {
 
   const fetchUserStats = async () => {
     try {
-      const response = await apiService.get('/auth/user/stats/')
+      const response = await apiService.getUserStats()
       setActivityStats(response.data)
     } catch (error) {
       console.error('Error fetching user stats:', error)
@@ -68,7 +68,7 @@ const Profile = () => {
 
   const fetchRecentActivity = async () => {
     try {
-      const response = await apiService.get('/auth/user/activity/')
+      const response = await apiService.getUserActivity()
       setRecentActivity(response.data.results || response.data || [])
     } catch (error) {
       console.error('Error fetching recent activity:', error)

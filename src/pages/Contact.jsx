@@ -29,8 +29,6 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log("Form submitted:", formData);
   };
 
   const handleChange = (e) => {
@@ -202,7 +200,7 @@ const Contact = () => {
                       onChange={handleChange}
                       required
                       className="w-full"
-                      placeholder="john@hospital.com"
+                      placeholder="john@company.com"
                     />
                   </div>
                 </div>
@@ -218,7 +216,7 @@ const Contact = () => {
                       value={formData.company}
                       onChange={handleChange}
                       className="w-full"
-                      placeholder="General Hospital"
+                      placeholder="Your Organization"
                     />
                   </div>
                   <div>

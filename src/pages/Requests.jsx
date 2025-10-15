@@ -160,7 +160,10 @@ const Requests = () => {
       key: "ticket_number", 
       title: "Ticket", 
       sortable: true, 
-      render: (value) => <code className="bg-muted px-2 py-1 rounded text-sm font-mono">{value}</code> 
+      render: (value) => {
+        const sanitized = String(value || '').replace(/[<>"'&]/g, '')
+        return <code className="bg-muted px-2 py-1 rounded text-sm font-mono">{sanitized}</code>
+      }
     },
     { key: "title", title: "Title", sortable: true },
     { 

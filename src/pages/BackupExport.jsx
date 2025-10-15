@@ -84,14 +84,13 @@ const BackupExport = () => {
 
   const downloadBackup = async (backupId, filename) => {
     try {
-      const response = await apiService.get(`/admin/backup/${backupId}/download/`, {
-        responseType: 'blob'
-      })
+      const response = await apiService.downloadBackup(backupId)
       
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement('a')
       link.href = url
-      link.download = filename
+      const sanitizedFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '_')
+      link.setAttribute('download', sanitizedFilename)
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -136,7 +135,9 @@ const BackupExport = () => {
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement('a')
       link.href = url
-      link.download = `hospital_it_export_${format}_${new Date().toISOString().split('T')[0]}.${format}`
+      const sanitizedFormat = format.replace(/[^a-z0-9]/gi, '')
+      const filename = `it_resource_export_${sanitizedFormat}_${new Date().toISOString().split('T')[0]}.${sanitizedFormat}`
+      link.setAttribute('download', filename)
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)

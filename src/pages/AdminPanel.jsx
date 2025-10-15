@@ -36,6 +36,7 @@ const AdminPanel = () => {
   const [error, setError] = useState("")
   const [selectedUser, setSelectedUser] = useState(null)
   const [showUserDialog, setShowUserDialog] = useState(false)
+  const [successMessage, setSuccessMessage] = useState("")
   
   // Filters
   const [searchTerm, setSearchTerm] = useState("")
@@ -149,6 +150,8 @@ const AdminPanel = () => {
   }
 
   const handleUserAction = async (userId, action) => {
+    setError("")
+    setSuccessMessage("")
     try {
       let response
       switch (action) {
@@ -182,9 +185,9 @@ const AdminPanel = () => {
       fetchUsers()
       
       // Show success message
-      alert(response.data.message)
+      setSuccessMessage(response.data.message || "Action completed successfully")
     } catch (err) {
-      alert(err.response?.data?.error || "Action failed")
+      setError(err.response?.data?.error || "Action failed")
     }
   }
 
@@ -194,7 +197,7 @@ const AdminPanel = () => {
       setSelectedUser(response.data)
       setShowUserDialog(true)
     } catch (err) {
-      alert("Failed to fetch user details")
+      setError("Failed to fetch user details")
     }
   }
 
@@ -230,6 +233,13 @@ const AdminPanel = () => {
         <Alert variant="destructive" className="mb-6">
           <ExclamationTriangleIcon className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {successMessage && (
+        <Alert className="mb-6 bg-green-50 border-green-200 text-green-800">
+          <CheckCircleIcon className="h-4 w-4" />
+          <AlertDescription>{successMessage}</AlertDescription>
         </Alert>
       )}
 

@@ -17,7 +17,7 @@ const Pricing = () => {
       name: "Starter",
       price: "$49",
       period: "per month",
-      description: "Perfect for small healthcare facilities getting started with IT service management.",
+      description: "Perfect for small organizations getting started with IT service management.",
       features: [
         "Up to 50 IT assets",
         "Basic ticket management",
@@ -40,7 +40,7 @@ const Pricing = () => {
       name: "Professional",
       price: "$149",
       period: "per month",
-      description: "Comprehensive solution for medium-sized healthcare organizations.",
+      description: "Comprehensive solution for medium-sized organizations.",
       features: [
         "Up to 500 IT assets",
         "Advanced ticket management",
@@ -64,7 +64,7 @@ const Pricing = () => {
       name: "Enterprise",
       price: "Custom",
       period: "pricing",
-      description: "Tailored solution for large healthcare systems and hospital networks.",
+      description: "Tailored solution for large organizations and enterprise networks.",
       features: [
         "Unlimited IT assets",
         "Enterprise ticket management",

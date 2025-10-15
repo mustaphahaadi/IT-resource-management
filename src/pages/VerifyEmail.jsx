@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
 import { Alert, AlertDescription } from "../components/ui/alert"
 import { apiService } from "../services/api"
+import { formatServerError } from "../lib/formatError"
 import { 
   EnvelopeIcon, 
   CheckCircleIcon,
@@ -17,6 +18,7 @@ const VerifyEmail = () => {
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState("")
   const [resending, setResending] = useState(false)
+  const [resendSuccess, setResendSuccess] = useState(false)
 
   useEffect(() => {
     if (token) {
@@ -44,11 +46,11 @@ const VerifyEmail = () => {
 
   const handleResendVerification = async () => {
     setResending(true)
+    setResendSuccess(false)
     try {
       await apiService.resendVerificationEmail()
       setError("")
-      // Show success message
-      alert("Verification email sent! Please check your inbox.")
+      setResendSuccess(true)
     } catch (err) {
       setError("Failed to resend verification email. Please try again later.")
     } finally {
@@ -132,6 +134,15 @@ const VerifyEmail = () => {
               {error}
             </AlertDescription>
           </Alert>
+
+          {resendSuccess && (
+            <Alert className="bg-green-50 border-green-200 text-green-800">
+              <CheckCircleIcon className="h-4 w-4" />
+              <AlertDescription>
+                Verification email sent! Please check your inbox.
+              </AlertDescription>
+            </Alert>
+          )}
           
           <div className="text-center space-y-4">
             <div className="space-y-2">

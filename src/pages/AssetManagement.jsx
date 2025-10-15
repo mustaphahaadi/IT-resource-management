@@ -64,8 +64,6 @@ const AssetManagement = () => {
 
   const handleScanSuccess = (equipment) => {
     setShowScanner(false)
-    // You could navigate to equipment details or show a success message
-    console.log('Scanned equipment:', equipment)
   }
 
   const getAlertSeverityColor = (severity) => {

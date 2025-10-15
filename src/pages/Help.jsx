@@ -71,11 +71,11 @@ const Help = () => {
       title: 'Getting Started',
       icon: <BookOpenIcon className="w-5 h-5" />,
       content: {
-        title: 'Getting Started with Hospital IT System',
+        title: 'Getting Started with IT Resource Management',
         items: [
           {
             title: 'System Overview',
-            content: 'The Hospital IT Resource Management System helps you manage IT infrastructure, track equipment, handle support requests, and monitor system performance in real-time.'
+            content: 'The IT Resource Management System helps you manage IT infrastructure, track equipment, handle support requests, and monitor system performance in real-time.'
           },
           {
             title: 'First Login',
@@ -271,7 +271,7 @@ const Help = () => {
       icon: <EnvelopeIcon className="w-6 h-6" />,
       title: 'Email Support',
       description: 'Send us an email for non-urgent issues',
-      contact: 'support@hospital-it.com',
+      contact: 'support@itsupport.com',
       availability: 'Response within 24 hours'
     },
     {

@@ -577,23 +577,23 @@ class ApiService {
 
   // User profile methods
   async getCurrentUser() {
-    return this.get("/auth/user/")
+    return this.get("/auth/profile/")
   }
 
   async getUserPreferences() {
-    return this.get("/auth/user/preferences/")
+    return this.get("/auth/profile/preferences/")
   }
 
   async updateUserPreferences(preferences) {
-    return this.patch("/auth/user/preferences/", preferences)
+    return this.patch("/auth/profile/preferences/", preferences)
   }
 
   async getUserStats() {
-    return this.get("/auth/user/stats/")
+    return this.get("/auth/profile/stats/")
   }
 
   async getUserActivity(params = {}) {
-    return this.get("/auth/user/activity/", { params })
+    return this.get("/auth/profile/activity/", { params })
   }
 
   // System settings methods (admin only)

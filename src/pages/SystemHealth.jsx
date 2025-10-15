@@ -16,6 +16,7 @@ import {
   ShieldCheckIcon
 } from "@heroicons/react/24/outline";
 import { usePermissions } from "../contexts/PermissionsContext";
+import { apiService } from "../services/api";
 
 const SystemHealth = () => {
   const { hasPermission } = usePermissions();
@@ -25,110 +26,42 @@ const SystemHealth = () => {
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(new Date());
 
-  // Mock data - replace with actual API calls
   useEffect(() => {
-    const mockSystemMetrics = {
-      cpu_usage: 45.2,
-      memory_usage: 67.8,
-      disk_usage: 34.5,
-      network_latency: 12.3,
-      uptime: "15 days, 7 hours",
-      active_users: 127,
-      database_connections: 45,
-      response_time: 245
-    };
-
-    const mockServices = [
-      {
-        name: "Web Server",
-        status: "healthy",
-        uptime: "99.9%",
-        last_check: "2024-10-10T14:30:00Z",
-        response_time: 120,
-        description: "Main application server"
-      },
-      {
-        name: "Database",
-        status: "healthy",
-        uptime: "99.8%",
-        last_check: "2024-10-10T14:30:00Z",
-        response_time: 45,
-        description: "Primary PostgreSQL database"
-      },
-      {
-        name: "Redis Cache",
-        status: "healthy",
-        uptime: "99.9%",
-        last_check: "2024-10-10T14:30:00Z",
-        response_time: 8,
-        description: "Session and cache storage"
-      },
-      {
-        name: "Email Service",
-        status: "warning",
-        uptime: "98.5%",
-        last_check: "2024-10-10T14:29:00Z",
-        response_time: 2300,
-        description: "SMTP email delivery service"
-      },
-      {
-        name: "File Storage",
-        status: "healthy",
-        uptime: "99.7%",
-        last_check: "2024-10-10T14:30:00Z",
-        response_time: 89,
-        description: "Document and file storage"
-      },
-      {
-        name: "Backup Service",
-        status: "critical",
-        uptime: "95.2%",
-        last_check: "2024-10-10T14:25:00Z",
-        response_time: 0,
-        description: "Automated backup system"
-      }
-    ];
-
-    const mockAlerts = [
-      {
-        id: 1,
-        severity: "warning",
-        title: "High Memory Usage",
-        description: "Memory usage has exceeded 65% threshold",
-        timestamp: "2024-10-10T14:25:00Z",
-        service: "Web Server"
-      },
-      {
-        id: 2,
-        severity: "critical",
-        title: "Backup Service Down",
-        description: "Automated backup service is not responding",
-        timestamp: "2024-10-10T14:20:00Z",
-        service: "Backup Service"
-      },
-      {
-        id: 3,
-        severity: "info",
-        title: "Scheduled Maintenance",
-        description: "Database maintenance window scheduled for tonight",
-        timestamp: "2024-10-10T14:00:00Z",
-        service: "Database"
-      }
-    ];
-
-    setSystemMetrics(mockSystemMetrics);
-    setServices(mockServices);
-    setAlerts(mockAlerts);
-    setLoading(false);
+    fetchSystemHealth();
   }, []);
 
-  const refreshData = () => {
-    setLoading(true);
-    setLastUpdated(new Date());
-    // Simulate API call
-    setTimeout(() => {
+  const fetchSystemHealth = async () => {
+    try {
+      setLoading(true);
+      const response = await apiService.getSystemHealth();
+      const data = response.data;
+      
+      setSystemMetrics({
+        cpu_usage: data.metrics?.cpu_usage || 0,
+        memory_usage: data.metrics?.memory_usage || 0,
+        disk_usage: data.metrics?.disk_usage || 0,
+        network_latency: data.metrics?.network_latency || 0,
+        uptime: data.metrics?.uptime || "N/A",
+        active_users: data.metrics?.active_users || 0,
+        database_connections: data.metrics?.database_connections || 0,
+        response_time: data.metrics?.response_time || 0
+      });
+      
+      setServices(data.services || []);
+      setAlerts(data.alerts || []);
+    } catch (error) {
+      console.error('Error fetching system health:', error);
+      setSystemMetrics({});
+      setServices([]);
+      setAlerts([]);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
+  };
+
+  const refreshData = () => {
+    setLastUpdated(new Date());
+    fetchSystemHealth();
   };
 
   const getStatusColor = (status) => {

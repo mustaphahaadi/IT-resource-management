@@ -57,7 +57,15 @@ class WebSocketService {
 
       this.socket.onmessage = (event) => {
         try {
+          if (typeof event.data !== 'string') {
+            console.warn('WebSocket: Non-string message received, ignoring')
+            return
+          }
           const data = JSON.parse(event.data)
+          if (!data || typeof data !== 'object') {
+            console.warn('WebSocket: Invalid message format')
+            return
+          }
           this.handleMessage(data)
         } catch (error) {
           console.error('Error parsing WebSocket message:', error)

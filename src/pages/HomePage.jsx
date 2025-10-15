@@ -174,7 +174,7 @@ const HomePage = () => {
             Powerful Features for Healthcare IT
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Our comprehensive platform provides everything you need to manage IT resources efficiently in a hospital environment.
+            Our comprehensive platform provides everything you need to manage IT resources efficiently in any organization.
           </p>
         </div>
   
@@ -209,7 +209,7 @@ const HomePage = () => {
               </h2>
               <p className="text-lg text-gray-600 mb-8">
                 Built specifically for healthcare environments, our system addresses the unique challenges 
-                of managing IT resources in hospitals and medical facilities.
+                of managing IT resources in organizations and facilities.
               </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

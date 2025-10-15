@@ -204,7 +204,7 @@ const Inventory = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">IT Inventory</h1>
-          <p className="text-gray-600 mt-1">Manage hospital IT equipment and assets</p>
+          <p className="text-gray-600 mt-1">Manage IT equipment and assets</p>
         </div>
         <div className="flex items-center space-x-2">
           <PermissionGate permissions="equipment.scan">

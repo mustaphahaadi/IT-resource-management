@@ -118,10 +118,21 @@ const SearchResults = () => {
     }
   }
 
-  const highlightText = (text, query) => {
-    if (!query) return text
-    const regex = new RegExp(`(${query})`, 'gi')
-    return text.replace(regex, '<mark class="bg-yellow-200">$1</mark>')
+  const HighlightedText = ({ text, query }) => {
+    if (!query || !text) return <>{text}</>
+    
+    const parts = text.split(new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'))
+    return (
+      <>
+        {parts.map((part, i) => 
+          part.toLowerCase() === query.toLowerCase() ? (
+            <mark key={i} className="bg-yellow-200">{part}</mark>
+          ) : (
+            <span key={i}>{part}</span>
+          )
+        )}
+      </>
+    )
   }
 
   const ResultItem = ({ type, item }) => (
@@ -136,9 +147,7 @@ const SearchResults = () => {
               to={getResultLink(type, item)}
               className="text-lg font-medium text-blue-600 hover:text-blue-800 truncate"
             >
-              <span dangerouslySetInnerHTML={{ 
-                __html: highlightText(item.title || item.name, query) 
-              }} />
+              <HighlightedText text={item.title || item.name} query={query} />
             </Link>
             <span className="text-xs text-gray-500 capitalize bg-gray-100 px-2 py-1 rounded">
               {type}
@@ -147,9 +156,7 @@ const SearchResults = () => {
           
           {item.description && (
             <p className="mt-1 text-sm text-gray-600 line-clamp-2">
-              <span dangerouslySetInnerHTML={{ 
-                __html: highlightText(item.description, query) 
-              }} />
+              <HighlightedText text={item.description} query={query} />
             </p>
           )}
           

@@ -76,6 +76,7 @@ const Reports = () => {
   const generateReport = async (type) => {
     try {
       setLoading(true);
+      setError('');
       const response = await apiService.generateReport(type, {
         start_date: dateRange.startDate,
         end_date: dateRange.endDate,
@@ -84,12 +85,15 @@ const Reports = () => {
       
       if (response.data.download_url) {
         window.open(response.data.download_url, '_blank');
+      } else if (response.data.message) {
+        setError(response.data.message);
       } else {
-        alert('Report generated successfully! Check your email for the download link.');
+        setError('Report generated successfully! Check your email for the download link.');
       }
     } catch (error) {
       console.error('Error generating report:', error);
-      alert('Failed to generate report. Please try again.');
+      const msg = error.response?.data?.message || error.response?.data?.error || 'Failed to generate report. Please try again.';
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -98,6 +102,7 @@ const Reports = () => {
   const exportData = async (format) => {
     try {
       setLoading(true);
+      setError('');
       const response = await apiService.generateReport('export', {
         format,
         start_date: dateRange.startDate,
@@ -108,14 +113,18 @@ const Reports = () => {
       if (response.data.download_url) {
         const link = document.createElement('a');
         link.href = response.data.download_url;
-        link.download = `hospital_it_report_${format}_${new Date().toISOString().split('T')[0]}.${format}`;
+        const sanitizedFormat = format.replace(/[^a-z0-9]/gi, '');
+        link.setAttribute('download', `it_resource_report_${sanitizedFormat}_${new Date().toISOString().split('T')[0]}.${sanitizedFormat}`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+      } else {
+        setError(response.data.message || 'Export initiated. Check your email.');
       }
     } catch (error) {
       console.error('Error exporting data:', error);
-      alert('Failed to export data. Please try again.');
+      const msg = error.response?.data?.message || error.response?.data?.error || 'Failed to export data. Please try again.';
+      setError(msg);
     } finally {
       setLoading(false);
     }

@@ -112,12 +112,21 @@ const UserForm = ({ user, roles, onSubmit, onClose }) => {
     if (!formData.role) newErrors.role = "Role is required"
 
     if (!user) {
-      if (!formData.password) newErrors.password = "Password is required"
+      if (!formData.password) {
+        newErrors.password = "Password is required"
+      } else if (formData.password.length < 8) {
+        newErrors.password = "Password must be at least 8 characters"
+      }
+      if (formData.password && formData.password !== formData.confirm_password) {
+        newErrors.confirm_password = "Passwords do not match"
+      }
+    } else if (formData.password) {
+      if (formData.password.length < 8) {
+        newErrors.password = "Password must be at least 8 characters"
+      }
       if (formData.password !== formData.confirm_password) {
         newErrors.confirm_password = "Passwords do not match"
       }
-    } else if (formData.password && formData.password !== formData.confirm_password) {
-      newErrors.confirm_password = "Passwords do not match"
     }
 
     setErrors(newErrors)

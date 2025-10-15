@@ -44,12 +44,14 @@ import { PermissionsProvider } from "./contexts/PermissionsContext"
 import ProtectedRoute from "./components/Auth/ProtectedRoute";
 import RoleBasedRoute from "./components/Auth/RoleBasedRoute";
 import ErrorBoundary from "./components/common/ErrorBoundary"
+import ApiErrorBoundary from "./components/common/ApiErrorBoundary"
 
 function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <PermissionsProvider>
+      <ApiErrorBoundary>
+        <AuthProvider>
+          <PermissionsProvider>
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <div className="min-h-screen bg-background">
             <Routes>
@@ -80,6 +82,7 @@ function App() {
               }
             >
               <Route index element={<Dashboard />} />
+              <Route path="dashboard" element={<Dashboard />} />
               <Route path="inventory/*" element={<Inventory />} />
               <Route path="requests/*" element={<Requests />} />
               <Route
@@ -115,7 +118,6 @@ function App() {
               <Route path="self-service" element={<SelfService />} />
               <Route path="knowledge-base" element={<KnowledgeBase />} />
               <Route path="knowledge-base/:articleId" element={<KnowledgeBaseArticle />} />
-              <Route path="dashboard" element={<Dashboard />} />
 
               {/* Admin Routes */}
               <Route path="admin" element={<RoleBasedRoute requiredRoles={["system_admin"]}><Outlet /></RoleBasedRoute>} >
@@ -133,7 +135,7 @@ function App() {
               <Route
                 path="assignment"
                 element={
-                  <RoleBasedRoute requiredRoles={["staff", "system_admin"]}>
+                  <RoleBasedRoute requiredRoles={["system_admin", "it_manager", "senior_technician"]}>
                     <Assignment />
                   </RoleBasedRoute>
                 }
@@ -146,8 +148,9 @@ function App() {
           </Routes>
         </div>
       </BrowserRouter>
-        </PermissionsProvider>
-      </AuthProvider>
+          </PermissionsProvider>
+        </AuthProvider>
+      </ApiErrorBoundary>
     </ErrorBoundary>
   )
 }

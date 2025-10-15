@@ -74,15 +74,16 @@ const Register = () => {
     }
 
     // Password validation
-    if (formData.password && formData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters long"
-    }
-    if (formData.password && !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+    if (formData.password) {
+      if (formData.password.length < 8) {
+        newErrors.password = "Password must be at least 8 characters long"
+      } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+        newErrors.password = "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+      }
     }
 
     // Password confirmation
-    if (formData.password !== formData.confirm_password) {
+    if (formData.password && formData.confirm_password && formData.password !== formData.confirm_password) {
       newErrors.confirm_password = "Passwords do not match"
     }
 

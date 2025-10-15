@@ -14,9 +14,14 @@ urlpatterns = [
     # Profile management
     path('profile/', views.get_user_profile, name='profile'),
     path('profile/update/', views.update_user_profile, name='update_profile'),
-    path('user/stats/', views.user_stats, name='user_stats'),
-    path('user/activity/', views.user_activity, name='user_activity'),
-    path('user/preferences/', views.user_preferences, name='user_preferences'),
+    path('profile/stats/', views.user_stats, name='user_stats'),
+    path('profile/activity/', views.user_activity, name='user_activity'),
+    path('profile/preferences/', views.user_preferences, name='user_preferences'),
+    
+    # Legacy endpoints for backward compatibility
+    path('user/stats/', views.user_stats, name='user_stats_legacy'),
+    path('user/activity/', views.user_activity, name='user_activity_legacy'),
+    path('user/preferences/', views.user_preferences, name='user_preferences_legacy'),
     
     # Password management
     path('change-password/', views.change_password, name='change_password'),

@@ -17,6 +17,7 @@ import {
 } from "@heroicons/react/24/outline"
 import AsyncSelect from "../components/ui/AsyncSelect"
 import { usePermissions, PermissionGate } from "../contexts/PermissionsContext";
+import { apiService } from "../services/api";
 
 const SecurityAudit = () => {
   const { hasPermission } = usePermissions();
@@ -25,104 +26,32 @@ const SecurityAudit = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Mock data - replace with actual API calls
   useEffect(() => {
-    const mockAuditLogs = [
-      {
-        id: 1,
-        timestamp: "2024-10-10T14:30:00Z",
-        user: "admin1@hospital.com",
-        action: "User Login",
-        resource: "Authentication System",
-        ip_address: "192.168.1.100",
-        user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-        status: "success",
-        details: "Successful login from trusted device"
-      },
-      {
-        id: 2,
-        timestamp: "2024-10-10T14:25:00Z",
-        user: "tech1@hospital.com",
-        action: "Equipment Update",
-        resource: "Equipment ID: EQ-001",
-        ip_address: "192.168.1.105",
-        user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-        status: "success",
-        details: "Updated equipment status to 'maintenance'"
-      },
-      {
-        id: 3,
-        timestamp: "2024-10-10T14:20:00Z",
-        user: "unknown@external.com",
-        action: "Failed Login Attempt",
-        resource: "Authentication System",
-        ip_address: "203.0.113.45",
-        user_agent: "curl/7.68.0",
-        status: "failed",
-        details: "Multiple failed login attempts detected"
-      },
-      {
-        id: 4,
-        timestamp: "2024-10-10T14:15:00Z",
-        user: "manager1@hospital.com",
-        action: "User Approval",
-        resource: "User ID: 15",
-        ip_address: "192.168.1.102",
-        user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
-        status: "success",
-        details: "Approved new user registration"
-      },
-      {
-        id: 5,
-        timestamp: "2024-10-10T14:10:00Z",
-        user: "system",
-        action: "Automated Backup",
-        resource: "Database",
-        ip_address: "127.0.0.1",
-        user_agent: "System Process",
-        status: "success",
-        details: "Daily database backup completed successfully"
-      }
-    ];
-
-    const mockSecurityAlerts = [
-      {
-        id: 1,
-        type: "suspicious_activity",
-        severity: "high",
-        title: "Multiple Failed Login Attempts",
-        description: "5 failed login attempts from IP 203.0.113.45 in the last 10 minutes",
-        timestamp: "2024-10-10T14:20:00Z",
-        status: "active",
-        affected_resource: "Authentication System"
-      },
-      {
-        id: 2,
-        type: "policy_violation",
-        severity: "medium",
-        title: "Password Policy Violation",
-        description: "User attempted to set weak password",
-        timestamp: "2024-10-10T13:45:00Z",
-        status: "resolved",
-        affected_resource: "User: user5@hospital.com"
-      },
-      {
-        id: 3,
-        type: "access_anomaly",
-        severity: "low",
-        title: "Unusual Access Pattern",
-        description: "User accessing system outside normal hours",
-        timestamp: "2024-10-10T02:30:00Z",
-        status: "investigating",
-        affected_resource: "User: tech2@hospital.com"
-      }
-    ];
-
-    setAuditLogs(mockAuditLogs);
-    setSecurityAlerts(mockSecurityAlerts);
-    setLoading(false);
+    fetchAuditData();
   }, []);
+
+  const fetchAuditData = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const [logsRes, alertsRes] = await Promise.all([
+        apiService.getAuditLogs({ page_size: 50 }),
+        apiService.getSecurityAlerts?.() || Promise.resolve({ data: [] })
+      ]);
+      
+      setAuditLogs(logsRes.data.results || logsRes.data || []);
+      setSecurityAlerts(alertsRes.data.results || alertsRes.data || []);
+    } catch (err) {
+      console.error("Error fetching audit data:", err);
+      setError("Failed to load audit data");
+      setAuditLogs([]);
+      setSecurityAlerts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusBadge = (status) => {
     const variants = {
@@ -162,8 +91,26 @@ const SecurityAudit = () => {
   });
 
   const exportAuditLogs = () => {
-    // Mock export functionality
-    console.log("Exporting audit logs...");
+    const csv = [
+      ['Timestamp', 'User', 'Action', 'Resource', 'IP Address', 'Status', 'Details'].join(','),
+      ...filteredLogs.map(log => [
+        new Date(log.timestamp).toISOString(),
+        log.user,
+        log.action,
+        log.resource,
+        log.ip_address,
+        log.status,
+        log.details || ''
+      ].join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `audit_logs_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
   };
 
   if (!hasPermission("system.monitoring")) {
@@ -180,8 +127,26 @@ const SecurityAudit = () => {
     );
   }
 
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="text-center py-12">
+          <p className="text-gray-600">Loading audit data...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-6">
+      {error && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-4">
+            <p className="text-red-800">{error}</p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>

@@ -99,6 +99,9 @@ const Tasks = () => {
     }
   };
 
+  const handleManagePersonnel = () => setShowPersonnelPanel(true);
+  const handleCreateTask = () => navigate(`${getBasePath()}/new`);
+
   const handleTaskSubmit = async (taskData) => {
     try {
       if (selectedTask) {
@@ -132,7 +135,7 @@ const Tasks = () => {
           hasPermission("tasks.assign") && (
             <Button
               key="manage-personnel"
-              onClick={() => setShowPersonnelPanel(true)}
+              onClick={handleManagePersonnel}
               variant="outline"
             >
               <UserGroupIcon className="w-4 h-4 mr-2" />
@@ -140,7 +143,7 @@ const Tasks = () => {
             </Button>
           ),
           hasPermission("tasks.create") && (
-            <Button key="create-task" onClick={() => navigate(`${getBasePath()}/new`)}>
+            <Button key="create-task" onClick={handleCreateTask}>
               <PlusIcon className="w-4 h-4 mr-2" />
               Create Task
             </Button>

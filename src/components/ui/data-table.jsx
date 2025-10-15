@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, memo } from 'react'
 import { Button } from './button'
 import { Input } from './input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
@@ -378,4 +378,4 @@ const DataTable = ({
   )
 }
 
-export default DataTable
+export default memo(DataTable)

@@ -54,11 +54,11 @@ export const AuthProvider = ({ children }) => {
       })
 
       const unsubConnected = websocketService.on('connected', () => {
-        console.log('Real-time connection established')
+        // Real-time connection established
       })
 
       const unsubDisconnected = websocketService.on('disconnected', () => {
-        console.log('Real-time connection lost')
+        // Real-time connection lost
       })
 
       return () => {
