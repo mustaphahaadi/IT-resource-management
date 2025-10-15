@@ -37,26 +37,44 @@ const AssetManagement = () => {
     try {
       setLoading(true)
       
-      // Fetch asset management statistics
-      const [auditsResponse, checkoutsResponse, alertsResponse] = await Promise.all([
+      // Fetch asset management statistics with error handling
+      const responses = await Promise.allSettled([
         apiService.getAssetAudits({ limit: 5 }),
         apiService.getOverdueCheckouts(),
         apiService.getAssetAlerts({ is_active: true, limit: 10 })
       ])
 
-      setRecentAudits(auditsResponse.data.results || auditsResponse.data || [])
-      setOverdueCheckouts(checkoutsResponse.data.results || checkoutsResponse.data || [])
-      setActiveAlerts(alertsResponse.data.results || alertsResponse.data || [])
+      const audits = responses[0].status === 'fulfilled' ? 
+        (responses[0].value.data.results || responses[0].value.data || []) : []
+      const checkouts = responses[1].status === 'fulfilled' ? 
+        (responses[1].value.data.results || responses[1].value.data || []) : []
+      const alerts = responses[2].status === 'fulfilled' ? 
+        (responses[2].value.data.results || responses[2].value.data || []) : []
+
+      setRecentAudits(audits)
+      setOverdueCheckouts(checkouts)
+      setActiveAlerts(alerts)
 
       setStats({
-        total_audits: recentAudits.length,
-        pending_audits: recentAudits.filter(audit => audit.status === 'planned').length,
-        overdue_checkouts: overdueCheckouts.length,
-        active_alerts: activeAlerts.length,
-        recent_activities: recentAudits.length + overdueCheckouts.length + activeAlerts.length
+        total_audits: audits.length,
+        pending_audits: audits.filter(audit => audit.status === 'planned').length,
+        overdue_checkouts: checkouts.length,
+        active_alerts: alerts.length,
+        recent_activities: audits.length + checkouts.length + alerts.length
       })
     } catch (error) {
       console.error('Failed to fetch asset management data:', error)
+      // Set empty data on error
+      setRecentAudits([])
+      setOverdueCheckouts([])
+      setActiveAlerts([])
+      setStats({
+        total_audits: 0,
+        pending_audits: 0,
+        overdue_checkouts: 0,
+        active_alerts: 0,
+        recent_activities: 0
+      })
     } finally {
       setLoading(false)
     }
@@ -194,11 +212,13 @@ const AssetManagement = () => {
                 {recentAudits.slice(0, 5).map((audit) => (
                   <div key={audit.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div>
-                      <p className="font-medium text-gray-900">{audit.name}</p>
-                      <p className="text-sm text-gray-600">{audit.audit_type} • {audit.scheduled_date}</p>
+                      <p className="font-medium text-gray-900">{audit.name || 'Unnamed Audit'}</p>
+                      <p className="text-sm text-gray-600">
+                        {audit.audit_type || 'Unknown'} • {audit.scheduled_date || 'No date'}
+                      </p>
                     </div>
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getAuditStatusColor(audit.status)}`}>
-                      {audit.status}
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getAuditStatusColor(audit.status || 'planned')}`}>
+                      {audit.status || 'planned'}
                     </span>
                   </div>
                 ))}
@@ -223,12 +243,14 @@ const AssetManagement = () => {
                 {activeAlerts.slice(0, 5).map((alert) => (
                   <div key={alert.id} className="p-3 bg-gray-50 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="font-medium text-gray-900">{alert.title}</p>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getAlertSeverityColor(alert.severity)}`}>
-                        {alert.severity}
+                      <p className="font-medium text-gray-900">{alert.title || 'Alert'}</p>
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getAlertSeverityColor(alert.severity || 'medium')}`}>
+                        {alert.severity || 'medium'}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600">{alert.equipment_name} • {alert.alert_type}</p>
+                    <p className="text-sm text-gray-600">
+                      {alert.equipment?.name || alert.equipment_name || 'Unknown Equipment'} • {alert.alert_type || 'General'}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -252,19 +274,22 @@ const AssetManagement = () => {
                 {overdueCheckouts.slice(0, 5).map((checkout) => (
                   <div key={checkout.id} className="p-3 bg-red-50 rounded-lg border border-red-200">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="font-medium text-gray-900">{checkout.equipment_name}</p>
+                      <p className="font-medium text-gray-900">
+                        {checkout.equipment?.name || checkout.equipment_name || 'Unknown Equipment'}
+                      </p>
                       <span className="text-xs text-red-600 font-medium">
                         Overdue
                       </span>
                     </div>
                     <p className="text-sm text-gray-600">
-                      Checked out to: {checkout.checked_out_to_name}
+                      Checked out to: {checkout.checked_out_to?.get_full_name || checkout.checked_out_to_name || 'Unknown User'}
                     </p>
                     <p className="text-sm text-red-600">
-                      Expected return: {new Date(checkout.expected_return_date).toLocaleDateString()}
+                      Expected return: {checkout.expected_return_date ? 
+                        new Date(checkout.expected_return_date).toLocaleDateString() : 'No date set'}
                     </p>
                   </div>
-                ))}
+                ))
               </div>
             )}
           </CardContent>
