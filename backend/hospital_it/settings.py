@@ -16,7 +16,7 @@ SECRET_KEY = env('SECRET_KEY', default='django-insecure-hospital-it-system-2024-
 
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '.vercel.app', '.now.sh', '*']
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -98,6 +98,8 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'static'] if (BASE_DIR / 'static').exists() else []
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -119,7 +121,11 @@ CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
     "http://127.0.0.1:3002",
 ])
 
-CORS_ALLOW_ALL_ORIGINS = False
+# Allow all Vercel domains in production
+if not DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+
+
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Hospital IT Resource Management API',
@@ -142,7 +148,9 @@ EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 
 # Frontend base URL used in emails and redirects
-FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+FRONTEND_URL = env('FRONTEND_URL', default='http://localhost:3000')
+
+
 
 # Security settings
 ACCOUNT_LOCKOUT_ATTEMPTS = 5
@@ -215,3 +223,14 @@ LOGGING = {
         },
     },
 }
+
+# Vercel-specific settings (after LOGGING is defined)
+if 'VERCEL' in os.environ:
+    DEBUG = False
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '/tmp/db.sqlite3',
+    }
+    LOGGING['handlers']['file']['class'] = 'logging.NullHandler'
+    for logger in ['django', 'authentication', 'inventory', 'requests_system', 'tasks']:
+        LOGGING['loggers'][logger]['handlers'] = ['console']
