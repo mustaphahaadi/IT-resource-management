@@ -11,7 +11,7 @@ const ManagerDashboard = () => {
     const fetchManagerData = async () => {
       try {
         setLoading(true);
-        const response = await apiService.getManagerDashboard();
+        const response = await apiService.getDashboardAnalytics();
         setStats(response.data);
       } catch (error) {
         console.error('Error fetching manager dashboard data:', error);
@@ -48,11 +48,11 @@ const ManagerDashboard = () => {
         <CardContent>
           <div className="grid grid-cols-2 gap-4 text-center">
             <div>
-              <div className="text-2xl font-bold text-purple-600">{stats.equipment_stats?.total || 0}</div>
+              <div className="text-2xl font-bold text-purple-600">{stats.equipment?.total || 0}</div>
               <div className="text-xs text-gray-600">Total Assets</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-red-600">{stats.equipment_stats?.critical || 0}</div>
+              <div className="text-2xl font-bold text-red-600">{stats.equipment?.critical || 0}</div>
               <div className="text-xs text-gray-600">Critical</div>
             </div>
           </div>
@@ -69,11 +69,11 @@ const ManagerDashboard = () => {
         <CardContent>
           <div className="grid grid-cols-2 gap-4 text-center">
             <div>
-              <div className="text-2xl font-bold text-yellow-600">{stats.request_stats?.unassigned || 0}</div>
+              <div className="text-2xl font-bold text-yellow-600">{stats.requests?.open || 0}</div>
               <div className="text-xs text-gray-600">Unassigned</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-orange-600">{stats.request_stats?.high_priority || 0}</div>
+              <div className="text-2xl font-bold text-orange-600">{stats.requests?.critical || 0}</div>
               <div className="text-xs text-gray-600">High Priority</div>
             </div>
           </div>
@@ -90,11 +90,11 @@ const ManagerDashboard = () => {
         <CardContent>
           <div className="grid grid-cols-2 gap-4 text-center">
             <div>
-              <div className="text-2xl font-bold text-red-600">{stats.task_stats?.overdue || 0}</div>
+              <div className="text-2xl font-bold text-red-600">{stats.tasks?.overdue || 0}</div>
               <div className="text-xs text-gray-600">Overdue</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-blue-600">{stats.task_stats?.in_progress || 0}</div>
+              <div className="text-2xl font-bold text-blue-600">{stats.tasks?.in_progress || 0}</div>
               <div className="text-xs text-gray-600">In Progress</div>
             </div>
           </div>
