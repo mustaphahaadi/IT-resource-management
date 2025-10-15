@@ -289,7 +289,7 @@ const AssetManagement = () => {
                         new Date(checkout.expected_return_date).toLocaleDateString() : 'No date set'}
                     </p>
                   </div>
-                ))
+                ))}
               </div>
             )}
           </CardContent>
