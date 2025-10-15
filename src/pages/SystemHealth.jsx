@@ -47,8 +47,9 @@ const SystemHealth = () => {
         response_time: data.metrics?.response_time || 0
       });
       
-      setServices(data.services || []);
-      setAlerts(data.alerts || []);
+      // Ensure services and alerts are always arrays
+      setServices(Array.isArray(data.services) ? data.services : []);
+      setAlerts(Array.isArray(data.alerts) ? data.alerts : []);
     } catch (error) {
       console.error('Error fetching system health:', error);
       setSystemMetrics({});
@@ -255,8 +256,11 @@ const SystemHealth = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {services.map((service, index) => (
+          {!Array.isArray(services) || services.length === 0 ? (
+            <p className="text-center text-gray-500 py-4">No services data available</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {services.map((service, index) => (
               <Card key={index} className="border border-gray-200">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-3">
@@ -287,8 +291,9 @@ const SystemHealth = () => {
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -301,8 +306,11 @@ const SystemHealth = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {alerts.map((alert) => (
+          {!Array.isArray(alerts) || alerts.length === 0 ? (
+            <p className="text-center text-gray-500 py-4">No alerts at this time</p>
+          ) : (
+            <div className="space-y-4">
+              {alerts.map((alert) => (
               <div key={alert.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -329,8 +337,9 @@ const SystemHealth = () => {
                   </Button>
                 </div>
               </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

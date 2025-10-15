@@ -7,8 +7,10 @@ import useOptions from "../../hooks/useOptions"
 import { Textarea } from "../ui/textarea"
 import { XMarkIcon } from "@heroicons/react/24/outline"
 import { apiService } from "../../services/api"
+import { useAuth } from "../../contexts/AuthContext"
 
 const RequestForm = ({ request, onClose, onSuccess }) => {
+  const { user } = useAuth()
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -59,16 +61,28 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
       }
     }
 
+    // Prepare payload to match backend expectations
+    const payload = { ...formData }
+    payload.category = payload.category ? Number(payload.category) : null
+    payload.related_equipment = payload.related_equipment ? Number(payload.related_equipment) : null
+    
+    // Backend requires these fields
+    if (!payload.ticket_number) {
+      payload.ticket_number = `TMP-${Date.now()}`
+    }
+    if (!payload.requester && user) {
+      payload.requester = user.id  // Use authenticated user's ID
+    }
+    
+    // Remove read-only fields
+    delete payload.id
+    delete payload.status
+    delete payload.created_at
+    delete payload.updated_at
+
     try {
-      // Prepare payload to match backend expectations:
-      // - category and related_equipment: send as integer or null
-      const payload = { ...formData }
-
-      // Ensure category is integer (frontend sends id from select) or null
-      payload.category = payload.category ? Number(payload.category) : null
-
-      // Ensure related_equipment is integer or null
-      payload.related_equipment = payload.related_equipment ? Number(payload.related_equipment) : null
+      console.log('=== SUBMITTING SUPPORT REQUEST ===')
+      console.log('Payload:', JSON.stringify(payload, null, 2))
 
       if (request) {
         await apiService.updateSupportRequest(request.id, payload)
@@ -77,8 +91,10 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
       }
       onSuccess()
     } catch (error) {
-      // Log full response for debugging and show friendly message
-      console.error('Create/Update support request error:', error.response || error)
+      console.error('=== SUPPORT REQUEST ERROR ===')
+      console.error('Status:', error.response?.status)
+      console.error('Error Data:', JSON.stringify(error.response?.data, null, 2))
+      console.error('Payload Sent:', JSON.stringify(payload, null, 2))
       const serverData = error.response?.data || null
 
       // Helper: convert server error payload to user-friendly string
