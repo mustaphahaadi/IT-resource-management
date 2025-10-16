@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 import { Button } from "../ui/button"
-import { NativeSelect } from "../ui/native-select"
 import AsyncSelect from "../ui/AsyncSelect"
 import useOptions from "../../hooks/useOptions"
 import { Textarea } from "../ui/textarea"
@@ -21,10 +20,12 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
     requester_department: "",
     requester_location: "",
     related_equipment: "",
+    assigned_to: "",
   })
-  // categories and equipment options fetched from backend
+  // categories, equipment, and assignable users options fetched from backend
   const { options: categories, loading: loadingCategories, error: categoriesError } = useOptions('/requests/categories/', (c) => ({ value: c.id, label: c.name }))
   const { options: equipment, loading: loadingEquipment, error: equipmentError } = useOptions('/inventory/equipment/', (e) => ({ value: e.id, label: `${e.name} (${e.asset_tag || ''})` }))
+  const { options: assignableUsers, loading: loadingUsers, error: usersError } = useOptions('/auth/users/assignable/', (u) => ({ value: u.id, label: `${u.first_name} ${u.last_name} - ${u.role}` }))
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -34,6 +35,7 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
         ...request,
         category: request.category || "",
         related_equipment: request.related_equipment || "",
+        assigned_to: request.assigned_to || "",
       })
     }
   }, [request])
@@ -65,6 +67,7 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
     const payload = { ...formData }
     payload.category = payload.category ? Number(payload.category) : null
     payload.related_equipment = payload.related_equipment ? Number(payload.related_equipment) : null
+    payload.assigned_to = payload.assigned_to ? Number(payload.assigned_to) : null
     
     // Backend requires these fields
     if (!payload.ticket_number) {
@@ -81,9 +84,6 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
     delete payload.updated_at
 
     try {
-      console.log('=== SUBMITTING SUPPORT REQUEST ===')
-      console.log('Payload:', JSON.stringify(payload, null, 2))
-
       if (request) {
         await apiService.updateSupportRequest(request.id, payload)
       } else {
@@ -243,6 +243,20 @@ const RequestForm = ({ request, onClose, onSuccess }) => {
                   loading={loadingEquipment}
                   error={equipmentError}
                   placeholder="Select Equipment (Optional)"
+                  className="w-full"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Assign To (Optional)</label>
+                <AsyncSelect
+                  name="assigned_to"
+                  value={formData.assigned_to}
+                  onChange={handleChange}
+                  options={assignableUsers}
+                  loading={loadingUsers}
+                  error={usersError}
+                  placeholder="Select Technician (Optional)"
                   className="w-full"
                 />
               </div>

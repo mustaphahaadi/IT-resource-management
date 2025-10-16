@@ -43,6 +43,7 @@ class SupportRequest(models.Model):
     ]
 
     STATUS_CHOICES = [
+        ('pending', 'Pending Assignment'),
         ('open', 'Open'),
         ('assigned', 'Assigned'),
         ('in_progress', 'In Progress'),
@@ -69,7 +70,7 @@ class SupportRequest(models.Model):
     description = models.TextField()
     category = models.ForeignKey(RequestCategory, on_delete=models.CASCADE)
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='medium')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     channel = models.CharField(max_length=20, choices=CHANNEL_CHOICES, default='web_portal')
     
     # Requester information

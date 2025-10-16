@@ -2,13 +2,12 @@ import { useState, useEffect } from 'react';
 import { apiService } from '../../services/api';
 import { usePermissions } from '../../contexts/PermissionsContext';
 import { Button } from '../ui/button';
-import { NativeSelect } from '../ui/native-select';
 import AsyncSelect from '../ui/AsyncSelect';
 import UserSelect from '../ui/user-select';
 import StatusBadge from '../ui/status-badge';
-import { XMarkIcon, PencilIcon, ArrowUpOnSquareIcon, TicketIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, PencilIcon, ArrowUpOnSquareIcon, TicketIcon, CheckCircleIcon, XCircleIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline';
 
-const RequestDetailsSidebar = ({ request, onClose, onUpdate, onAssign }) => {
+const RequestDetailsSidebar = ({ request, onClose, onUpdate, onAssign, onEdit }) => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const { hasPermission } = usePermissions();
@@ -50,6 +49,33 @@ const RequestDetailsSidebar = ({ request, onClose, onUpdate, onAssign }) => {
     }
   };
 
+  const handleResolve = async () => {
+    if (window.confirm('Mark this request as resolved?')) {
+      try {
+        await apiService.updateSupportRequest(request.id, { status: 'resolved' });
+        onUpdate();
+      } catch (error) {
+        console.error('Error resolving request:', error);
+      }
+    }
+  };
+
+  const handleCancel = async () => {
+    if (window.confirm('Cancel this request?')) {
+      try {
+        await apiService.updateSupportRequest(request.id, { status: 'cancelled' });
+        onUpdate();
+      } catch (error) {
+        console.error('Error cancelling request:', error);
+      }
+    }
+  };
+
+  const handleViewTasks = () => {
+    // Navigate to tasks filtered by this request
+    window.location.href = `/tasks?request=${request.id}`;
+  };
+
   return (
     <>
       <div
@@ -70,20 +96,43 @@ const RequestDetailsSidebar = ({ request, onClose, onUpdate, onAssign }) => {
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-2xl font-bold mb-2">{request.title}</h3>
-                  <div className="flex items-center gap-2">
-                    <StatusBadge status={request.priority} type="priority" />
-                    <StatusBadge status={request.status} type="request" />
+              <div>
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-2xl font-bold mb-2">{request.title}</h3>
+                    <div className="flex items-center gap-2">
+                      <StatusBadge status={request.priority} type="priority" />
+                      <StatusBadge status={request.status} type="request" />
+                    </div>
                   </div>
                 </div>
-                {hasPermission('requests.update') && (
-                  <Button variant="outline" onClick={() => { /* Implement edit functionality */ }}>
-                    <PencilIcon className="w-4 h-4 mr-2" />
-                    Edit
-                  </Button>
-                )}
+                
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {hasPermission('requests.update') && request.status !== 'resolved' && request.status !== 'closed' && (
+                    <Button variant="default" size="sm" onClick={handleResolve}>
+                      <CheckCircleIcon className="w-4 h-4 mr-2" />
+                      Resolve
+                    </Button>
+                  )}
+                  {hasPermission('requests.update') && (
+                    <Button variant="outline" size="sm" onClick={onEdit}>
+                      <PencilIcon className="w-4 h-4 mr-2" />
+                      Edit
+                    </Button>
+                  )}
+                  {request.has_tasks && (
+                    <Button variant="outline" size="sm" onClick={handleViewTasks}>
+                      <ClipboardDocumentListIcon className="w-4 h-4 mr-2" />
+                      View Tasks
+                    </Button>
+                  )}
+                  {hasPermission('requests.update') && request.status !== 'cancelled' && request.status !== 'closed' && (
+                    <Button variant="outline" size="sm" onClick={handleCancel}>
+                      <XCircleIcon className="w-4 h-4 mr-2" />
+                      Cancel
+                    </Button>
+                  )}
+                </div>
               </div>
 
               <div>

@@ -26,11 +26,11 @@ class WorkflowEngine:
             # 2. Set SLA deadlines
             WorkflowEngine._set_sla_deadlines(request)
             
-            # 3. Auto-assign if possible
-            WorkflowEngine._auto_assign_request(request)
+            # 3. Auto-assign disabled - manual assignment required
+            # WorkflowEngine._auto_assign_request(request)
             
-            # 4. Create task if needed
-            if WorkflowEngine._should_create_task(request):
+            # 4. Create task if needed (only if request is already assigned)
+            if request.assigned_to and WorkflowEngine._should_create_task(request):
                 WorkflowEngine._create_task_from_request(request)
             
             # 5. Send notifications

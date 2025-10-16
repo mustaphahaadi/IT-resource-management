@@ -2,13 +2,12 @@ import { useState, useEffect } from "react";
 import { apiService } from "../../services/api";
 import { usePermissions } from "../../contexts/PermissionsContext";
 import { Button } from "../ui/button";
-import { NativeSelect } from "../ui/native-select";
 import AsyncSelect from "../ui/AsyncSelect";
 import UserSelect from "../ui/user-select";
 import StatusBadge from "../ui/status-badge";
-import { XMarkIcon, PencilIcon, ArrowUpOnSquareIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon, PencilIcon, ArrowUpOnSquareIcon, TicketIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 
-const TaskDetailsSidebar = ({ task, onClose, onEdit, onAssign, onStatusUpdate }) => {
+const TaskDetailsSidebar = ({ task, onClose, onEdit, onAssign, onStatusUpdate, onViewRequest }) => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const { hasPermission } = usePermissions();
@@ -57,17 +56,32 @@ const TaskDetailsSidebar = ({ task, onClose, onEdit, onAssign, onStatusUpdate })
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="text-2xl font-bold mb-2">{task.title}</h3>
-              <div className="flex items-center gap-2">
-                <StatusBadge status={task.priority} type="priority" />
-                <StatusBadge status={task.status} type="task" />
+          <div>
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h3 className="text-2xl font-bold mb-2">{task.title}</h3>
+                <div className="flex items-center gap-2">
+                  <StatusBadge status={task.priority} type="priority" />
+                  <StatusBadge status={task.status} type="task" />
+                </div>
               </div>
             </div>
-            <div className="flex gap-2">
+            
+            <div className="flex flex-wrap gap-2 mb-4">
+              {task.request && (
+                <Button variant="outline" size="sm" onClick={() => onViewRequest && onViewRequest(task.request)}>
+                  <TicketIcon className="w-4 h-4 mr-2" />
+                  View Ticket
+                </Button>
+              )}
+              {hasPermission("tasks.update") && task.status !== 'completed' && (
+                <Button variant="default" size="sm" onClick={() => onStatusUpdate(task.id, 'completed')}>
+                  <CheckCircleIcon className="w-4 h-4 mr-2" />
+                  Complete
+                </Button>
+              )}
               {hasPermission("tasks.update") && (
-                <Button variant="outline" onClick={onEdit}>
+                <Button variant="outline" size="sm" onClick={onEdit}>
                   <PencilIcon className="w-4 h-4 mr-2" />
                   Edit
                 </Button>

@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { usePermissions } from "../contexts/PermissionsContext";
-import { PlusIcon, UserGroupIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, UserGroupIcon, EyeIcon, PencilIcon, CheckCircleIcon, TicketIcon } from "@heroicons/react/24/outline";
 import { apiService } from "../services/api";
 import TaskForm from "../components/Tasks/TaskForm";
 import PersonnelPanel from "../components/Tasks/PersonnelPanel";
@@ -102,6 +101,30 @@ const Tasks = () => {
   const handleManagePersonnel = () => setShowPersonnelPanel(true);
   const handleCreateTask = () => navigate(`${getBasePath()}/new`);
 
+  const handleViewTask = (task) => {
+    navigate(`${getBasePath()}/${task.id}`);
+  };
+
+  const handleEditTask = (task) => {
+    navigate(`${getBasePath()}/${task.id}/edit`);
+  };
+
+  const handleCompleteTask = async (taskId) => {
+    if (window.confirm('Mark this task as completed?')) {
+      try {
+        await apiService.updateTask(taskId, { status: 'completed' });
+        fetchTasks();
+      } catch (error) {
+        console.error('Error completing task:', error);
+      }
+    }
+  };
+
+  const handleViewRequest = (requestId) => {
+    const requestsPath = location.pathname.startsWith("/app/") ? "/app/requests" : "/requests";
+    navigate(`${requestsPath}/${requestId}`);
+  };
+
   const handleTaskSubmit = async (taskData) => {
     try {
       if (selectedTask) {
@@ -124,6 +147,49 @@ const Tasks = () => {
     { key: "status", title: "Status", sortable: true, type: "status", statusType: "task" },
     { key: "assigned_to_name", title: "Assignee", sortable: true },
     { key: "due_date", title: "Due Date", sortable: true, type: "date" },
+    {
+      key: "actions",
+      title: "Actions",
+      sortable: false,
+      render: (value, task) => (
+        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => handleViewTask(task)}
+            className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+            title="View Details"
+          >
+            <EyeIcon className="w-4 h-4" />
+          </button>
+          {hasPermission('tasks.update') && (
+            <button
+              onClick={() => handleEditTask(task)}
+              className="p-1.5 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
+              title="Edit"
+            >
+              <PencilIcon className="w-4 h-4" />
+            </button>
+          )}
+          {hasPermission('tasks.update') && task.status !== 'completed' && task.status !== 'cancelled' && (
+            <button
+              onClick={() => handleCompleteTask(task.id)}
+              className="p-1.5 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
+              title="Mark Complete"
+            >
+              <CheckCircleIcon className="w-4 h-4" />
+            </button>
+          )}
+          {task.request && (
+            <button
+              onClick={() => handleViewRequest(task.request)}
+              className="p-1.5 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors"
+              title="View Related Ticket"
+            >
+              <TicketIcon className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      )
+    },
   ];
 
   return (
@@ -187,6 +253,11 @@ const Tasks = () => {
           onStatusUpdate={async (taskId, status) => {
             await apiService.updateTask(taskId, { status });
             fetchTasks();
+          }}
+          onViewRequest={(requestId) => {
+            // Navigate to requests page with the request ID
+            const requestsPath = location.pathname.startsWith("/app/") ? "/app/requests" : "/requests";
+            navigate(`${requestsPath}/${requestId}`);
           }}
         />
       )}

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
-import { usePermissions, PermissionGate } from "../contexts/PermissionsContext"
+import { PermissionGate } from "../contexts/PermissionsContext"
 import {
   ComputerDesktopIcon,
   PlusIcon,
@@ -16,6 +16,7 @@ import {
   ClockIcon,
   ArrowRightIcon,
   ArrowLeftIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline"
 import { apiService } from "../services/api"
 import EquipmentFilters from "../components/Inventory/EquipmentFilters"
@@ -34,6 +35,7 @@ const Inventory = () => {
   const [showScanner, setShowScanner] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
   const [showCheckout, setShowCheckout] = useState(false)
+  const [showMaintenance, setShowMaintenance] = useState(false)
   const [selectedEquipment, setSelectedEquipment] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [filters, setFilters] = useState({
@@ -45,7 +47,6 @@ const Inventory = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { equipmentId } = useParams()
-  const { hasPermission, canViewScope, canEditScope, userRole } = usePermissions()
 
   const getBasePath = () => (location.pathname.startsWith("/app/") ? "/app/inventory" : "/inventory")
 
@@ -54,7 +55,6 @@ const Inventory = () => {
   }, [filters, searchTerm])
 
   useEffect(() => {
-    const base = getBasePath()
     const openNew = location.pathname.endsWith("/new")
     const openEdit = location.pathname.endsWith("/edit")
 
@@ -167,6 +167,16 @@ const Inventory = () => {
   const handleCheckoutSuccess = () => {
     setShowCheckout(false)
     fetchEquipment()
+  }
+
+  const handleShowMaintenance = (item) => {
+    setSelectedEquipment(item)
+    setShowMaintenance(true)
+  }
+
+  const handleMaintenanceSuccess = async () => {
+    setShowMaintenance(false)
+    await fetchEquipment()
   }
 
   const getStatusColor = (status) => {
@@ -330,6 +340,15 @@ const Inventory = () => {
                               <ClockIcon className="w-4 h-4" />
                             </button>
                           </PermissionGate>
+                          <PermissionGate permissions="equipment.edit">
+                            <button
+                              onClick={() => handleShowMaintenance(item)}
+                              className="p-1 text-gray-400 hover:text-yellow-600 transition-colors"
+                              title="Schedule Maintenance"
+                            >
+                              <WrenchScrewdriverIcon className="w-4 h-4" />
+                            </button>
+                          </PermissionGate>
                           <PermissionGate permissions="equipment.checkout">
                             <button
                               onClick={() => handleShowCheckout(item)}
@@ -402,6 +421,47 @@ const Inventory = () => {
           onClose={() => setShowCheckout(false)} 
           onSuccess={handleCheckoutSuccess}
         />
+      )}
+
+      {/* Maintenance Modal */}
+      {showMaintenance && selectedEquipment && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <WrenchScrewdriverIcon className="w-5 h-5 text-yellow-600" />
+                Schedule Maintenance
+              </h3>
+              <button onClick={() => setShowMaintenance(false)} className="text-gray-400 hover:text-gray-600">
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-600 mb-2">Equipment: <span className="font-medium text-gray-900">{selectedEquipment.name}</span></p>
+                <p className="text-sm text-gray-600">Current Status: <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(selectedEquipment.status)}`}>{selectedEquipment.status}</span></p>
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={async () => {
+                    try {
+                      await apiService.updateEquipment(selectedEquipment.id, { status: 'maintenance' });
+                      handleMaintenanceSuccess();
+                    } catch (error) {
+                      console.error('Error updating equipment status:', error);
+                    }
+                  }}
+                  className="flex-1"
+                >
+                  Mark as Maintenance
+                </Button>
+                <Button variant="outline" onClick={() => setShowMaintenance(false)} className="flex-1">
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

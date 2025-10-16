@@ -164,6 +164,11 @@ class ApiService {
     }
   }
 
+  // Get assignable users (technicians, staff, managers, admins)
+  async getAssignableUsers() {
+    return this.get("/auth/users/assignable/")
+  }
+
   // Equipment API methods
   async getEquipment(params = {}) {
     return this.get("/inventory/equipment/", { params })
@@ -291,6 +296,10 @@ class ApiService {
   }
 
   async assignRequest(id, assignedTo) {
+    return this.post(`/requests/support-requests/${id}/assign/`, { assigned_to: assignedTo })
+  }
+
+  async assignSupportRequest(id, assignedTo) {
     return this.post(`/requests/support-requests/${id}/assign/`, { assigned_to: assignedTo })
   }
 

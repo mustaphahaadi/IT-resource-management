@@ -1,22 +1,20 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate, useLocation } from "react-router-dom"
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
+import { Card, CardContent } from "../components/ui/card"
 import { Button } from "../components/ui/button"
-import StatusBadge from "../components/ui/status-badge"
-import { usePermissions, PermissionGate } from "../contexts/PermissionsContext"
+import { usePermissions } from "../contexts/PermissionsContext"
 import {
-  ExclamationTriangleIcon,
   PlusIcon,
   MagnifyingGlassIcon,
   FunnelIcon,
   EyeIcon,
   UserIcon,
-  ClockIcon,
-  ChatBubbleLeftIcon,
   BellIcon,
   CheckCircleIcon,
-  XCircleIcon,
-  CalendarIcon
+  PencilIcon,
+  ChatBubbleLeftIcon,
+  ClipboardDocumentListIcon,
+  XCircleIcon
 } from "@heroicons/react/24/outline"
 import { apiService } from "../services/api";
 import DataTable from "../components/ui/data-table";
@@ -26,7 +24,7 @@ import RequestForm from "../components/Requests/RequestForm"
 import RequestFilters from "../components/Requests/RequestFilters"
 
 const Requests = () => {
-  const { hasPermission, userRole, user } = usePermissions()
+  const { hasPermission } = usePermissions()
   const [requests, setRequests] = useState([])
   const [alerts, setAlerts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -155,6 +153,42 @@ const Requests = () => {
     }
   }
 
+  const handleResolveRequest = async (requestId) => {
+    if (window.confirm('Mark this request as resolved?')) {
+      try {
+        await apiService.updateSupportRequest(requestId, { status: 'resolved' })
+        fetchRequests()
+      } catch (error) {
+        console.error("Error resolving request:", error)
+      }
+    }
+  }
+
+  const handleEditRequest = (request) => {
+    navigate(`${getBasePath()}/${request.id}/edit`)
+  }
+
+  const handleViewTasks = (request) => {
+    const tasksPath = location.pathname.startsWith("/app/") ? "/app/tasks" : "/tasks";
+    navigate(`${tasksPath}?request=${request.id}`);
+  }
+
+  const handleAddComment = (request) => {
+    // Open the request details sidebar which has comment functionality
+    navigate(`${getBasePath()}/${request.id}`);
+  }
+
+  const handleCancelRequest = async (requestId) => {
+    if (window.confirm('Cancel this request?')) {
+      try {
+        await apiService.updateSupportRequest(requestId, { status: 'cancelled' });
+        fetchRequests();
+      } catch (error) {
+        console.error("Error cancelling request:", error);
+      }
+    }
+  }
+
   const columns = [
     { 
       key: "ticket_number", 
@@ -183,6 +217,74 @@ const Requests = () => {
     { key: "requester_name", title: "Requester", sortable: true },
     { key: "assigned_to_name", title: "Assignee", sortable: true },
     { key: "created_at", title: "Created", sortable: true, type: "datetime" },
+    {
+      key: "actions",
+      title: "Actions",
+      sortable: false,
+      render: (value, request) => (
+        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => handleViewRequest(request)}
+            className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+            title="View Details"
+          >
+            <EyeIcon className="w-4 h-4" />
+          </button>
+          {hasPermission('requests.update') && (
+            <button
+              onClick={() => handleEditRequest(request)}
+              className="p-1.5 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
+              title="Edit"
+            >
+              <PencilIcon className="w-4 h-4" />
+            </button>
+          )}
+          {hasPermission('requests.assign') && !request.assigned_to && (
+            <button
+              onClick={() => navigate('/assignment')}
+              className="p-1.5 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors"
+              title="Assign"
+            >
+              <UserIcon className="w-4 h-4" />
+            </button>
+          )}
+          {hasPermission('requests.update') && request.status !== 'resolved' && request.status !== 'closed' && (
+            <button
+              onClick={() => handleResolveRequest(request.id)}
+              className="p-1.5 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
+              title="Mark Resolved"
+            >
+              <CheckCircleIcon className="w-4 h-4" />
+            </button>
+          )}
+          <button
+            onClick={() => handleAddComment(request)}
+            className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+            title="Add Comment"
+          >
+            <ChatBubbleLeftIcon className="w-4 h-4" />
+          </button>
+          {request.has_tasks && (
+            <button
+              onClick={() => handleViewTasks(request)}
+              className="p-1.5 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
+              title="View Related Tasks"
+            >
+              <ClipboardDocumentListIcon className="w-4 h-4" />
+            </button>
+          )}
+          {hasPermission('requests.update') && request.status !== 'cancelled' && request.status !== 'closed' && request.status !== 'resolved' && (
+            <button
+              onClick={() => handleCancelRequest(request.id)}
+              className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+              title="Cancel Request"
+            >
+              <XCircleIcon className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      )
+    },
   ];
 
   return (
@@ -264,6 +366,7 @@ const Requests = () => {
           onClose={() => navigate(getBasePath())}
           onUpdate={fetchRequests}
           onAssign={handleAssignRequest}
+          onEdit={() => handleEditRequest(selectedRequest)}
         />
       )}
 
